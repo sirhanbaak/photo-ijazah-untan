@@ -125,6 +125,12 @@ class PhotoCropApp {
     this.actualSizeBtn = document.getElementById('actual-size-btn');
     this.btnCenterTop = document.getElementById('btn-center-top');
 
+    // Mobile & Tablet Drawer
+    this.mobileToggleInspector = document.getElementById('mobile-toggle-inspector');
+    this.closeInspectorBtn = document.getElementById('close-inspector-btn');
+    this.rightInspectorPanel = document.getElementById('right-inspector-panel');
+    this.inspectorBackdrop = document.getElementById('inspector-backdrop');
+
     // Kanvas
     this.canvasArena = document.getElementById('canvas-arena');
     this.compWrapper = document.getElementById('composition-wrapper');
@@ -216,7 +222,7 @@ class PhotoCropApp {
 
   async loadInitialImage(srcUrl, fileName = 'sample_pas_foto.jpg') {
     this.sourceFileName = fileName;
-    this.headerFilename.textContent = fileName;
+    if (this.headerFilename) this.headerFilename.textContent = fileName;
 
     const response = await fetch(srcUrl);
     const blob = await response.blob();
@@ -228,7 +234,7 @@ class PhotoCropApp {
       this.naturalH = this.sourceImage.naturalHeight || 1600;
 
       const resText = `${this.naturalW} × ${this.naturalH} px`;
-      this.headerResolution.textContent = `(${resText})`;
+      if (this.headerResolution) this.headerResolution.textContent = `(${resText})`;
 
       requestAnimationFrame(() => {
         this.setupDefaultCropBox();
@@ -247,8 +253,8 @@ class PhotoCropApp {
 
   setupDefaultCropBox() {
     const ratio = this.currentPreset.targetW / this.currentPreset.targetH; // 450 / 660 ~ 0.6818
-    const imgW = this.sourceImage.offsetWidth || 400;
-    const imgH = this.sourceImage.offsetHeight || 580;
+    const imgW = this.sourceImage.offsetWidth || 340;
+    const imgH = this.sourceImage.offsetHeight || 500;
 
     // Ambil ~75% tinggi gambar untuk proporsi pas foto standar
     let boxH = Math.round(imgH * 0.75);
@@ -310,15 +316,48 @@ class PhotoCropApp {
     this.dimensionChipText.textContent = `Pas Foto 4×6 — ${this.currentPreset.targetW} × ${this.currentPreset.targetH} px (${this.currentPreset.label})`;
   }
 
+  openMobileInspector() {
+    if (this.rightInspectorPanel) {
+      this.rightInspectorPanel.classList.remove('translate-x-full');
+      this.rightInspectorPanel.classList.add('translate-x-0');
+    }
+    if (this.inspectorBackdrop) {
+      this.inspectorBackdrop.classList.remove('hidden');
+    }
+  }
+
+  closeMobileInspector() {
+    if (this.rightInspectorPanel) {
+      this.rightInspectorPanel.classList.add('translate-x-full');
+      this.rightInspectorPanel.classList.remove('translate-x-0');
+    }
+    if (this.inspectorBackdrop) {
+      this.inspectorBackdrop.classList.add('hidden');
+    }
+  }
+
   initEvents() {
+    // Mobile Drawer Toggle
+    if (this.mobileToggleInspector) {
+      this.mobileToggleInspector.addEventListener('click', () => this.openMobileInspector());
+    }
+    if (this.closeInspectorBtn) {
+      this.closeInspectorBtn.addEventListener('click', () => this.closeMobileInspector());
+    }
+    if (this.inspectorBackdrop) {
+      this.inspectorBackdrop.addEventListener('click', () => this.closeMobileInspector());
+    }
+
     // Zoom Buttons & Slider
     this.zoomInBtn.addEventListener('click', () => this.setZoom(this.zoom + 0.15));
     this.zoomOutBtn.addEventListener('click', () => this.setZoom(this.zoom - 0.15));
-    this.actualSizeBtn.addEventListener('click', () => {
-      this.panX = 0;
-      this.panY = 0;
-      this.setZoom(1.0);
-    });
+    if (this.actualSizeBtn) {
+      this.actualSizeBtn.addEventListener('click', () => {
+        this.panX = 0;
+        this.panY = 0;
+        this.setZoom(1.0);
+      });
+    }
     this.fitWinBtn.addEventListener('click', () => this.fitToWindow());
 
     this.zoomSlider.addEventListener('input', (e) => {
@@ -331,6 +370,35 @@ class PhotoCropApp {
       const delta = e.deltaY < 0 ? 0.1 : -0.1;
       this.setZoom(this.zoom + delta);
     }, { passive: false });
+
+    // Touch Pinch to Zoom Support for Mobile & Tablet
+    let initialTouchDistance = null;
+    let initialTouchZoom = 1.0;
+
+    this.canvasArena.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        initialTouchDistance = Math.hypot(dx, dy);
+        initialTouchZoom = this.zoom;
+      }
+    }, { passive: true });
+
+    this.canvasArena.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2 && initialTouchDistance) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const currentDistance = Math.hypot(dx, dy);
+        const scale = currentDistance / initialTouchDistance;
+        this.setZoom(initialTouchZoom * scale);
+      }
+    }, { passive: true });
+
+    this.canvasArena.addEventListener('touchend', (e) => {
+      if (e.touches.length < 2) {
+        initialTouchDistance = null;
+      }
+    }, { passive: true });
 
     // Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
@@ -359,7 +427,9 @@ class PhotoCropApp {
 
     // Pan Toggle
     this.dockBtnPan.addEventListener('click', () => this.togglePanMode());
-    this.toolPanLeft.addEventListener('click', () => this.togglePanMode());
+    if (this.toolPanLeft) {
+      this.toolPanLeft.addEventListener('click', () => this.togglePanMode());
+    }
 
     this.dockBtnCrop.addEventListener('click', () => {
       this.isPanMode = false;
@@ -373,8 +443,8 @@ class PhotoCropApp {
       this.btnCenterTop.addEventListener('click', () => this.recenterCropBox());
     }
 
-    // Panning Mouse Drag
-    this.canvasArena.addEventListener('mousedown', (e) => {
+    // Panning Drag (Pointer Events for unified Mouse & Touch)
+    this.canvasArena.addEventListener('pointerdown', (e) => {
       if (this.isPanMode || this.isSpacePressed || e.button === 1) {
         this.isDraggingPan = true;
         this.panStartX = e.clientX - this.panX;
@@ -383,28 +453,8 @@ class PhotoCropApp {
       }
     });
 
-    window.addEventListener('mousemove', (e) => {
-      if (this.isDraggingPan) {
-        this.panX = e.clientX - this.panStartX;
-        this.panY = e.clientY - this.panStartY;
-        this.updateTransform();
-      } else if (this.isMovingCrop) {
-        this.handleMoveCrop(e);
-      } else if (this.isResizingCrop) {
-        this.handleResizeCrop(e);
-      }
-    });
-
-    window.addEventListener('mouseup', () => {
-      this.isDraggingPan = false;
-      this.isMovingCrop = false;
-      this.isResizingCrop = false;
-      this.activeHandle = null;
-      this.updateCanvasCursor();
-    });
-
-    // Crop Marquee Drag
-    this.cropMarquee.addEventListener('mousedown', (e) => {
+    // Crop Marquee Drag (Pointer Events for Touch & Mouse)
+    this.cropMarquee.addEventListener('pointerdown', (e) => {
       if (this.isPanMode || this.isSpacePressed) return;
       if (e.target.classList.contains('crop-handle')) return;
 
@@ -420,10 +470,10 @@ class PhotoCropApp {
       };
     });
 
-    // 8 Grab Handles Resizing
+    // 8 Grab Handles Resizing with Pointer Events
     const handles = this.cropMarquee.querySelectorAll('.crop-handle');
     handles.forEach((handle) => {
-      handle.addEventListener('mousedown', (e) => {
+      handle.addEventListener('pointerdown', (e) => {
         if (this.isPanMode || this.isSpacePressed) return;
         e.stopPropagation();
         this.isResizingCrop = true;
@@ -436,8 +486,35 @@ class PhotoCropApp {
           w: this.cropW,
           h: this.cropH
         };
+        try {
+          handle.setPointerCapture(e.pointerId);
+        } catch (err) {}
       });
     });
+
+    // Global Pointer Move & Up
+    window.addEventListener('pointermove', (e) => {
+      if (this.isDraggingPan) {
+        this.panX = e.clientX - this.panStartX;
+        this.panY = e.clientY - this.panStartY;
+        this.updateTransform();
+      } else if (this.isMovingCrop) {
+        this.handleMoveCrop(e);
+      } else if (this.isResizingCrop) {
+        this.handleResizeCrop(e);
+      }
+    });
+
+    const handlePointerEnd = () => {
+      this.isDraggingPan = false;
+      this.isMovingCrop = false;
+      this.isResizingCrop = false;
+      this.activeHandle = null;
+      this.updateCanvasCursor();
+    };
+
+    window.addEventListener('pointerup', handlePointerEnd);
+    window.addEventListener('pointercancel', handlePointerEnd);
 
     // DPI Presets Click
     this.presetButtons.forEach((btn) => {
@@ -445,6 +522,10 @@ class PhotoCropApp {
         const dpiKey = btn.dataset.dpi;
         if (DPI_PRESETS[dpiKey]) {
           this.selectPreset(dpiKey);
+          // Auto-close drawer on small mobile if selected
+          if (window.innerWidth < 640) {
+            setTimeout(() => this.closeMobileInspector(), 200);
+          }
         }
       });
     });
@@ -511,8 +592,8 @@ class PhotoCropApp {
 
     const showHotkeysAlert = () => {
       alert(`Pintasan Keyboard Photo Ijazah Untan (Part of SimalumApps):
-• Spasi + Geser Mouse: Geser (Pan) kanvas
-• Scroll Mouse: Zoom In / Zoom Out
+• Spasi + Geser Mouse / Sentuh: Geser (Pan) kanvas
+• Scroll Mouse / Cubit Layar: Zoom In / Zoom Out
 • Tombol H: Beralih ke alat Hand (Pan)
 • Tombol C: Beralih ke alat Crop Presisi
 • Tombol Enter: Terapkan Pemotongan Foto`);
@@ -576,6 +657,19 @@ class PhotoCropApp {
 
     this.formatJpgBtn.addEventListener('click', () => this.selectOutputFormat('jpeg'));
     this.formatPngBtn.addEventListener('click', () => this.selectOutputFormat('png'));
+
+    // Window Resize Clamping
+    window.addEventListener('resize', () => {
+      const imgW = this.sourceImage.offsetWidth;
+      const imgH = this.sourceImage.offsetHeight;
+      if (imgW && imgH) {
+        this.cropW = Math.max(40, Math.min(this.cropW, imgW));
+        this.cropH = Math.max(60, Math.min(this.cropH, imgH));
+        this.cropX = Math.max(0, Math.min(this.cropX, imgW - this.cropW));
+        this.cropY = Math.max(0, Math.min(this.cropY, imgH - this.cropH));
+        this.renderCropMarquee();
+      }
+    });
   }
 
   togglePanMode() {
@@ -586,8 +680,10 @@ class PhotoCropApp {
   updatePanButtonsUI() {
     this.dockBtnPan.classList.toggle('bg-primary-container', this.isPanMode);
     this.dockBtnPan.classList.toggle('text-on-primary-container', this.isPanMode);
-    this.toolPanLeft.classList.toggle('bg-primary-container', this.isPanMode);
-    this.toolPanLeft.classList.toggle('text-on-primary-container', this.isPanMode);
+    if (this.toolPanLeft) {
+      this.toolPanLeft.classList.toggle('bg-primary-container', this.isPanMode);
+      this.toolPanLeft.classList.toggle('text-on-primary-container', this.isPanMode);
+    }
     this.dockBtnCrop.classList.toggle('bg-primary-container', !this.isPanMode);
     this.dockBtnCrop.classList.toggle('text-on-primary-container', !this.isPanMode);
     this.updateCanvasCursor();
@@ -615,7 +711,7 @@ class PhotoCropApp {
     const handle = this.activeHandle;
 
     if (handle === 'br') {
-      w = Math.max(50, this.initialCrop.w + dx);
+      w = Math.max(40, this.initialCrop.w + dx);
       h = Math.round(w / ratio);
       if (x + w > imgW) {
         w = imgW - x;
@@ -626,7 +722,7 @@ class PhotoCropApp {
         w = Math.round(h * ratio);
       }
     } else if (handle === 'bl') {
-      w = Math.max(50, this.initialCrop.w - dx);
+      w = Math.max(40, this.initialCrop.w - dx);
       h = Math.round(w / ratio);
       let proposedX = this.initialCrop.x + (this.initialCrop.w - w);
       if (proposedX < 0) {
@@ -641,7 +737,7 @@ class PhotoCropApp {
       }
       x = proposedX;
     } else if (handle === 'tr') {
-      w = Math.max(50, this.initialCrop.w + dx);
+      w = Math.max(40, this.initialCrop.w + dx);
       h = Math.round(w / ratio);
       let proposedY = this.initialCrop.y + (this.initialCrop.h - h);
       if (x + w > imgW) {
@@ -656,7 +752,7 @@ class PhotoCropApp {
       }
       y = proposedY;
     } else if (handle === 'tl') {
-      w = Math.max(50, this.initialCrop.w - dx);
+      w = Math.max(40, this.initialCrop.w - dx);
       h = Math.round(w / ratio);
       let proposedX = this.initialCrop.x + (this.initialCrop.w - w);
       let proposedY = this.initialCrop.y + (this.initialCrop.h - h);
@@ -675,7 +771,7 @@ class PhotoCropApp {
       x = proposedX;
       y = proposedY;
     } else if (handle === 'b') {
-      h = Math.max(70, this.initialCrop.h + dy);
+      h = Math.max(60, this.initialCrop.h + dy);
       w = Math.round(h * ratio);
       let proposedX = this.initialCrop.x + (this.initialCrop.w - w) / 2;
       if (y + h > imgH) {
@@ -687,7 +783,7 @@ class PhotoCropApp {
       if (proposedX + w > imgW) proposedX = imgW - w;
       x = proposedX;
     } else if (handle === 't') {
-      h = Math.max(70, this.initialCrop.h - dy);
+      h = Math.max(60, this.initialCrop.h - dy);
       w = Math.round(h * ratio);
       let proposedY = this.initialCrop.y + (this.initialCrop.h - h);
       let proposedX = this.initialCrop.x + (this.initialCrop.w - w) / 2;
@@ -702,7 +798,7 @@ class PhotoCropApp {
       x = proposedX;
       y = proposedY;
     } else if (handle === 'r') {
-      w = Math.max(50, this.initialCrop.w + dx);
+      w = Math.max(40, this.initialCrop.w + dx);
       h = Math.round(w / ratio);
       let proposedY = this.initialCrop.y + (this.initialCrop.h - h) / 2;
       if (x + w > imgW) {
@@ -715,7 +811,7 @@ class PhotoCropApp {
       x = this.initialCrop.x;
       y = proposedY;
     } else if (handle === 'l') {
-      w = Math.max(50, this.initialCrop.w - dx);
+      w = Math.max(40, this.initialCrop.w - dx);
       h = Math.round(w / ratio);
       let proposedX = this.initialCrop.x + (this.initialCrop.w - w);
       let proposedY = this.initialCrop.y + (this.initialCrop.h - h) / 2;
@@ -840,7 +936,7 @@ class PhotoCropApp {
       const buffer = await file.arrayBuffer();
       this.sourceBuffer = new Uint8Array(buffer);
       this.sourceFileName = file.name;
-      this.headerFilename.textContent = file.name;
+      if (this.headerFilename) this.headerFilename.textContent = file.name;
 
       const blob = new Blob([this.sourceBuffer], { type: file.type });
       const objUrl = URL.createObjectURL(blob);
@@ -849,7 +945,7 @@ class PhotoCropApp {
         this.naturalW = this.sourceImage.naturalWidth;
         this.naturalH = this.sourceImage.naturalHeight;
         const resText = `${this.naturalW} × ${this.naturalH} px`;
-        this.headerResolution.textContent = `(${resText})`;
+        if (this.headerResolution) this.headerResolution.textContent = `(${resText})`;
 
         requestAnimationFrame(() => {
           this.setupDefaultCropBox();
