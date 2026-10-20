@@ -1,0 +1,13 @@
+[package]
+name = "wasm_crop"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+image = { version = "0.24", default-features = false, features = ["jpeg", "png"] }
+
+[dev-dependencies]
+image = { version = "0.24", default-features = false, features = ["jpeg", "png"] }
