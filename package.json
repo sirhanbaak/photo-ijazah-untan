@@ -1,0 +1,21 @@
+{
+  "name": "photo-ijazah-untan",
+  "version": "1.0.0",
+  "description": "Aplikasi Pemotong Pas Foto 4x6 Standar Ijazah dan Dokumen Resmi berbasis Rust WebAssembly (Part of SimalumApps)",
+  "scripts": {
+    "dev": "python server.py",
+    "start": "python server.py",
+    "build": "echo 'Static assets ready in public/'"
+  },
+  "keywords": [
+    "pas-foto",
+    "photo-crop",
+    "rust",
+    "webassembly",
+    "wasm",
+    "untan",
+    "simalumapps"
+  ],
+  "author": "SimalumApps",
+  "license": "MIT"
+}

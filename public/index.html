@@ -1,523 +1,604 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html class="dark" lang="id">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PixelCrop Studio - Pas Foto 4x6 Ijazah (Rust WebAssembly)</title>
-  <meta name="description" content="Aplikasi pemotong pas foto 4x6 cm resolusi tinggi dengan standar DPI dan pemrosesan instan via Rust WebAssembly.">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Photo Ijazah Untan (Part of SimalumApps) - Pas Foto 4x6 (Rust WebAssembly)</title>
+  <meta name="description" content="Aplikasi pemotong pas foto 4x6 cm standar ijazah dan dokumen resmi dengan resolusi DPI presisi tinggi berbasis Rust WebAssembly.">
   
-  <!-- Google Fonts & Material Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Material Symbols & Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Custom Design System Stylesheet -->
+  <link rel="stylesheet" href="style.css">
 
-  <!-- Tailwind CSS CDN & Custom CSS -->
+  <!-- Tailwind CSS CDN with Full Stitch Theme Config -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
+  <script id="tailwind-config">
     tailwind.config = {
-      darkMode: 'class',
+      darkMode: "class",
       theme: {
         extend: {
           colors: {
-            'surface-base': '#0b1326',
-            'surface-low': '#131b2e',
-            'surface-card': '#171f33',
-            'surface-high': '#222a3d',
-            'surface-highest': '#2d3449',
-            'primary': '#c0c1ff',
-            'primary-accent': '#6366f1',
-            'primary-container': '#2f2ebe',
-            'secondary': '#4cd7f6',
-            'tertiary': '#4edea3',
-            'tertiary-container': '#005236',
-            'outline-subtle': '#464554',
+            "surface-container": "#171f33",
+            "primary": "#c0c1ff",
+            "outline-variant": "#464554",
+            "on-error-container": "#ffdad6",
+            "on-tertiary-container": "#000703",
+            "on-surface": "#dae2fd",
+            "on-secondary-fixed": "#001f26",
+            "tertiary-container": "#00885d",
+            "primary-fixed": "#e1e0ff",
+            "on-primary-fixed": "#07006c",
+            "outline": "#908fa0",
+            "on-tertiary-fixed-variant": "#005236",
+            "on-primary-fixed-variant": "#2f2ebe",
+            "tertiary-fixed": "#6ffbbe",
+            "surface-variant": "#2d3449",
+            "secondary-container": "#03b5d3",
+            "surface-container-highest": "#2d3449",
+            "surface": "#0b1326",
+            "on-primary-container": "#0d0096",
+            "error-container": "#93000a",
+            "on-tertiary": "#003824",
+            "primary-container": "#8083ff",
+            "surface-tint": "#c0c1ff",
+            "on-secondary-container": "#00424e",
+            "on-tertiary-fixed": "#002113",
+            "surface-container-low": "#131b2e",
+            "on-secondary-fixed-variant": "#004e5c",
+            "secondary-fixed": "#acedff",
+            "surface-container-lowest": "#060e20",
+            "inverse-surface": "#dae2fd",
+            "surface-bright": "#31394d",
+            "on-surface-variant": "#c7c4d7",
+            "primary-fixed-dim": "#c0c1ff",
+            "inverse-on-surface": "#283044",
+            "secondary": "#4cd7f6",
+            "tertiary-fixed-dim": "#4edea3",
+            "secondary-fixed-dim": "#4cd7f6",
+            "inverse-primary": "#494bd6",
+            "surface-container-high": "#222a3d",
+            "background": "#0b1326",
+            "error": "#ffb4ab",
+            "on-secondary": "#003640",
+            "on-background": "#dae2fd",
+            "tertiary": "#4edea3",
+            "on-error": "#690005",
+            "surface-dim": "#0b1326",
+            "on-primary": "#1000a9"
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            headline: ['Plus Jakarta Sans', 'Inter', 'Segoe UI', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace']
           }
         }
       }
-    }
+    };
   </script>
-  <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-[#0b1326] text-[#dae2fd] min-h-screen flex flex-col overflow-hidden">
 
-  <!-- Global Header Bar -->
-  <header class="h-14 bg-[#131b2e]/95 backdrop-blur-xl border-b border-[#464554]/30 z-40 flex items-center justify-between px-4 select-none">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-[#6366f1] to-[#4cd7f6] flex items-center justify-center text-white shadow-[0_0_12px_rgba(99,102,241,0.5)]">
-        <span class="material-symbols-outlined text-xl">crop</span>
-      </div>
-      <div class="flex flex-col">
-        <div class="flex items-center gap-2">
-          <span class="font-headline font-bold text-base tracking-tight text-white">Photo Ijazah Untan</span>
-          <span class="text-[0.625rem] font-mono-code px-1.5 py-0.5 rounded bg-[#6366f1]/20 text-[#c0c1ff] border border-[#6366f1]/40 uppercase">Rust WASM</span>
+<body class="bg-surface text-on-surface font-sans antialiased selection:bg-primary-container selection:text-on-primary-container h-screen overflow-hidden flex flex-col select-none">
+  
+  <!-- Global Top Header -->
+  <header class="h-14 w-full bg-surface-container-low/95 backdrop-blur-xl z-50 shadow-[0_1px_8px_rgba(0,0,0,0.5)] border-b border-outline-variant/30 flex-shrink-0">
+    <div class="h-14 w-full px-4 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#6366f1] to-secondary flex items-center justify-center text-white shadow-[0_0_12px_rgba(99,102,241,0.5)]">
+          <span class="material-symbols-outlined text-xl">crop</span>
         </div>
-      </div>
-      <div class="h-4 w-px bg-[#464554]/40 hidden sm:block mx-1"></div>
-      <span class="hidden md:inline-block text-xs font-mono-code text-[#c7c4d7]/70">PixelCrop Studio v1.0</span>
-    </div>
-
-    <!-- Center Asset Metadata -->
-    <div class="hidden lg:flex items-center gap-2 bg-[#060e20] px-3 py-1 rounded-lg border border-[#464554]/30 text-xs font-mono-code">
-      <span class="material-symbols-outlined text-[#4edea3] text-sm">image</span>
-      <span class="text-white font-medium" id="header-filename">sample_pas_foto.jpg</span>
-      <span class="text-[#464554]">•</span>
-      <span class="text-[#4cd7f6]" id="header-resolution">1200 × 1600 px</span>
-      <span class="text-[#464554]">•</span>
-      <span class="text-[#4edea3]">Ready</span>
-    </div>
-
-    <!-- Right Header Controls -->
-    <div class="flex items-center gap-2">
-      <!-- Zoom Controls -->
-      <div class="flex items-center bg-[#171f33] rounded-lg p-0.5 border border-[#464554]/30">
-        <button id="zoom-out-btn" class="p-1 text-[#c7c4d7] hover:text-white hover:bg-[#222a3d] rounded transition-colors" title="Zoom Out (-)" type="button">
-          <span class="material-symbols-outlined text-base">zoom_out</span>
-        </button>
-        <span id="zoom-indicator" class="font-mono-code text-xs text-[#c0c1ff] px-2 min-w-[3.2rem] text-center font-medium">100%</span>
-        <button id="zoom-in-btn" class="p-1 text-[#c7c4d7] hover:text-white hover:bg-[#222a3d] rounded transition-colors" title="Zoom In (+)" type="button">
-          <span class="material-symbols-outlined text-base">zoom_in</span>
-        </button>
-        <button id="fit-win-btn" class="px-2 py-0.5 text-xs text-[#c7c4d7] hover:text-white hover:bg-[#222a3d] rounded transition-colors" title="Fit to Canvas" type="button">Fit</button>
-        <button id="actual-size-btn" class="px-2 py-0.5 text-xs text-[#c7c4d7] hover:text-white hover:bg-[#222a3d] rounded transition-colors" title="100% Zoom" type="button">100%</button>
+        <div class="flex items-center gap-2">
+          <span class="font-headline font-bold text-base tracking-tight text-on-surface">Photo Ijazah Untan</span>
+          <span class="text-[0.625rem] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/30 uppercase font-semibold">Rust WASM</span>
+        </div>
+        <div class="h-4 w-px bg-outline-variant/30 hidden sm:block"></div>
+        <span class="hidden md:inline-block text-xs text-on-surface-variant font-medium">Part of SimalumApps</span>
       </div>
 
-      <!-- Quick Upload Button -->
-      <button id="open-upload-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] text-white text-xs font-medium border border-[#464554]/40 transition-all shadow-sm" type="button">
-        <span class="material-symbols-outlined text-sm text-[#4cd7f6]">cloud_upload</span>
-        <span>Ganti Foto</span>
-      </button>
+      <!-- Current Asset Filename & Resolution Badge -->
+      <div class="hidden md:flex items-center gap-2 bg-surface-container-lowest px-3 py-1 rounded-lg border border-outline-variant/30 text-xs">
+        <span class="material-symbols-outlined text-tertiary text-sm">image</span>
+        <span class="font-mono text-on-surface font-medium truncate max-w-[200px]" id="header-filename">sample_pas_foto.jpg</span>
+        <span class="font-mono text-on-surface-variant" id="header-resolution">(1200 × 1600 px)</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+      </div>
 
-      <!-- Primary Action CTA -->
-      <button id="header-apply-btn" class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#6366f1] hover:bg-[#4f46e5] text-white text-xs font-semibold shadow-[0_2px_12px_rgba(99,102,241,0.35)] transition-all" type="button">
-        <span class="material-symbols-outlined text-sm">crop</span>
-        <span>Crop Foto</span>
-      </button>
+      <!-- Header Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-medium transition-colors border border-outline-variant/40" id="top-upload-btn" type="button">
+          <span class="material-symbols-outlined text-secondary text-base">cloud_upload</span>
+          <span class="hidden sm:inline">Ganti Foto</span>
+        </button>
+        <button class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors shadow-[0_2px_8px_rgba(99,102,241,0.3)]" id="top-apply-btn" type="button">
+          <span class="material-symbols-outlined text-base">crop</span>
+          <span>Crop &amp; Unduh</span>
+        </button>
+      </div>
+
     </div>
   </header>
 
-  <!-- Main Workstation Layout -->
-  <div class="flex flex-1 w-full h-[calc(100vh-3.5rem)] overflow-hidden">
+  <!-- Workspace Layout (Left Rail + Canvas + Right Inspector) -->
+  <div class="flex flex-1 w-full min-h-0 overflow-hidden">
     
-    <!-- Left Navigation Bar -->
-    <aside class="w-14 bg-[#060e20] border-r border-[#464554]/30 flex flex-col items-center py-4 justify-between select-none z-30">
-      <nav class="flex flex-col gap-2 items-center w-full">
-        <button class="w-10 h-10 rounded-lg bg-[#6366f1]/20 text-[#c0c1ff] border border-[#6366f1]/40 flex items-center justify-center shadow-lg" title="Alat Crop Presisi (C)" type="button">
-          <span class="material-symbols-outlined text-xl">crop</span>
+    <!-- Left Navigation Rail -->
+    <aside class="w-14 bg-surface-container-lowest z-40 flex flex-col items-center py-3 border-r border-outline-variant/30 flex-shrink-0">
+      <nav class="flex flex-col gap-2 items-center w-full px-1">
+        <button class="group relative flex items-center justify-center w-10 h-10 bg-primary-container text-on-primary-container rounded-lg shadow-md transition-colors" title="Alat Crop Presisi (C)" type="button">
+          <span class="material-symbols-outlined text-lg">crop</span>
+          <span class="absolute left-14 hidden group-hover:flex px-2 py-1 rounded bg-surface-container-highest text-on-surface text-[0.6875rem] font-medium whitespace-nowrap shadow-xl z-50">Crop (C)</span>
         </button>
-        <button id="tool-pan-toggle" class="w-10 h-10 rounded-lg text-[#c7c4d7] hover:bg-[#171f33] hover:text-white flex items-center justify-center transition-colors" title="Alat Pan / Geser Kanvas (H)" type="button">
-          <span class="material-symbols-outlined text-xl">pan_tool</span>
+        <button class="group relative flex items-center justify-center w-10 h-10 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" id="tool-pan-left" title="Alat Pan / Geser (H)" type="button">
+          <span class="material-symbols-outlined text-lg">pan_tool</span>
+          <span class="absolute left-14 hidden group-hover:flex px-2 py-1 rounded bg-surface-container-highest text-on-surface text-[0.6875rem] font-medium whitespace-nowrap shadow-xl z-50">Pan (H)</span>
         </button>
-        <button id="btn-show-history" class="w-10 h-10 rounded-lg text-[#c7c4d7] hover:bg-[#171f33] hover:text-white flex items-center justify-center transition-colors" title="Info Standar Pas Foto" type="button">
-          <span class="material-symbols-outlined text-xl">info</span>
+        <button class="group relative flex items-center justify-center w-10 h-10 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" id="btn-info-left" title="Panduan Pas Foto 4x6" type="button">
+          <span class="material-symbols-outlined text-lg">info</span>
+          <span class="absolute left-14 hidden group-hover:flex px-2 py-1 rounded bg-surface-container-highest text-on-surface text-[0.6875rem] font-medium whitespace-nowrap shadow-xl z-50">Info Pas Foto</span>
         </button>
       </nav>
-      <div class="flex flex-col items-center gap-2">
-        <button id="btn-shortcuts" class="w-10 h-10 rounded-lg text-[#c7c4d7] hover:bg-[#171f33] hover:text-white flex items-center justify-center transition-colors" title="Pintasan Keyboard" type="button">
-          <span class="material-symbols-outlined text-lg">keyboard</span>
+      <div class="mt-auto flex flex-col items-center gap-1">
+        <button class="flex items-center justify-center w-9 h-9 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" id="btn-hotkeys" title="Pintasan Keyboard" type="button">
+          <span class="material-symbols-outlined text-base">keyboard</span>
         </button>
       </div>
     </aside>
 
-    <!-- Central Interactive Canvas Viewport -->
-    <section class="relative flex-1 h-full bg-[#060e20] overflow-hidden flex flex-col select-none">
+    <!-- Main Workspace Area -->
+    <main class="relative flex-1 min-h-0 bg-surface overflow-hidden flex flex-col">
       
-      <!-- Virtual Canvas Arena (Pan & Zoom Area) -->
-      <div id="canvas-arena" class="relative w-full h-full cursor-default overflow-hidden flex items-center justify-center canvas-grid">
+      <!-- Top Action Command Bar (Zoom, Fit, Crop Helpers) -->
+      <div class="h-11 w-full bg-surface-container-low px-4 flex items-center justify-between gap-3 border-b border-outline-variant/30 flex-shrink-0 z-30">
         
-        <!-- Scaled Composition Wrapper -->
-        <div id="composition-wrapper" class="relative transition-transform duration-75 origin-center will-change-transform" style="transform: scale(1) translate(0px, 0px);">
-          
-          <!-- Source Image Layer -->
-          <div id="image-container" class="relative shadow-2xl rounded-sm overflow-hidden select-none bg-black">
-            <img id="source-image" src="sample.jpg" alt="Foto Pas Foto" class="max-w-none block pointer-events-none select-none transition-transform duration-100" draggable="false">
-            
-            <!-- Non-Destructive Scrim Overlay (Bagian luar crop box dibuat gelap) -->
-            <div id="scrim-overlay" class="absolute inset-0 pointer-events-none z-10">
-              <div id="scrim-top" class="absolute bg-black/65 backdrop-blur-[1px]"></div>
-              <div id="scrim-bottom" class="absolute bg-black/65 backdrop-blur-[1px]"></div>
-              <div id="scrim-left" class="absolute bg-black/65 backdrop-blur-[1px]"></div>
-              <div id="scrim-right" class="absolute bg-black/65 backdrop-blur-[1px]"></div>
-            </div>
-
-            <!-- Precision Crop Frame (Kotak Template Crop 4:6) -->
-            <div id="crop-marquee" class="absolute z-20 pointer-events-auto shadow-[0_0_0_1px_rgba(255,255,255,0.9),0_0_24px_rgba(99,102,241,0.35)]">
-              
-              <!-- Floating Dimensions Ribbon -->
-              <div id="dimension-chip" class="absolute -top-7 left-0 bg-[#171f33]/95 backdrop-blur-md px-2.5 py-0.5 rounded text-[#4cd7f6] font-mono-code text-[0.6875rem] shadow-md flex items-center gap-1.5 pointer-events-none whitespace-nowrap border border-[#464554]/40">
-                <span class="material-symbols-outlined text-xs">badge</span>
-                <span id="dimension-chip-text">Pas Foto 4×6 — 450 × 660 px (300 DPI Standar Cetak)</span>
-              </div>
-
-              <!-- Rule of Thirds Guideline Grid (3x3) -->
-              <div id="grid-rule-thirds" class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
-                <div class="border-r border-b border-white/25"></div>
-                <div class="border-r border-b border-white/25"></div>
-                <div class="border-b border-white/25"></div>
-                <div class="border-r border-b border-white/25"></div>
-                <div class="border-r border-b border-white/25"></div>
-                <div class="border-b border-white/25"></div>
-                <div class="border-r border-white/25"></div>
-                <div class="border-r border-white/25"></div>
-                <div></div>
-              </div>
-
-              <!-- Center Crosshair Target -->
-              <div id="grid-crosshair" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
-                <div class="w-5 h-px bg-white"></div>
-                <div class="h-5 w-px bg-white absolute"></div>
-              </div>
-
-              <!-- 8 Precision Calibration Grab Handles -->
-              <div id="handle-tl" class="crop-handle corner-handle" data-handle="tl"></div>
-              <div id="handle-t"  class="crop-handle edge-handle-h" data-handle="t"></div>
-              <div id="handle-tr" class="crop-handle corner-handle" data-handle="tr"></div>
-              <div id="handle-r"  class="crop-handle edge-handle-v" data-handle="r"></div>
-              <div id="handle-br" class="crop-handle corner-handle" data-handle="br"></div>
-              <div id="handle-b"  class="crop-handle edge-handle-h" data-handle="b"></div>
-              <div id="handle-bl" class="crop-handle corner-handle" data-handle="bl"></div>
-              <div id="handle-l"  class="crop-handle edge-handle-v" data-handle="l"></div>
-            </div>
-
+        <!-- Left: Status Pas Foto 4x6 -->
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-surface-container-lowest border border-outline-variant/30 text-xs">
+            <span class="w-2 h-2 rounded-full bg-secondary"></span>
+            <span class="font-headline font-semibold text-secondary text-[0.6875rem] uppercase tracking-wider">Pas Foto 4×6</span>
+            <span class="text-outline text-xs">•</span>
+            <span class="font-mono text-tertiary text-xs font-semibold" id="bar-resolution">450 × 660 px</span>
           </div>
         </div>
 
-      </div>
-
-      <!-- Floating Bottom Master Tool Dock -->
-      <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-auto">
-        <div class="bg-[#171f33]/90 backdrop-blur-xl px-2 py-1.5 rounded-xl border border-[#464554]/40 shadow-2xl flex items-center gap-1.5">
-          <button id="dock-btn-move" class="w-8 h-8 rounded flex items-center justify-center text-[#dae2fd] hover:bg-[#222a3d] transition-colors" title="Kursor Pemindah Kotak Crop" type="button">
-            <span class="material-symbols-outlined text-lg">open_with</span>
+        <!-- Center: Zoom & Viewport Controls -->
+        <div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-1 rounded-lg border border-outline-variant/30">
+          <button class="w-6 h-6 flex items-center justify-center rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" id="zoom-out-btn" title="Zoom Out (-)" type="button">
+            <span class="material-symbols-outlined text-sm">zoom_out</span>
           </button>
-          <button id="dock-btn-pan" class="w-8 h-8 rounded flex items-center justify-center text-[#c7c4d7] hover:bg-[#222a3d] hover:text-white transition-colors" title="Mode Geser Kanvas (Spasi)" type="button">
-            <span class="material-symbols-outlined text-lg">pan_tool</span>
+          <div class="flex items-center w-24 md:w-32">
+            <input class="w-full h-1 bg-surface-container-high rounded appearance-none cursor-ew-resize accent-primary" id="zoom-slider" max="300" min="25" type="range" value="100">
+          </div>
+          <button class="w-6 h-6 flex items-center justify-center rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" id="zoom-in-btn" title="Zoom In (+)" type="button">
+            <span class="material-symbols-outlined text-sm">zoom_in</span>
           </button>
-          <div class="h-5 w-px bg-[#464554]/40 mx-1"></div>
-          <button id="dock-btn-center" class="flex items-center gap-1 px-2.5 py-1 rounded bg-[#222a3d] hover:bg-[#2d3449] text-xs text-[#c7c4d7] hover:text-white transition-colors" title="Pusatkan Kotak Crop" type="button">
-            <span class="material-symbols-outlined text-sm">filter_center_focus</span>
-            <span>Pusatkan</span>
-          </button>
-          <button id="dock-btn-apply" class="flex items-center gap-1.5 px-3 py-1 rounded bg-[#00885d] hover:bg-[#00a870] text-white text-xs font-semibold transition-all shadow-md" type="button">
-            <span class="material-symbols-outlined text-sm">check</span>
-            <span>Terapkan</span>
-          </button>
+          <span class="font-mono text-primary min-w-[3rem] text-center font-medium text-xs" id="zoom-indicator">100%</span>
+          <div class="h-3.5 w-px bg-surface-container-high mx-1"></div>
+          <button class="px-2 py-0.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded text-xs transition-colors" id="fit-win-btn" title="Paskan dengan Layar" type="button">Fit</button>
+          <button class="px-2 py-0.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded text-xs transition-colors" id="actual-size-btn" title="Ukuran 1:1" type="button">1:1</button>
         </div>
 
-        <!-- Quick Hotkey Badges -->
-        <div class="hidden md:flex items-center gap-2 font-mono-code text-[0.6875rem] text-[#c7c4d7]/70 bg-[#060e20]/80 px-3 py-1 rounded-full backdrop-blur-md border border-[#464554]/30">
-          <span><kbd class="text-[#4cd7f6]">Spasi</kbd> + Drag: Pan</span>
-          <span>•</span>
-          <span><kbd class="text-[#4cd7f6]">Scroll</kbd>: Zoom</span>
-          <span>•</span>
-          <span><kbd class="text-[#4edea3]">Enter</kbd>: Terapkan Crop</span>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- Right Transformation & Crop Inspector Panel -->
-    <aside class="w-80 lg:w-96 bg-[#131b2e] border-l border-[#464554]/30 h-full overflow-y-auto flex flex-col shadow-2xl z-30 select-none">
-      
-      <!-- Panel Header -->
-      <div class="p-4 border-b border-[#464554]/30 sticky top-0 bg-[#131b2e]/95 backdrop-blur-md flex items-center justify-between z-10">
+        <!-- Right: Canvas Shortcuts -->
         <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-[#6366f1] text-xl">tune</span>
-          <h2 class="font-headline font-semibold text-base text-white">Pengaturan Pemotongan</h2>
+          <button class="flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface text-xs transition-colors border border-outline-variant/40" id="btn-center-top" title="Pusatkan Kotak Crop" type="button">
+            <span class="material-symbols-outlined text-sm text-secondary">filter_center_focus</span>
+            <span class="hidden sm:inline">Pusatkan Kotak</span>
+          </button>
         </div>
-        <button id="reset-params-btn" class="w-8 h-8 rounded flex items-center justify-center text-[#c7c4d7] hover:text-white hover:bg-[#222a3d] transition-colors" title="Kembalikan Pengaturan Semula" type="button">
-          <span class="material-symbols-outlined text-base">restart_alt</span>
-        </button>
+
       </div>
 
-      <div class="p-4 flex flex-col gap-5">
+      <!-- Workstation Body: Interactive Canvas + Right Inspector -->
+      <div class="flex flex-1 w-full min-h-0 overflow-hidden">
         
-        <!-- Quick Dropzone Tile -->
-        <div id="inspector-dropzone" class="p-3 rounded-xl bg-[#0b1326] hover:bg-[#171f33] border border-[#464554]/40 transition-all flex items-center gap-3 cursor-pointer group">
-          <div class="w-10 h-10 rounded-lg bg-[#222a3d] group-hover:bg-[#6366f1] flex items-center justify-center text-[#4cd7f6] group-hover:text-white transition-colors">
-            <span class="material-symbols-outlined text-xl">add_photo_alternate</span>
-          </div>
-          <div class="flex flex-col min-w-0 flex-1">
-            <span class="text-xs font-semibold text-white group-hover:text-[#c0c1ff] transition-colors">Ganti Sumber Gambar</span>
-            <span class="text-[0.6875rem] text-[#c7c4d7]/70 truncate">Klik untuk jelajahi file lokal</span>
-          </div>
-          <span class="material-symbols-outlined text-[#c7c4d7] text-base group-hover:translate-x-0.5 transition-transform">chevron_right</span>
-        </div>
-
-        <!-- Aspect Ratio Presets (Pas Foto 4x6 berdasarkan DPI) -->
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-1.5">
-              <span class="material-symbols-outlined text-[#4edea3] text-base">photo_size_select_actual</span>
-              <label class="font-headline text-xs font-bold uppercase tracking-wider text-white">Preset Pas Foto 4×6 (DPI)</label>
-            </div>
-            <span id="badge-active-dpi" class="font-mono-code text-[0.6875rem] text-[#4edea3] bg-[#005236]/30 px-2 py-0.5 rounded border border-[#4edea3]/30">300 DPI Aktif</span>
-          </div>
-
-          <!-- Grid Tombol Preset DPI Sesuai Aturan -->
-          <div class="grid grid-cols-2 gap-2" id="dpi-preset-container">
+        <!-- Central Interactive Canvas Viewport -->
+        <div class="relative flex-1 min-h-0 bg-surface-container-lowest overflow-hidden flex flex-col">
+          
+          <!-- Virtual Canvas Floor (Pan & Zoom Arena) -->
+          <div class="relative w-full h-full cursor-default overflow-hidden flex items-center justify-center canvas-dot-grid" id="canvas-arena">
             
-            <!-- 72 DPI -->
-            <button class="preset-btn flex flex-col p-2.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-left transition-all border border-[#464554]/40" data-dpi="72" data-w="108" data-h="158" data-label="72 DPI (Layar Standar)" type="button">
-              <div class="flex items-center justify-between">
-                <span class="font-mono-code text-xs font-semibold text-white">72 DPI</span>
-                <span class="text-[0.6875rem] text-[#c7c4d7]/70">Layar</span>
-              </div>
-              <span class="font-mono-code text-[0.6875rem] text-[#4cd7f6] mt-1">108 × 158 px</span>
-            </button>
-
-            <!-- 96 DPI -->
-            <button class="preset-btn flex flex-col p-2.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-left transition-all border border-[#464554]/40" data-dpi="96" data-w="144" data-h="211" data-label="96 DPI (Web)" type="button">
-              <div class="flex items-center justify-between">
-                <span class="font-mono-code text-xs font-semibold text-white">96 DPI</span>
-                <span class="text-[0.6875rem] text-[#c7c4d7]/70">Web</span>
-              </div>
-              <span class="font-mono-code text-[0.6875rem] text-[#4cd7f6] mt-1">144 × 211 px</span>
-            </button>
-
-            <!-- 150 DPI -->
-            <button class="preset-btn flex flex-col p-2.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-left transition-all border border-[#464554]/40" data-dpi="150" data-w="225" data-h="330" data-label="150 DPI (Medium)" type="button">
-              <div class="flex items-center justify-between">
-                <span class="font-mono-code text-xs font-semibold text-white">150 DPI</span>
-                <span class="text-[0.6875rem] text-[#c7c4d7]/70">Medium</span>
-              </div>
-              <span class="font-mono-code text-[0.6875rem] text-[#4cd7f6] mt-1">225 × 330 px</span>
-            </button>
-
-            <!-- 200 DPI -->
-            <button class="preset-btn flex flex-col p-2.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-left transition-all border border-[#464554]/40" data-dpi="200" data-w="300" data-h="440" data-label="200 DPI (Cetak Cepat)" type="button">
-              <div class="flex items-center justify-between">
-                <span class="font-mono-code text-xs font-semibold text-white">200 DPI</span>
-                <span class="text-[0.6875rem] text-[#c7c4d7]/70">Cetak Cepat</span>
-              </div>
-              <span class="font-mono-code text-[0.6875rem] text-[#4cd7f6] mt-1">300 × 440 px</span>
-            </button>
-
-            <!-- 300 DPI (Default Standar Cetak Dokumen Resmi) -->
-            <button class="preset-btn active-preset col-span-2 flex flex-col p-3 rounded-lg bg-[#2f2ebe] text-white shadow-lg text-left transition-all border border-[#6366f1] ring-2 ring-[#6366f1]/40" data-dpi="300" data-w="450" data-h="660" data-label="300 DPI (Standar Cetak Tajam / Dokumen Resmi)" type="button">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="font-mono-code text-sm font-bold">300 DPI</span>
-                  <span class="text-[0.625rem] px-1.5 py-0.5 rounded bg-[#4edea3] text-[#002113] font-bold uppercase">Standar Ijazah</span>
+            <!-- Scaled Composition Container -->
+            <div class="relative transition-transform duration-75 origin-center will-change-transform flex items-center justify-center" id="composition-wrapper" style="transform: scale(1) translate(0px, 0px);">
+              
+              <!-- Master Visual Asset Container -->
+              <div class="relative inline-block shadow-2xl rounded-sm select-none mx-auto" id="image-container">
+                
+                <!-- Displayed Source Photo -->
+                <img id="source-image" src="sample.jpg" alt="Foto Pas Foto" class="max-h-[66vh] max-w-[54vw] w-auto h-auto object-contain block pointer-events-none select-none" draggable="false">
+                
+                <!-- Non-Destructive Scrim Overlay (Darkens outside crop) -->
+                <div class="absolute inset-0 pointer-events-none z-10" id="scrim-overlay">
+                  <div id="scrim-top" class="absolute scrim-block"></div>
+                  <div id="scrim-bottom" class="absolute scrim-block"></div>
+                  <div id="scrim-left" class="absolute scrim-block"></div>
+                  <div id="scrim-right" class="absolute scrim-block"></div>
                 </div>
-                <span class="material-symbols-outlined text-base text-[#4edea3]">check_circle</span>
-              </div>
-              <div class="flex items-center justify-between mt-1 text-xs">
-                <span class="font-mono-code text-[#dae2fd]">450 × 660 px (Standar Cetak)</span>
-                <span class="text-[0.6875rem] text-[#c7c4d7]">3.81 × 5.59 cm</span>
-              </div>
-            </button>
 
-            <!-- 400 DPI -->
-            <button class="preset-btn col-span-2 flex flex-col p-2.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-left transition-all border border-[#464554]/40" data-dpi="400" data-w="600" data-h="880" data-label="400 DPI (Ultra Tajam)" type="button">
+                <!-- Precision Crop Frame (Marquee 4:6) -->
+                <div class="absolute pointer-events-auto z-20 cursor-move" id="crop-marquee">
+                  
+                  <!-- Floating Dimensions Ribbon (Centered above marquee) -->
+                  <div class="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 bg-surface-container-highest/95 backdrop-blur-md px-2.5 py-1 rounded-md text-secondary font-mono text-[0.6875rem] shadow-xl flex items-center gap-1.5 pointer-events-none whitespace-nowrap border border-outline-variant/50" id="dimension-chip">
+                    <span class="material-symbols-outlined text-xs">badge</span>
+                    <span id="dimension-chip-text">Pas Foto 4×6 — 450 × 660 px (300 DPI Standar Cetak)</span>
+                  </div>
+
+                  <!-- Rule of Thirds Guideline Grid (3x3) -->
+                  <div class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none" id="grid-rule-thirds">
+                    <div class="shadow-[inset_-1px_0_0_0_rgba(255,255,255,0.35),inset_0_-1px_0_0_rgba(255,255,255,0.35)]"></div>
+                    <div class="shadow-[inset_-1px_0_0_0_rgba(255,255,255,0.35),inset_0_-1px_0_0_rgba(255,255,255,0.35)]"></div>
+                    <div class="shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.35)]"></div>
+                    <div class="shadow-[inset_-1px_0_0_0_rgba(255,255,255,0.35),inset_0_-1px_0_0_rgba(255,255,255,0.35)]"></div>
+                    <div class="shadow-[inset_-1px_0_0_0_rgba(255,255,255,0.35),inset_0_-1px_0_0_rgba(255,255,255,0.35)]"></div>
+                    <div class="shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.35)]"></div>
+                    <div class="shadow-[inset_-1px_0_0_0_rgba(255,255,255,0.35)]"></div>
+                    <div class="shadow-[inset_-1px_0_0_0_rgba(255,255,255,0.35)]"></div>
+                    <div></div>
+                  </div>
+
+                  <!-- Center Crosshair Target -->
+                  <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-50" id="grid-crosshair">
+                    <div class="w-6 h-px bg-white"></div>
+                    <div class="h-6 w-px bg-white absolute"></div>
+                  </div>
+
+                  <!-- 8 Precision Calibration Grab Handles -->
+                  <!-- 4 Corner Handles -->
+                  <div class="crop-handle corner-handle" id="handle-tl" data-handle="tl"></div>
+                  <div class="crop-handle corner-handle" id="handle-tr" data-handle="tr"></div>
+                  <div class="crop-handle corner-handle" id="handle-bl" data-handle="bl"></div>
+                  <div class="crop-handle corner-handle" id="handle-br" data-handle="br"></div>
+
+                  <!-- 4 Edge Center Pill Handles -->
+                  <div class="crop-handle edge-handle-h" id="handle-t" data-handle="t"></div>
+                  <div class="crop-handle edge-handle-h" id="handle-b" data-handle="b"></div>
+                  <div class="crop-handle edge-handle-v" id="handle-l" data-handle="l"></div>
+                  <div class="crop-handle edge-handle-v" id="handle-r" data-handle="r"></div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Floating Bottom Tool Dock & Hotkey Hints -->
+            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 z-20 pointer-events-auto">
+              <div class="bg-surface-container-high/90 backdrop-blur-xl px-1.5 py-1 rounded-xl shadow-2xl flex items-center gap-1 border border-outline-variant/30">
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center bg-primary-container text-on-primary-container shadow-sm transition-all" id="dock-btn-crop" title="Alat Crop Presisi (C)" type="button">
+                  <span class="material-symbols-outlined text-base">crop</span>
+                </button>
+                <button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors" id="dock-btn-pan" title="Alat Pan / Tangan (H)" type="button">
+                  <span class="material-symbols-outlined text-base">pan_tool</span>
+                </button>
+                <div class="h-4 w-px bg-outline-variant/30 mx-1"></div>
+                <button class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-xs text-on-surface transition-colors" id="dock-btn-center" title="Pusatkan Kotak Crop" type="button">
+                  <span class="material-symbols-outlined text-sm text-secondary">filter_center_focus</span>
+                  <span>Pusatkan</span>
+                </button>
+                <button class="flex items-center gap-1 px-3 py-1 rounded-lg bg-tertiary-container text-on-tertiary-container hover:bg-tertiary-fixed text-xs font-semibold transition-colors" id="dock-btn-apply" type="button">
+                  <span class="material-symbols-outlined text-sm">check</span>
+                  <span>Terapkan</span>
+                </button>
+              </div>
+
+              <!-- Quick Hotkey Badges -->
+              <div class="hidden md:flex items-center gap-2 font-mono text-[0.6875rem] text-on-surface-variant bg-surface-container-lowest/80 px-3 py-1 rounded-full backdrop-blur-md border border-outline-variant/30">
+                <span><kbd class="text-secondary font-semibold">Spasi</kbd> + Geser: Pan</span>
+                <span>•</span>
+                <span><kbd class="text-secondary font-semibold">Scroll</kbd>: Zoom</span>
+                <span>•</span>
+                <span><kbd class="text-tertiary font-semibold">Enter</kbd>: Terapkan</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Right Transformation & Crop Inspector Panel -->
+        <aside class="w-80 lg:w-96 bg-surface-container-low min-h-0 flex flex-col shadow-xl z-30 border-l border-outline-variant/30 flex-shrink-0">
+          
+          <!-- Panel Header -->
+          <div class="px-4 py-3 bg-surface-container-low flex items-center justify-between border-b border-outline-variant/30 flex-shrink-0">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary text-lg">tune</span>
+              <h2 class="font-headline font-semibold text-on-surface text-sm">Pengaturan Pemotongan</h2>
+            </div>
+            <button class="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" id="reset-params-btn" title="Kembalikan Pengaturan Semula" type="button">
+              <span class="material-symbols-outlined text-base">restart_alt</span>
+            </button>
+          </div>
+
+          <!-- Scrollable Inspector Content Area -->
+          <div class="flex-1 overflow-y-auto p-4 pb-10 flex flex-col gap-4">
+            
+            <!-- Quick Swap Dropzone Tile -->
+            <div class="p-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container transition-all flex items-center gap-3 cursor-pointer group border border-outline-variant/30" id="inspector-dropzone">
+              <div class="w-9 h-9 rounded-lg bg-surface-container-high group-hover:bg-primary-container flex items-center justify-center text-secondary group-hover:text-on-primary-container transition-colors flex-shrink-0">
+                <span class="material-symbols-outlined text-lg">add_photo_alternate</span>
+              </div>
+              <div class="flex flex-col min-w-0 flex-1">
+                <span class="font-semibold text-on-surface group-hover:text-primary transition-colors text-xs">Ganti Sumber Gambar</span>
+                <span class="text-on-surface-variant truncate text-[0.6875rem]">Klik untuk jelajahi file foto lokal</span>
+              </div>
+              <span class="material-symbols-outlined text-on-surface-variant text-base group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+            </div>
+
+            <!-- Aspect Ratio Presets (Pas Foto 4x6 Berdasarkan DPI) -->
+            <div class="flex flex-col gap-2">
               <div class="flex items-center justify-between">
-                <span class="font-mono-code text-xs font-semibold text-white">400 DPI (Ultra Tajam)</span>
-                <span class="font-mono-code text-xs text-[#4cd7f6]">600 × 880 px</span>
+                <label class="font-semibold text-on-surface uppercase tracking-wider text-[0.6875rem] flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-tertiary text-sm">photo_size_select_actual</span>
+                  <span>Preset Pas Foto 4×6 (DPI)</span>
+                </label>
+                <span class="font-mono text-tertiary bg-tertiary/10 px-2 py-0.5 rounded text-[0.6875rem] border border-tertiary/30 font-semibold" id="badge-active-dpi">300 DPI Aktif</span>
               </div>
-            </button>
 
-            <!-- Standar Konversi Digital Umum (472 x 709) -->
-            <button class="preset-btn col-span-2 flex flex-col p-2.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-left transition-all border border-[#464554]/40" data-dpi="digital" data-w="472" data-h="709" data-label="Standar Konversi Digital Umum" type="button">
+              <!-- 300 DPI Featured Recommendation Card -->
+              <button class="preset-btn active-preset w-full p-2.5 rounded-xl bg-primary-container text-on-primary-container shadow-md text-left transition-all border border-primary/50" data-dpi="300" type="button">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="font-mono font-bold text-xs text-white">300 DPI</span>
+                    <span class="text-[0.625rem] px-1.5 py-0.5 rounded bg-primary text-on-primary font-bold uppercase">Standar Ijazah</span>
+                  </div>
+                  <span class="material-symbols-outlined text-base text-on-primary-container">check_circle</span>
+                </div>
+                <div class="flex items-center justify-between mt-1 text-xs">
+                  <span class="font-mono text-on-primary-container font-semibold text-[0.6875rem]">450 × 660 px (Standar Cetak)</span>
+                  <span class="text-on-primary-container/80 text-[0.6875rem]">3.81 × 5.59 cm</span>
+                </div>
+              </button>
+
+              <!-- Secondary DPI Presets Grid -->
+              <div class="grid grid-cols-2 gap-2" id="dpi-presets-grid">
+                
+                <!-- 400 DPI -->
+                <button class="preset-btn flex flex-col p-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-left transition-all border border-outline-variant/30" data-dpi="400" type="button">
+                  <div class="flex items-center justify-between">
+                    <span class="font-mono font-semibold text-on-surface text-xs">400 DPI</span>
+                    <span class="text-on-surface-variant text-[0.625rem]">Ultra</span>
+                  </div>
+                  <span class="font-mono text-secondary text-[0.6875rem] mt-0.5">600 × 880 px</span>
+                </button>
+
+                <!-- Standar Konversi Digital (472 x 709) -->
+                <button class="preset-btn flex flex-col p-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-left transition-all border border-outline-variant/30" data-dpi="digital" type="button">
+                  <div class="flex items-center justify-between">
+                    <span class="font-mono font-semibold text-on-surface text-xs">Digital</span>
+                    <span class="text-on-surface-variant text-[0.625rem]">Umum</span>
+                  </div>
+                  <span class="font-mono text-secondary text-[0.6875rem] mt-0.5">472 × 709 px</span>
+                </button>
+
+                <!-- 200 DPI -->
+                <button class="preset-btn flex flex-col p-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-left transition-all border border-outline-variant/30" data-dpi="200" type="button">
+                  <div class="flex items-center justify-between">
+                    <span class="font-mono font-semibold text-on-surface text-xs">200 DPI</span>
+                    <span class="text-on-surface-variant text-[0.625rem]">Cepat</span>
+                  </div>
+                  <span class="font-mono text-secondary text-[0.6875rem] mt-0.5">300 × 440 px</span>
+                </button>
+
+                <!-- 150 DPI -->
+                <button class="preset-btn flex flex-col p-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-left transition-all border border-outline-variant/30" data-dpi="150" type="button">
+                  <div class="flex items-center justify-between">
+                    <span class="font-mono font-semibold text-on-surface text-xs">150 DPI</span>
+                    <span class="text-on-surface-variant text-[0.625rem]">Medium</span>
+                  </div>
+                  <span class="font-mono text-secondary text-[0.6875rem] mt-0.5">225 × 330 px</span>
+                </button>
+
+                <!-- 96 DPI -->
+                <button class="preset-btn flex flex-col p-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-left transition-all border border-outline-variant/30" data-dpi="96" type="button">
+                  <div class="flex items-center justify-between">
+                    <span class="font-mono font-semibold text-on-surface text-xs">96 DPI</span>
+                    <span class="text-on-surface-variant text-[0.625rem]">Web</span>
+                  </div>
+                  <span class="font-mono text-secondary text-[0.6875rem] mt-0.5">144 × 211 px</span>
+                </button>
+
+                <!-- 72 DPI -->
+                <button class="preset-btn flex flex-col p-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-left transition-all border border-outline-variant/30" data-dpi="72" type="button">
+                  <div class="flex items-center justify-between">
+                    <span class="font-mono font-semibold text-on-surface text-xs">72 DPI</span>
+                    <span class="text-on-surface-variant text-[0.625rem]">Layar</span>
+                  </div>
+                  <span class="font-mono text-secondary text-[0.6875rem] mt-0.5">108 × 158 px</span>
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Straightening & Orientation -->
+            <div class="flex flex-col gap-2">
               <div class="flex items-center justify-between">
-                <span class="font-mono-code text-xs font-semibold text-white">Standar Konversi Digital</span>
-                <span class="font-mono-code text-xs text-[#4cd7f6]">472 × 709 px</span>
+                <label class="font-semibold text-on-surface-variant uppercase tracking-wider text-[0.6875rem]">Rotasi &amp; Pelurusan</label>
+                <span class="font-mono text-secondary text-xs font-semibold" id="rotation-val-chip">0.0°</span>
               </div>
-            </button>
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-outline text-[0.625rem]">-45°</span>
+                <input class="w-full h-1 bg-surface-container-high rounded appearance-none cursor-ew-resize accent-secondary" id="rotation-slider" max="45" min="-45" step="0.5" type="range" value="0">
+                <span class="font-mono text-outline text-[0.625rem]">+45°</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                <button class="flex items-center justify-center gap-1 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-xs transition-colors border border-outline-variant/30" id="rotate-90-btn" title="Putar 90 Derajat" type="button">
+                  <span class="material-symbols-outlined text-sm">rotate_right</span>
+                  <span>+90°</span>
+                </button>
+                <button class="flex items-center justify-center gap-1 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-xs transition-colors border border-outline-variant/30" id="flip-h-btn" title="Balik Gambar Horizontal" type="button">
+                  <span class="material-symbols-outlined text-sm">flip</span>
+                  <span>Flip H</span>
+                </button>
+                <button class="flex items-center justify-center gap-1 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-xs transition-colors border border-outline-variant/30" id="flip-v-btn" title="Balik Gambar Vertikal" type="button">
+                  <span class="material-symbols-outlined text-sm" style="transform: rotate(90deg);">flip</span>
+                  <span>Flip V</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Visual Guides & Grid -->
+            <div class="flex flex-col gap-2">
+              <label class="font-semibold text-on-surface-variant uppercase tracking-wider text-[0.6875rem]">Grid &amp; Panduan Visual</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button class="grid-mode-btn flex items-center justify-center gap-1.5 p-2 rounded-lg bg-surface-container-high text-primary shadow-sm border border-primary/30 text-xs font-medium" id="btn-grid-thirds" type="button">
+                  <span class="material-symbols-outlined text-base">grid_3x3</span>
+                  <span>Rule of Thirds</span>
+                </button>
+                <button class="grid-mode-btn flex items-center justify-center gap-1.5 p-2 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors border border-outline-variant/30 text-xs" id="btn-grid-toggle" type="button">
+                  <span class="material-symbols-outlined text-base">visibility</span>
+                  <span id="grid-toggle-text">Sembunyikan</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Output Telemetry Card -->
+            <div class="bg-surface-container-lowest p-3 rounded-xl flex flex-col gap-1.5 border border-outline-variant/30 text-xs">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-semibold text-on-surface-variant uppercase tracking-wider text-[0.6875rem]">Spesifikasi Cetak Pas Foto</span>
+                <span class="font-mono text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20 text-[0.625rem] font-semibold" id="telemetry-tag">300 DPI Cetak</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-on-surface-variant text-[0.6875rem]">Resolusi Piksel</span>
+                <span class="font-mono text-on-surface font-bold" id="telemetry-resolution">450 × 660 px</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-on-surface-variant text-[0.6875rem]">Ukuran Cetak Fisik</span>
+                <span class="font-mono text-secondary font-medium" id="telemetry-physical">3.81 × 5.59 cm (~4 × 6 cm)</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-on-surface-variant text-[0.6875rem]">Perkiraan Ukuran File</span>
+                <span class="font-mono text-tertiary font-medium" id="telemetry-filesize">~150 KB (JPEG)</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-on-surface-variant text-[0.6875rem]">Kerapatan / Profil</span>
+                <span class="font-mono text-on-surface" id="telemetry-dpi">300 DPI • sRGB Pas Foto</span>
+              </div>
+            </div>
+
+            <!-- Extra scroll spacing so content is never hidden behind sticky bottom -->
+            <div class="h-1"></div>
 
           </div>
-        </div>
 
-        <!-- Panduan Visual & Grid -->
-        <div class="flex flex-col gap-2">
-          <label class="font-headline text-[0.6875rem] font-bold uppercase tracking-wider text-[#c7c4d7]/70">Panduan Grid</label>
-          <div class="grid grid-cols-2 gap-2">
-            <button id="grid-thirds-btn" class="flex items-center gap-1.5 p-2 rounded-lg bg-[#222a3d] text-[#c0c1ff] border border-[#6366f1]/40 text-xs font-medium" type="button">
-              <span class="material-symbols-outlined text-base">grid_3x3</span>
-              <span>Rule of Thirds</span>
+          <!-- Action Footer Buttons (Sticky Bottom) -->
+          <div class="p-3 bg-surface-container-low flex items-center gap-2 border-t border-outline-variant/30 flex-shrink-0 shadow-[0_-4px_16px_rgba(0,0,0,0.3)]">
+            <button class="flex-1 py-2 px-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-medium transition-colors text-center border border-outline-variant/40" id="cancel-crop-btn" type="button">
+              Pusatkan
             </button>
-            <button id="grid-toggle-btn" class="flex items-center gap-1.5 p-2 rounded-lg bg-[#171f33] text-[#c7c4d7] hover:text-white border border-[#464554]/30 text-xs font-medium" type="button">
-              <span class="material-symbols-outlined text-base">disabled_visible</span>
-              <span id="grid-toggle-text">Sembunyikan</span>
+            <button class="flex-[2] py-2 px-3 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary-fixed hover:text-on-primary-fixed shadow-[0_2px_12px_rgba(128,131,255,0.35)] transition-all flex items-center justify-center gap-1.5" id="apply-crop-btn" type="button">
+              <span class="material-symbols-outlined text-base">crop</span>
+              <span>Terapkan Crop &amp; Unduh</span>
             </button>
           </div>
-        </div>
 
-        <!-- Rotasi & Pelurusan -->
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center justify-between">
-            <label class="font-headline text-[0.6875rem] font-bold uppercase tracking-wider text-[#c7c4d7]/70">Rotasi &amp; Orientasi</label>
-            <span id="rotation-val-chip" class="font-mono-code text-xs text-[#4cd7f6]">0.0°</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="font-mono-code text-[0.6875rem] text-[#464554]">-45°</span>
-            <input id="rotation-slider" type="range" min="-45" max="45" step="0.5" value="0" class="w-full h-1.5 bg-[#222a3d] rounded-lg appearance-none cursor-pointer accent-[#6366f1]">
-            <span class="font-mono-code text-[0.6875rem] text-[#464554]">+45°</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2 mt-1">
-            <button id="rotate-90-btn" class="flex items-center justify-center gap-1 py-1.5 rounded bg-[#171f33] hover:bg-[#222a3d] text-xs text-white border border-[#464554]/30 transition-colors" type="button">
-              <span class="material-symbols-outlined text-sm">rotate_right</span>
-              <span>+90°</span>
-            </button>
-            <button id="flip-h-btn" class="flex items-center justify-center gap-1 py-1.5 rounded bg-[#171f33] hover:bg-[#222a3d] text-xs text-white border border-[#464554]/30 transition-colors" type="button">
-              <span class="material-symbols-outlined text-sm">flip</span>
-              <span>Flip H</span>
-            </button>
-            <button id="flip-v-btn" class="flex items-center justify-center gap-1 py-1.5 rounded bg-[#171f33] hover:bg-[#222a3d] text-xs text-white border border-[#464554]/30 transition-colors" type="button">
-              <span class="material-symbols-outlined text-sm" style="transform: rotate(90deg);">flip</span>
-              <span>Flip V</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Telemetri Estimasi Ekspor -->
-        <div class="bg-[#0b1326] p-3 rounded-xl border border-[#464554]/40 flex flex-col gap-2 text-xs">
-          <div class="flex items-center justify-between pb-1 border-b border-[#464554]/30">
-            <span class="font-headline font-semibold text-white uppercase text-[0.6875rem] tracking-wider">Spesifikasi Hasil Crop</span>
-            <span class="font-mono-code text-[0.6875rem] text-[#4edea3] bg-[#4edea3]/10 px-1.5 py-0.5 rounded" id="telemetry-preset-tag">4×6 Cetak</span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="text-[#c7c4d7]/70">Resolusi Target</span>
-            <span id="telemetry-resolution" class="font-mono-code text-white font-medium">450 × 660 px</span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="text-[#c7c4d7]/70">Dimensi Cetak</span>
-            <span id="telemetry-physical" class="font-mono-code text-[#4cd7f6]">3.81 × 5.59 cm (~4×6)</span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="text-[#c7c4d7]/70">Rasio Foto</span>
-            <span class="font-mono-code text-white font-medium">4 : 6 (2 : 3)</span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="text-[#c7c4d7]/70">Kerapatan Cetak</span>
-            <span id="telemetry-dpi" class="font-mono-code text-[#4edea3]">300 DPI (Standar Resmi)</span>
-          </div>
-        </div>
+        </aside>
 
       </div>
 
-      <!-- Action Footer Buttons -->
-      <div class="mt-auto p-4 border-t border-[#464554]/30 sticky bottom-0 bg-[#131b2e] flex items-center gap-2">
-        <button id="btn-recenter" class="flex-1 py-2.5 rounded-lg bg-[#171f33] hover:bg-[#222a3d] text-white text-xs font-medium border border-[#464554]/30 transition-colors text-center" type="button">
-          Reset Posis
-        </button>
-        <button id="apply-crop-btn" class="flex-[2] py-2.5 rounded-lg bg-gradient-to-r from-[#6366f1] to-[#4f46e5] text-white text-xs font-bold shadow-[0_4px_16px_rgba(99,102,241,0.4)] hover:brightness-110 transition-all flex items-center justify-center gap-1.5" type="button">
-          <span class="material-symbols-outlined text-base">crop</span>
-          <span>Terapkan Crop &amp; Unduh</span>
-        </button>
-      </div>
-
-    </aside>
+    </main>
 
   </div>
 
-  <!-- Quick Upload Modal Drawer -->
-  <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="bg-[#171f33] max-w-md w-full rounded-2xl border border-[#464554]/50 shadow-2xl p-6 flex flex-col gap-4 animate-modal-in">
+  <!-- Quick Upload Modal Dialog -->
+  <div class="fixed inset-0 z-50 bg-surface-container-lowest/80 backdrop-blur-md hidden items-center justify-center p-4" id="upload-modal">
+    <div class="modal-content-card bg-surface-container max-w-md w-full rounded-2xl shadow-2xl p-5 flex flex-col gap-4 border border-outline-variant/40">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-[#4cd7f6] text-2xl">cloud_upload</span>
-          <h3 class="font-headline font-bold text-lg text-white">Unggah Foto</h3>
+          <span class="material-symbols-outlined text-secondary text-2xl">cloud_upload</span>
+          <h3 class="font-headline font-bold text-on-surface text-base">Unggah Foto Pas Foto</h3>
         </div>
-        <button id="close-modal-btn" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#c7c4d7] hover:text-white hover:bg-[#222a3d] transition-colors" type="button">
+        <button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" id="close-modal-btn" type="button">
           <span class="material-symbols-outlined text-lg">close</span>
         </button>
       </div>
 
       <!-- Drag & Drop Target Area -->
-      <div id="dropzone" class="border-2 border-dashed border-[#6366f1]/50 hover:border-[#4cd7f6] hover:bg-[#222a3d]/50 rounded-xl p-8 flex flex-col items-center justify-center gap-3 transition-all cursor-pointer text-center">
+      <div class="border-2 border-dashed border-primary/40 hover:border-secondary hover:bg-surface-container-high/50 rounded-xl p-6 flex flex-col items-center justify-center gap-2 transition-all cursor-pointer text-center" id="dropzone">
         <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" class="hidden">
-        <div class="w-14 h-14 rounded-full bg-[#222a3d] flex items-center justify-center text-[#6366f1] shadow-inner">
-          <span class="material-symbols-outlined text-3xl">add_photo_alternate</span>
+        <div class="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center text-primary shadow-inner">
+          <span class="material-symbols-outlined text-2xl">add_photo_alternate</span>
         </div>
         <div class="flex flex-col gap-1">
-          <p class="text-sm font-medium text-white">Tarik &amp; lepas file foto di sini</p>
-          <p class="text-xs text-[#c7c4d7]/70">Atau klik untuk memilih foto dari perangkat Anda</p>
-        </div>
-        <div class="flex items-center gap-1.5 mt-2">
-          <span class="px-2 py-0.5 rounded bg-[#0b1326] text-[#c7c4d7] font-mono-code text-[0.625rem]">JPG</span>
-          <span class="px-2 py-0.5 rounded bg-[#0b1326] text-[#c7c4d7] font-mono-code text-[0.625rem]">PNG</span>
-          <span class="px-2 py-0.5 rounded bg-[#0b1326] text-[#c7c4d7] font-mono-code text-[0.625rem]">WEBP</span>
+          <p class="font-semibold text-on-surface text-sm">Tarik &amp; lepas file foto di sini</p>
+          <p class="text-on-surface-variant text-xs">Mendukung file JPEG, PNG, WEBP resolusi tinggi</p>
         </div>
       </div>
 
-      <div class="flex items-center justify-between pt-2">
-        <span class="text-[0.6875rem] text-[#c7c4d7]/60">Mendukung foto beresolusi tinggi</span>
-        <button id="browse-btn" class="px-4 py-2 rounded-lg bg-[#6366f1] text-white text-xs font-semibold hover:bg-[#4f46e5] transition-colors" type="button">
-          Pilih File
+      <div class="flex items-center justify-between pt-1">
+        <span class="text-outline text-xs font-mono">Format ijazah &amp; dokumen resmi</span>
+        <button class="px-4 py-2 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors" id="browse-btn" type="button">
+          Pilih dari Komputer
         </button>
       </div>
     </div>
   </div>
 
-  <!-- SEPARATE CROPPED RESULT MODAL / AREA -->
-  <div id="result-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-lg hidden items-center justify-center p-4">
-    <div class="bg-[#171f33] max-w-2xl w-full rounded-2xl border border-[#464554]/50 shadow-2xl overflow-hidden flex flex-col animate-modal-in">
+  <!-- SEPARATE CROPPED RESULT PREVIEW MODAL -->
+  <div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl hidden items-center justify-center p-4" id="result-modal">
+    <div class="modal-content-card bg-surface-container max-w-2xl w-full rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-outline-variant/40">
       
-      <!-- Result Modal Header -->
-      <div class="p-4 bg-[#131b2e] border-b border-[#464554]/30 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="w-7 h-7 rounded-lg bg-[#00885d] flex items-center justify-center text-white">
-            <span class="material-symbols-outlined text-base">check</span>
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 bg-surface-container-low border-b border-outline-variant/30 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-lg bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold">
+            <span class="material-symbols-outlined text-lg">check</span>
           </span>
           <div>
-            <h3 class="font-headline font-bold text-base text-white">Hasil Pemotongan Pas Foto 4×6</h3>
-            <p class="text-[0.6875rem] text-[#4edea3]">Diproses secara presisi dengan Rust WebAssembly</p>
+            <h3 class="font-headline font-bold text-on-surface text-base">Hasil Pemotongan Pas Foto 4×6</h3>
+            <p class="text-tertiary text-xs">Diproses secara presisi dengan Rust WebAssembly (Lanczos3 Resampling)</p>
           </div>
         </div>
-        <button id="close-result-modal-btn" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#c7c4d7] hover:text-white hover:bg-[#222a3d] transition-colors" type="button">
+        <button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" id="close-result-modal-btn" type="button">
           <span class="material-symbols-outlined text-lg">close</span>
         </button>
       </div>
 
-      <!-- Result Modal Body -->
+      <!-- Modal Body -->
       <div class="p-6 flex flex-col md:flex-row gap-6 items-center">
         
-        <!-- Cropped Image Display Area -->
-        <div class="flex flex-col items-center gap-2">
-          <div class="relative p-2 rounded-xl bg-[#0b1326] border border-[#464554]/40 shadow-inner">
-            <div class="w-56 h-80 bg-checkerboard rounded-lg overflow-hidden flex items-center justify-center shadow-lg border border-white/10">
+        <!-- Cropped Image Preview Container -->
+        <div class="flex flex-col items-center gap-2 flex-shrink-0">
+          <div class="p-1.5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 shadow-inner">
+            <div class="w-52 h-72 rounded-lg overflow-hidden flex items-center justify-center bg-black/40 shadow-xl border border-white/10">
               <img id="result-image-preview" src="" alt="Pratinjau Hasil Pas Foto" class="w-full h-full object-cover block">
             </div>
           </div>
-          <span class="text-[0.6875rem] font-mono-code text-[#4cd7f6]" id="result-badge-ratio">Rasio Pas Foto 4:6</span>
+          <span class="font-mono text-secondary text-xs font-medium" id="result-badge-ratio">Rasio Pas Foto 4:6</span>
         </div>
 
         <!-- Specifications & Output Options -->
-        <div class="flex-1 flex flex-col gap-4 w-full">
+        <div class="flex-1 flex flex-col gap-3.5 w-full">
           
-          <div class="bg-[#0b1326] p-4 rounded-xl border border-[#464554]/30 flex flex-col gap-2.5">
-            <h4 class="font-headline font-semibold text-xs text-white uppercase tracking-wider text-[#c0c1ff]">Detail Berkas Siap Cetak</h4>
+          <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 flex flex-col gap-2.5 text-xs">
+            <h4 class="font-headline text-primary text-xs font-semibold uppercase tracking-wider mb-0.5">Spesifikasi Berkas Siap Cetak</h4>
             
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-[#c7c4d7]/70">Dimensi Piksel:</span>
-              <span id="result-px-dim" class="font-mono-code text-white font-bold text-sm">450 × 660 px</span>
-            </div>
+            <div class="grid grid-cols-[130px_1fr] items-center gap-y-2">
+              <span class="text-on-surface-variant">Dimensi Piksel:</span>
+              <span id="result-px-dim" class="font-mono text-on-surface font-bold text-sm">450 × 660 px</span>
 
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-[#c7c4d7]/70">Ukuran Fisik Cetak:</span>
-              <span id="result-cm-dim" class="font-mono-code text-[#4cd7f6] font-semibold">3.81 × 5.59 cm</span>
-            </div>
+              <span class="text-on-surface-variant">Ukuran Fisik Cetak:</span>
+              <span id="result-cm-dim" class="font-mono text-secondary font-semibold">3.81 × 5.59 cm</span>
 
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-[#c7c4d7]/70">Resolusi (DPI):</span>
-              <span id="result-dpi-info" class="font-mono-code text-[#4edea3] font-semibold">300 DPI</span>
-            </div>
+              <span class="text-on-surface-variant">Kerapatan Resolusi:</span>
+              <span id="result-dpi-info" class="font-mono text-tertiary font-semibold">300 DPI • Standar Ijazah</span>
 
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-[#c7c4d7]/70">Ukuran File:</span>
-              <span id="result-filesize" class="font-mono-code text-white">~145 KB</span>
+              <span class="text-on-surface-variant">Ukuran File:</span>
+              <span id="result-filesize" class="font-mono text-on-surface">~85 KB (JPEG)</span>
             </div>
           </div>
 
           <!-- Format Choice -->
           <div class="flex flex-col gap-1.5">
-            <label class="text-[0.6875rem] font-bold text-[#c7c4d7]/70 uppercase tracking-wider">Format Berkas</label>
+            <label class="font-semibold text-on-surface-variant uppercase tracking-wider text-[0.6875rem]">Format Berkas Unduhan</label>
             <div class="grid grid-cols-2 gap-2">
-              <button id="format-jpg-btn" class="format-choice-btn py-2 px-3 rounded-lg bg-[#2f2ebe] text-white border border-[#6366f1] text-xs font-semibold flex items-center justify-center gap-1.5" type="button">
+              <button id="format-jpg-btn" class="py-2 px-3 rounded-lg bg-primary-container text-on-primary-container border border-primary/50 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all" type="button">
                 <span class="material-symbols-outlined text-sm">photo</span>
-                <span>JPEG (Standar Web/Ijazah)</span>
+                <span>JPEG (Standar Ijazah)</span>
               </button>
-              <button id="format-png-btn" class="format-choice-btn py-2 px-3 rounded-lg bg-[#0b1326] text-[#c7c4d7] hover:text-white border border-[#464554]/30 text-xs font-semibold flex items-center justify-center gap-1.5" type="button">
+              <button id="format-png-btn" class="py-2 px-3 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface border border-outline-variant/30 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all" type="button">
                 <span class="material-symbols-outlined text-sm">image</span>
                 <span>PNG (Lossless)</span>
               </button>
@@ -525,13 +606,13 @@
           </div>
 
           <!-- Action Buttons -->
-          <div class="flex items-center gap-3 pt-2">
-            <button id="result-edit-again-btn" class="flex-1 py-2.5 px-4 rounded-lg bg-[#222a3d] hover:bg-[#2d3449] text-white text-xs font-semibold transition-colors text-center" type="button">
+          <div class="flex items-center gap-2.5 pt-1">
+            <button id="result-edit-again-btn" class="flex-1 py-2.5 px-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-semibold transition-colors text-center border border-outline-variant/30" type="button">
               Atur Ulang
             </button>
-            <button id="download-final-btn" class="flex-[2] py-2.5 px-4 rounded-lg bg-gradient-to-r from-[#00885d] to-[#10b981] hover:brightness-110 text-white text-xs font-bold shadow-[0_4px_16px_rgba(16,185,129,0.35)] transition-all flex items-center justify-center gap-2" type="button">
+            <button id="download-final-btn" class="flex-[2] py-2.5 px-4 rounded-lg bg-tertiary-container hover:bg-tertiary-fixed text-on-tertiary-container hover:text-on-tertiary-fixed text-xs font-bold shadow-[0_4px_16px_rgba(78,222,163,0.3)] transition-all flex items-center justify-center gap-2" type="button">
               <span class="material-symbols-outlined text-base">download</span>
-              <span>Unduh Pas Foto</span>
+              <span>Unduh Pas Foto 4×6</span>
             </button>
           </div>
 
@@ -542,11 +623,11 @@
     </div>
   </div>
 
-  <!-- Loading Overlay -->
-  <div id="loading-overlay" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center">
-    <div class="flex flex-col items-center gap-3 p-6 bg-[#171f33] rounded-2xl border border-[#464554]/40 shadow-2xl">
-      <div class="w-10 h-10 border-4 border-[#6366f1]/30 border-t-[#6366f1] rounded-full animate-spin"></div>
-      <span class="text-sm font-medium text-white">Memproses crop citra via Rust WASM...</span>
+  <!-- Loading Indicator Overlay -->
+  <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center" id="loading-overlay">
+    <div class="flex flex-col items-center gap-3 p-5 bg-surface-container rounded-2xl border border-outline-variant/40 shadow-2xl">
+      <div class="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+      <span class="text-xs font-medium text-on-surface">Memproses citra dengan Rust WebAssembly...</span>
     </div>
   </div>
 
