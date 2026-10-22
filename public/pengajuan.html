@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="id" style="">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="web_standard" name="shell-type">
+  <title>Portal Layanan Penerbitan Ijazah - Universitas Tanjungpura</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+    rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet">
+  <style>
+    @layer base {
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        overscroll-behavior: none;
+      }
+
+      main>:first-child {
+        margin-top: 0 !important;
+      }
+
+      main>:last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script
+    id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-error-container": "#93000a", "background": "#faf8ff", "on-secondary": "#ffffff", "on-primary-fixed": "#001a41", "surface-container-high": "#e2e7ff", "on-primary-container": "#7c94c8", "secondary-fixed": "#ffdcc3", "on-tertiary": "#ffffff", "primary-container": "#0f2c59", "error-container": "#ffdad6", "surface": "#faf8ff", "surface-container-low": "#f2f3ff", "inverse-surface": "#283044", "outline": "#747780", "tertiary-container": "#00304c", "surface-tint": "#465e8e", "tertiary-fixed": "#cce5ff", "surface-bright": "#faf8ff", "on-tertiary-container": "#379ce0", "inverse-primary": "#aec7fd", "surface-container-lowest": "#ffffff", "on-secondary-fixed-variant": "#6e3900", "error": "#ba1a1a", "on-secondary-container": "#663500", "outline-variant": "#c4c6d0", "surface-container-highest": "#dae2fd", "inverse-on-surface": "#eef0ff", "primary": "#00173b", "on-background": "#131b2e", "primary-fixed-dim": "#aec7fd", "tertiary-fixed-dim": "#93ccff", "secondary": "#904d00", "surface-container": "#eaedff", "on-primary": "#ffffff", "on-tertiary-fixed-variant": "#004b73", "secondary-container": "#fe932c", "on-error": "#ffffff", "on-tertiary-fixed": "#001d31", "on-surface": "#131b2e", "tertiary": "#001a2d", "on-primary-fixed-variant": "#2d4674", "primary-fixed": "#d8e2ff", "on-surface-variant": "#44474f", "on-secondary-fixed": "#2f1500", "surface-variant": "#dae2fd", "surface-dim": "#d2d9f4", "secondary-fixed-dim": "#ffb77d" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-md": "1rem", "margin-sm": "1rem", "space-xl": "2.5rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "space-lg": "1.5rem", "margin": "2rem", "gutter": "1.5rem", "gutter-sm": "1rem" }, "fontFamily": { "body-md": ["Inter"], "title-md": ["Inter"], "title-lg": ["Plus Jakarta Sans"], "body-sm": ["Inter"], "display-lg-mobile": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "display-lg": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-sm": ["Inter"], "label-md": ["Inter"], "label-lg": ["Inter"], "body-lg": ["Inter"] }, "fontSize": { "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "title-md": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "title-lg": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "display-lg-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "800" }], "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }] } } } };</script>
+</head>
+
+<body class="bg-background font-body-md text-on-surface antialiased">
+  <header
+    class="fixed top-0 left-0 right-0 w-full z-50 bg-[#07132b]/95 backdrop-blur-xl border-b border-white/10 shadow-lg">
+    <div class="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+
+      <!-- Brand Logo & Title -->
+      <a href="index.html" class="flex items-center gap-2.5 sm:gap-3 hover:opacity-95 transition-opacity shrink-0">
+        <img src="logo.png" alt="Logo Resmi Universitas Tanjungpura"
+          class="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm shrink-0">
+        <div class="flex flex-col justify-center">
+          <span
+            class="font-bold text-sm sm:text-base lg:text-lg text-white tracking-tight leading-tight whitespace-nowrap">Universitas
+            Tanjungpura</span>
+          <span class="text-[11px] sm:text-xs text-slate-300 font-medium leading-tight whitespace-nowrap">Portal Layanan
+            Penerbitan Ijazah</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Links (Visible on lg and up) -->
+      <nav class="hidden lg:flex items-center gap-1 xl:gap-1.5 bg-white/5 p-1 rounded-xl border border-white/10">
+        <a href="index.html"
+          class="px-3 py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all text-on-surface-variant hover:text-on-surface hover:bg-surface-container">Beranda
+          Layanan</a>
+        <a href="panduan.html"
+          class="px-3 py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all text-on-surface-variant hover:text-on-surface hover:bg-surface-container">Panduan
+          &amp; Prosedur</a>
+        <a href="pengajuan.html" aria-current="page"
+          class="px-3 py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all bg-primary text-on-primary font-bold shadow-sm">Ajukan
+          Permohonan</a>
+        <a href="lacak.html"
+          class="px-3 py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all text-on-surface-variant hover:text-on-surface hover:bg-surface-container">Lacak
+          Status</a>
+        <a href="index.html#faq-dan-kontak"
+          class="px-3 py-1.5 rounded-lg text-xs xl:text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all">HelpDesk
+          &amp; Jawaban (FAQ)</a>
+        <a href="/crop/"
+          class="ml-1 px-3 py-1.5 rounded-lg text-xs xl:text-sm font-bold bg-[#00885d] hover:bg-[#4edea3] text-[#002113] hover:text-[#000703] shadow-[0_2px_10px_rgba(0,136,93,0.35)] transition-all flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[17px]">crop</span>
+          <span>Crop Pas Foto 4x6</span>
+        </a>
+      </nav>
+
+      <!-- Right Side Actions & Mobile Hamburger -->
+      <div class="flex items-center gap-2">
+        <a href="https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20butuh%20bantuan%20layanan%20ijazah"
+          target="_blank"
+          class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-semibold shadow-sm transition-all">
+          <span class="material-symbols-outlined text-[18px] text-[#4cd7f6]">support_agent</span>
+          <span class="hidden md:inline">HelpDesk BAK</span>
+        </a>
+
+        <!-- Mobile Hamburger Button -->
+        <button id="mobile-menu-toggle" type="button"
+          class="lg:hidden p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 border border-white/15 transition-colors focus:outline-none"
+          aria-label="Buka Menu">
+          <span id="menu-icon" class="material-symbols-outlined text-2xl">menu</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Collapsible Menu Drawer -->
+    <div id="mobile-menu-drawer"
+      class="hidden lg:hidden bg-[#07132b] border-b border-white/10 px-4 py-3 space-y-1 shadow-2xl transition-all">
+      <a href="index.html"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
+        <span class="material-symbols-outlined text-lg">home</span>
+        <span>Beranda Layanan</span>
+      </a>
+      <a href="panduan.html"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
+        <span class="material-symbols-outlined text-lg">menu_book</span>
+        <span>Panduan &amp; Prosedur</span>
+      </a>
+      <a href="pengajuan.html"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold bg-primary text-on-primary font-bold shadow-sm">
+        <span class="material-symbols-outlined text-lg">assignment</span>
+        <span>Ajukan Permohonan</span>
+      </a>
+      <a href="lacak.html"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
+        <span class="material-symbols-outlined text-lg">track_changes</span>
+        <span>Lacak Status</span>
+      </a>
+      <a href="index.html#faq-dan-kontak"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white">
+        <span class="material-symbols-outlined text-lg">quiz</span>
+        <span>HelpDesk &amp; Jawaban (FAQ)</span>
+      </a>
+      <div class="pt-2 border-t border-white/10 flex flex-col gap-2">
+        <a href="/crop/"
+          class="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-[#00885d] text-[#002113] font-bold text-sm shadow-md">
+          <span class="material-symbols-outlined text-lg">crop</span>
+          <span>Aplikasi Pemotong Pas Foto 4x6 (WASM)</span>
+        </a>
+        <a href="https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20butuh%20bantuan%20layanan%20ijazah"
+          target="_blank"
+          class="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-lg bg-white/5 text-slate-200 border border-white/10 text-xs font-semibold">
+          <span class="material-symbols-outlined text-base text-[#4cd7f6]">support_agent</span>
+          <span>Hubungi HelpDesk BAK Untan</span>
+        </a>
+      </div>
+    </div>
+  </header>
+  <main class="w-full pt-20 bg-background min-h-screen">
+    <div class="flex flex-col w-full">
+      <!-- Sub-header Breadcrumb / Portal Context Bar -->
+      <section class="w-full bg-surface-container-low py-space-sm px-margin">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-space-sm">
+          <div class="flex items-center gap-space-xs font-label-md text-label-md text-on-surface-variant">
+            <a class="hover:text-primary transition-colors flex items-center gap-space-xs" href="#"><span
+                class="material-symbols-outlined text-[16px]">home</span><span class="">Beranda BAK</span></a>
+            <span class="">/</span>
+            <a class="hover:text-primary transition-colors" href="#"><span
+                class="material-symbols-outlined text-[16px]">home</span><span class="">Beranda BAK</span></a>
+            <span class="">/</span>
+            <span class="text-primary font-bold">Formulir Pengajuan Baru</span>
+          </div>
+          <div
+            class="flex items-center gap-space-xs text-secondary font-label-sm text-label-sm bg-secondary-fixed/50 px-3 py-1 rounded-full">
+            <span class="material-symbols-outlined text-[14px]">security</span>
+            <span class="">Sistem Verifikasi PDDIKTI &amp; TTE BSrE Aktif</span>
+          </div>
+        </div>
+      </section>
+      <!-- Title & Step Overview Header -->
+      <section class="w-full py-space-lg px-margin">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+          <div>
+            <span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider block mb-1">Biro
+              Akademik dan Kemahasiswaan (BAK) Gedung Rektorat</span>
+            <h1 class="font-headline-lg text-headline-lg text-primary font-extrabold tracking-tight">Formulir Pengajuan
+              Permohonan Ijazah Online</h1>
+            <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mt-1">
+              Lengkapi data akademik, pilih kategori layanan secara seksama, serta unggah dokumen resmi untuk proses
+              verifikasi legalitas oleh Subbagian Registrasi Akademik Universitas Tanjungpura.
+            </p>
+          </div>
+          <div
+            class="flex items-center gap-space-xs bg-surface-container-high px-space-md py-space-sm rounded-lg shrink-0">
+            <span class="material-symbols-outlined text-primary text-[22px]">draft</span>
+            <div class="flex flex-col">
+              <span class="font-label-sm text-label-sm text-on-surface-variant">ID Referensi Sementara</span>
+              <span class="font-title-md text-title-md text-primary font-bold tracking-wider">Biro Akademik dan
+                Kemahasiswaan (BAK) Gedung Rektorat</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Stepper Indicator (4 Tahap) -->
+      <section class="w-full px-margin pb-space-lg">
+        <div class="max-w-7xl mx-auto">
+          <div class="bg-surface-container-lowest p-space-md md:p-space-lg rounded-xl shadow-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md relative">
+              <!-- Step 1 (Aktif) -->
+              <div class="flex items-start gap-space-sm relative">
+                <div
+                  class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-title-md text-title-md shrink-0 shadow-sm">
+                  1
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <span class="font-label-sm text-label-sm text-secondary font-bold uppercase">Tahap 1 • Sedang
+                    Diisi</span>
+                  <span class="font-title-md text-title-md text-primary font-bold truncate">Identitas &amp;
+                    Akademik</span>
+                  <span class="font-body-sm text-body-sm text-on-surface-variant truncate">NIM, NIK, &amp; Program
+                    Studi</span>
+                </div>
+              </div>
+              <!-- Step 2 -->
+              <div class="flex items-start gap-space-sm relative opacity-70">
+                <div
+                  class="w-10 h-10 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center font-title-md text-title-md shrink-0">
+                  2
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <span class="font-label-sm text-label-sm text-on-surface-variant">Tahap 2</span>
+                  <span class="font-title-md text-title-md text-on-surface font-semibold truncate">Layanan &amp;
+                    Alasan</span>
+                  <span class="font-body-sm text-body-sm text-on-surface-variant truncate">Pilihan Kategori
+                    Permohonan</span>
+                </div>
+              </div>
+              <!-- Step 3 -->
+              <div class="flex items-start gap-space-sm relative opacity-70">
+                <div
+                  class="w-10 h-10 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center font-title-md text-title-md shrink-0">
+                  3
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <span class="font-label-sm text-label-sm text-on-surface-variant">Tahap 3</span>
+                  <span class="font-title-md text-title-md text-on-surface font-semibold truncate">Unggah Dokumen</span>
+                  <span class="font-body-sm text-body-sm text-on-surface-variant truncate">Foto 4x6, KTP, Surat
+                    Khusus</span>
+                </div>
+              </div>
+              <!-- Step 4 -->
+              <div class="flex items-start gap-space-sm relative opacity-70">
+                <div
+                  class="w-10 h-10 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center font-title-md text-title-md shrink-0">
+                  4
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <span class="font-label-sm text-label-sm text-on-surface-variant">Tahap 4</span>
+                  <span class="font-title-md text-title-md text-on-surface font-semibold truncate">Konfirmasi &amp;
+                    Tiket</span>
+                  <span class="font-body-sm text-body-sm text-on-surface-variant truncate">Legalitas &amp; Bukti
+                    Pengajuan</span>
+                </div>
+              </div>
+            </div>
+            <!-- Progress Indicator Bar -->
+            <div class="w-full bg-surface-container-high h-2 rounded-full mt-space-md overflow-hidden">
+              <div class="bg-primary h-full w-1/4 rounded-full transition-all duration-300"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Main Grid Workspace: Form + Sidebar -->
+      <section class="w-full px-margin pb-space-xl">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+          <!-- FORM COLUMN (8 of 12) -->
+          <div class="lg:col-span-8 flex flex-col gap-space-lg">
+            <!-- Section: Pilihan Kategori Layanan -->
+            <div class="bg-surface-container-lowest p-space-md md:p-space-lg rounded-xl shadow-sm">
+              <div class="flex items-center justify-between pb-space-sm mb-space-md border-b-0">
+                <div class="flex items-center gap-space-xs">
+                  <span class="material-symbols-outlined text-primary text-[24px]">category</span>
+                  <h2 class="font-headline-sm text-headline-sm text-primary font-bold">1. Pilih Kategori Layanan Ijazah
+                  </h2>
+                </div>
+                <span
+                  class="font-label-sm text-label-sm text-error bg-error-container/40 text-on-error-container px-2.5 py-1 rounded-full font-bold">Wajib
+                  Dipilih</span>
+              </div>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+                Pilihlah klasifikasi penerbitan sesuai dengan kondisi akademik dan berkas kepemilikan Anda. Informasi
+                dan persyaratan akan disesuaikan otomatis dengan opsi yang Anda pilih.
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md" id="serviceOptions">
+                <!-- Option 1: Penerbitan Baru -->
+                <label
+                  class="cursor-pointer relative flex flex-col p-space-md rounded-xl bg-surface-container-low transition-all duration-200 hover:shadow-md service-card selected bg-surface-container-high/80">
+                  <input checked="" class="hidden" name="service_type" type="radio" value="penerbitan_baru">
+                  <div class="flex items-center justify-between mb-space-xs">
+                    <span class="font-title-md text-title-md text-primary font-bold">Penerbitan Baru</span>
+                    <span
+                      class="radio-indicator w-5 h-5 rounded-full bg-primary flex items-center justify-center text-on-primary">
+                      <span class="material-symbols-outlined text-[14px]">check</span>
+                    </span>
+                  </div>
+                  <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Bagi lulusan yudisium baru yang belum pernah menerima blanko atau berkas ijazah resmi fisik pertama.
+                  </p>
+                  <div
+                    class="mt-space-sm pt-space-xs flex items-center gap-space-xs text-secondary font-label-sm text-label-sm">
+                    <span class="material-symbols-outlined text-[16px]">verified</span>
+                    <span class="">Proses Validasi PIN &amp; BSrE Terintegrasi</span>
+                  </div>
+                </label>
+                <!-- Option 2: Perbaikan Data -->
+                <label
+                  class="cursor-pointer relative flex flex-col p-space-md rounded-xl bg-surface-container-low transition-all duration-200 hover:shadow-md service-card">
+                  <input class="hidden" name="service_type" type="radio" value="perbaikan_data">
+                  <div class="flex items-center justify-between mb-space-xs">
+                    <span class="font-title-md text-title-md text-primary font-bold">Penerbitan Perbaikan</span>
+                    <span
+                      class="radio-indicator w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center text-transparent">
+                      <span class="material-symbols-outlined text-[14px]">check</span>
+                    </span>
+                  </div>
+                  <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Pengajuan koreksi ralat nama, NIK, tanggal lahir, atau gelar akibat perbedaan dengan Akta Lahir /
+                    KTP.
+                  </p>
+                  <div
+                    class="mt-space-sm pt-space-xs flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
+                    <span class="material-symbols-outlined text-[16px]">history_edu</span>
+                    <span class="">Memerlukan Ijazah Fisik Asli Lama</span>
+                  </div>
+                </label>
+                <!-- Option 3: Penerbitan Ulang -->
+                <label
+                  class="cursor-pointer relative flex flex-col p-space-md rounded-xl bg-surface-container-low transition-all duration-200 hover:shadow-md service-card">
+                  <input class="hidden" name="service_type" type="radio" value="penerbitan_ulang">
+                  <div class="flex items-center justify-between mb-space-xs">
+                    <div class="flex items-center gap-2"><span
+                        class="font-title-md text-title-md text-primary font-bold">Penerbitan Ulang</span><span
+                        class="font-label-sm text-[11px] bg-secondary-fixed/50 text-secondary font-bold px-2 py-0.5 rounded-full">Biaya:
+                        Rp 200.000,-</span></div>
+                    <span
+                      class="radio-indicator w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center text-transparent">
+                      <span class="material-symbols-outlined text-[14px]">check</span>
+                    </span>
+                  </div>
+                  <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Penerbitan Surat Pengganti Ijazah resmi akibat kehilangan mutlak atau musnah bencana.
+                  </p>
+                  <div
+                    class="mt-space-sm pt-space-xs flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
+                    <span class="material-symbols-outlined text-[16px]">local_police</span>
+                    <span class="">Wajib LP Kepolisian &amp; Keterangan Dekan</span>
+                  </div>
+                </label>
+                <!-- Option 4: Pencetakan Ulang -->
+                <label
+                  class="cursor-pointer relative flex flex-col p-space-md rounded-xl bg-surface-container-low transition-all duration-200 hover:shadow-md service-card"><input
+                    class="hidden" name="service_type" type="radio" value="pencetakan_ulang">
+                  <div class="flex items-center justify-between mb-space-xs">
+                    <div class="flex items-center gap-2"><span
+                        class="font-title-md text-title-md text-primary font-bold">Pencetakan Ulang</span><span
+                        class="font-label-sm text-[11px] bg-secondary-fixed/50 text-secondary font-bold px-2 py-0.5 rounded-full">Segera
+                        Hadir</span></div><span
+                      class="radio-indicator w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center text-transparent"><span
+                        class="material-symbols-outlined text-[14px]">check</span></span>
+                  </div>
+                  <p class="font-body-sm text-body-sm text-on-surface-variant">Pencetakan ulang blanko fisik ijazah
+                    rusak/tercecer, terintegrasi validasi ketersediaan arsip Ijazah TTE BSrE.</p>
+                  <div
+                    class="mt-space-sm pt-space-xs flex items-center gap-space-xs text-secondary font-label-sm text-label-sm">
+                    <span class="material-symbols-outlined text-[16px]">hourglass_top</span><span class="">Menunggu
+                      Integrasi Ijazah TTE &amp; Fisik</span></div>
+                </label>
+              </div>
+              <!-- Notification TTE Feature -->
+              <div
+                class="mt-space-md p-space-sm bg-surface-container rounded-lg flex items-center justify-between gap-space-sm">
+                <div class="flex items-center gap-space-xs">
+                  <span class="material-symbols-outlined text-secondary text-[20px]">mark_email_read</span>
+                  <span class="font-body-sm text-body-sm text-on-surface"><strong>Ijazah TTE Digital BSrE:</strong>
+                    Tersedia untuk yudisium mulai semester genap 2024/2025 secara otomatis.</span>
+                </div>
+                <span
+                  class="font-label-sm text-label-sm bg-secondary text-on-secondary px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0">Aktif</span>
+              </div>
+            </div>
+            <!-- Section: Identitas Mahasiswa & Data Akademik -->
+            <div class="bg-surface-container-lowest p-space-md md:p-space-lg rounded-xl shadow-sm">
+              <div class="flex items-center justify-between pb-space-sm mb-space-md border-b-0">
+                <div class="flex items-center gap-space-xs">
+                  <span class="material-symbols-outlined text-primary text-[24px]">badge</span>
+                  <h2 class="font-headline-sm text-headline-sm text-primary font-bold">2. Data Pemohon &amp; Riwayat
+                    Akademik</h2>
+                </div>
+                <div
+                  class="flex items-center gap-1 font-label-sm text-label-sm text-primary font-semibold bg-surface-container px-2.5 py-1 rounded-md">
+                  <span class="material-symbols-outlined text-[14px]">sync</span>
+                  <span class="">Sinkronisasi Simalum Untan</span>
+                </div>
+              </div>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-md">
+                Pastikan nama lengkap dan identitas kelahiran ditulis persis sesuai dengan dokumen sah negara (Akta
+                Kelahiran / e-KTP) untuk menghindari kekeliruan cetak penulisan ijazah negara.
+              </p>
+              <form class="flex flex-col gap-space-md" id="ijazahForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+                  <!-- NIM -->
+                  <div class="flex flex-col gap-1.5">
+                    <label
+                      class="font-label-md text-label-md text-on-surface font-semibold flex items-center justify-between"
+                      for="nim">
+                      <span class="">Nomor Induk Mahasiswa (NIM) <span class="text-error">*</span></span>
+                      <span class="text-on-surface-variant font-normal text-[11px]">8 - 12 Karakter</span>
+                    </label>
+                    <div class="relative">
+                      <input
+                        class="w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                        id="nim" placeholder="Contoh: F1081191042" required="" type="text" value="F1081191042">
+                      <span
+                        class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-primary">verified</span>
+                    </div>
+                    <span class="font-body-sm text-body-sm text-on-surface-variant">Terverifikasi pada Pangkalan Data
+                      SIAKAD Untan</span>
+                  </div>
+                  <!-- NIK -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold" for="nik">
+                      Nomor Induk Kependudukan (NIK) <span class="text-error">*</span>
+                    </label>
+                    <input
+                      class="w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                      id="nik" placeholder="16 Digit Nomor e-KTP" required="" type="text" value="6171031508990003">
+                    <span class="font-body-sm text-body-sm text-on-surface-variant">Wajib padan dengan data Dukcapil
+                      nasional</span>
+                  </div>
+                  <!-- Nama Lengkap -->
+                  <div class="flex flex-col gap-1.5 md:col-span-2">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold" for="nama_lengkap">
+                      Nama Lengkap Mahasiswa (Sesuai Akta Kelahiran &amp; Ijazah Terakhir) <span
+                        class="text-error">*</span>
+                    </label>
+                    <input
+                      class="w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface uppercase focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                      id="nama_lengkap" placeholder="NAMA LENGKAP KAPITAL TANPA SINGKATAN TANPA GELAR" required=""
+                      type="text" value="MUHAMMAD FAUZI PRATAMA">
+                    <span class="font-label-sm text-label-sm text-secondary font-medium">Gelar sarjana/magister akan
+                      diterbitkan otomatis sesuai Surat Keputusan (SK) Rektor Untan.</span>
+                  </div>
+                  <!-- Tempat Lahir -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold" for="tempat_lahir">
+                      Tempat Lahir (Sesuai Akta Kelahiran) <span class="text-error">*</span>
+                    </label>
+                    <input
+                      class="w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                      id="tempat_lahir" placeholder="Kota / Kabupaten Kelahiran" required="" type="text"
+                      value="Pontianak">
+                  </div>
+                  <!-- Tanggal Lahir -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold" for="tanggal_lahir">
+                      Tanggal Lahir <span class="text-error">*</span>
+                    </label>
+                    <input
+                      class="w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                      id="tanggal_lahir" required="" type="date" value="1999-08-15">
+                  </div>
+                  <!-- Fakultas & Program Studi -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold" for="fakultas">
+                      Fakultas Asal <span class="text-error">*</span>
+                    </label>
+                    <select
+                      class="w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                      id="fakultas">
+                      <option value="FT">Fakultas Teknik</option>
+                      <option selected="" value="FKIP">Fakultas Keguruan dan Ilmu Pendidikan</option>
+                      <option value="FEB">Fakultas Ekonomi dan Bisnis</option>
+                      <option value="FH">Fakultas Hukum</option>
+                      <option value="FP">Fakultas Pertanian</option>
+                      <option value="FISIP">Fakultas Ilmu Sosial dan Ilmu Politik</option>
+                      <option value="FMIPA">Fakultas Matematika dan Ilmu Pengetahuan Alam</option>
+                      <option value="FK">Fakultas Kedokteran</option>
+                      <option value="FAHUT">Fakultas Kehutanan</option>
+                    </select>
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold" for="prodi">
+                      Program Studi <span class="text-error">*</span>
+                    </label>
+                    <select
+                      class="w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                      id="prodi">
+                      <option selected="" value="Pendidikan Matematika">S1 - Pendidikan Matematika</option>
+                      <option value="Pendidikan Bahasa Indonesia">S1 - Pendidikan Bahasa Indonesia</option>
+                      <option value="Pendidikan Bahasa Inggris">S1 - Pendidikan Bahasa Inggris</option>
+                      <option value="Pendidikan Fisika">S1 - Pendidikan Fisika</option>
+                      <option value="Pendidikan Biologi">S1 - Pendidikan Biologi</option>
+                    </select>
+                  </div>
+                  <!-- Periode Yudisium & Tahun Lulus -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold" for="periode_yudisium">
+                      Periode Yudisium / Tanggal Lulus SK <span class="text-error">*</span>
+                    </label>
+                    <input
+                      class="w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                      id="periode_yudisium" required="" type="text"
+                      value="Wisuda Periode III TA 2024/2025 (28 Januari 2025)">
+                  </div>
+                  <!-- IPK Kelulusan -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold" for="ipk">
+                      Indeks Prestasi Kumulatif (IPK)
+                    </label>
+                    <input
+                      class="w-full h-11 px-3.5 bg-surface-container rounded-lg font-body-md text-body-md text-on-surface-variant cursor-not-allowed shadow-none"
+                      id="ipk" readonly="" type="text" value="3.84 (Dengan Pujian / Cumlaude)">
+                  </div>
+                  <!-- Kontak WhatsApp -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold" for="whatsapp">
+                      Nomor WhatsApp Aktif Pemohon <span class="text-error">*</span>
+                    </label>
+                    <div class="relative">
+                      <input
+                        class="w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                        id="whatsapp" placeholder="08xxxxxxxxxx" required="" type="tel" value="081256789012">
+                      <span
+                        class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">chat</span>
+                    </div>
+                    <span class="font-body-sm text-body-sm text-on-surface-variant">Digunakan untuk notifikasi status
+                      berkas dan pengiriman kode verifikasi</span>
+                  </div>
+                  <!-- Email Aktif -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold" for="email">
+                      Alamat Surel / Email Aktif <span class="text-error">*</span>
+                    </label>
+                    <div class="relative">
+                      <input
+                        class="w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                        id="email" placeholder="nama@email.com" required="" type="email"
+                        value="fauzi.pratama@student.untan.ac.id">
+                      <span
+                        class="material-symbols-outlined absolute right-3 top-3 text-[18px] text-on-surface-variant">mail</span>
+                    </div>
+                    <span class="font-body-sm text-body-sm text-on-surface-variant">Salinan elektronik dan arsip draft
+                      permohonan dikirimkan kemari</span>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <!-- Section: Unggah Berkas & Pas Foto Resmi -->
+            <div class="bg-surface-container-lowest p-space-md md:p-space-lg rounded-xl shadow-sm">
+              <div class="flex items-center justify-between pb-space-sm mb-space-md border-b-0">
+                <div class="flex items-center gap-space-xs">
+                  <span class="material-symbols-outlined text-primary text-[24px]">cloud_upload</span>
+                  <h2 class="font-headline-sm text-headline-sm text-primary font-bold">3. Unggah Berkas Persyaratan
+                    &amp; Foto Ijazah</h2>
+                </div>
+                <span
+                  class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-full">Format
+                  PDF • JPG • PNG</span>
+              </div>
+              <div class="flex flex-col gap-space-lg">
+                <!-- Item 1: Pas Foto 4x6 Untan Standard -->
+                <div class="p-space-md rounded-xl bg-surface-container-low">
+                  <div class="flex flex-col md:flex-row gap-space-md items-start">
+                    <!-- Preview Canvas / Frame Foto 4x6 -->
+                    <div
+                      class="relative w-32 h-44 rounded-lg overflow-hidden shrink-0 bg-surface-container flex flex-col items-center justify-center shadow-md">
+                      <img class="w-full h-full object-cover"
+                        data-alt="Official Indonesian university graduation formal portrait photo of a male student wearing dark academic suit with tie against sharp royal blue solid background, looking directly forward, crisp professional studio lighting"
+                        src="contoh_foto_ijazah.jpg">
+                      <div class="absolute bottom-0 inset-x-0 bg-primary/80 py-1 text-center">
+                        <span class="font-label-sm text-[10px] text-on-primary font-bold">UKURAN RESMI 4x6</span>
+                      </div>
+                    </div>
+                    <!-- Guidance & Upload Trigger -->
+                    <div class="flex-1 flex flex-col justify-between h-full">
+                      <div>
+                        <div class="flex items-center justify-between">
+                          <span class="font-title-md text-title-md text-primary font-bold">Pas Foto Ijazah Formal 4x6
+                            (Standar UNTAN) <span class="text-error">*</span></span>
+                          <span
+                            class="font-label-sm text-label-sm text-secondary font-bold bg-secondary-fixed/50 px-2 py-0.5 rounded">Wajib
+                            Latar Biru (Standar Seluruh Fakultas)</span>
+                        </div>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Seluruh calon wisudawan wajib
+                          mengunggah foto formal berlatar belakang warna biru seragam tanpa membedakan fakultas. Pria
+                          memakai jas hitam/gelap, kemeja putih, dan dasi. Wanita memakai blazer gelap berkerah rapi
+                          (berjilbab polos tanpa motif). Dilarang memakai kacamata hitam atau filter kamera ponsel.</p>
+                        <div
+                          class="mt-space-xs flex items-center gap-space-xs text-primary font-label-sm text-label-sm">
+                          <span class="material-symbols-outlined text-[16px]">photo_library</span>
+                          <a class="underline hover:text-secondary font-semibold" href="#">Panduan Lengkap Standar Foto
+                            Ijazah Rektorat Untan</a>
+                        </div>
+                      </div>
+                      <div class="mt-space-md flex flex-wrap items-center gap-space-sm">
+                        <button
+                          class="inline-flex items-center gap-space-xs px-4 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary-container shadow-sm transition-colors"
+                          type="button">
+                          <span class="material-symbols-outlined text-[18px]">file_upload</span>
+                          <span class="">Ganti Pas Foto (Maks 2 MB)</span>
+                        </button>
+                        <a href="/crop/" target="_blank"
+                          class="inline-flex items-center gap-space-xs px-4 py-2 bg-secondary-container text-on-secondary-container font-label-md text-label-md font-bold rounded-lg hover:brightness-110 shadow-sm transition-all"
+                          title="Buka aplikasi pemotong foto 4x6 di tab baru">
+                          <span class="material-symbols-outlined text-[18px]">crop</span>
+                          <span class="">Sesuaikan Foto dengan Photo Ijazah Untan</span>
+                        </a>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">Terunggah: <strong
+                            class="text-primary font-semibold">FOTO_IJAZAH_F1081191042.JPG (1.4 MB)</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Item 2: Scan KTP / Akta Kelahiran -->
+                <div
+                  class="p-space-md rounded-xl bg-surface-container-low flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
+                  <div class="flex items-start gap-space-sm">
+                    <div
+                      class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-primary shrink-0">
+                      <span class="material-symbols-outlined text-[26px]">account_box</span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="font-title-md text-title-md text-primary font-bold">Scan e-KTP / Kartu Keluarga &amp;
+                        Akta Kelahiran <span class="text-error">*</span></span>
+                      <span class="font-body-sm text-body-sm text-on-surface-variant">Dokumen pembanding resmi keabsahan
+                        nama, NIK, dan tanggal lahir (PDF/JPG, maks 5 MB).</span>
+                      <span class="font-label-sm text-label-sm text-secondary font-semibold mt-1">Status: Berkas
+                        KTP_FAUZI_PRATAMA.PDF siap diverifikasi</span>
+                    </div>
+                  </div>
+                  <button
+                    class="inline-flex items-center gap-space-xs px-4 py-2 bg-surface-container-lowest text-primary font-label-md text-label-md rounded-lg shadow-sm hover:bg-surface-container transition-colors shrink-0"
+                    type="button">
+                    <span class="material-symbols-outlined text-[18px]">sync_alt</span>
+                    <span class="">Unggah Ulang</span>
+                  </button>
+                </div>
+                <!-- Item 3: Berkas Khusus / Surat Pendukung (Conditional Info) -->
+                <div
+                  class="p-space-md rounded-xl bg-surface-container-low flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
+                  <div class="flex items-start gap-space-sm">
+                    <div
+                      class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0">
+                      <span class="material-symbols-outlined text-[26px]">folder_special</span>
+                    </div>
+                    <div class="flex flex-col">
+                      <div class="flex items-center gap-space-xs">
+                        <span class="font-title-md text-title-md text-primary font-bold">Berkas Pendukung Khusus
+                          (Opsional / Kondisional)</span>
+                        <span
+                          class="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded">Jika
+                          Diperlukan</span>
+                      </div>
+                      <span class="font-body-sm text-body-sm text-on-surface-variant">Khusus pengajuan Ulang/Perbaikan:
+                        Surat Tanda Penerimaan Laporan Kehilangan (STPLK) Kepolisian atau Scan Ijazah Lama yang
+                        Rusak.</span>
+                    </div>
+                  </div>
+                  <button
+                    class="inline-flex items-center gap-space-xs px-4 py-2 bg-surface-container-lowest text-on-surface font-label-md text-label-md rounded-lg shadow-sm hover:bg-surface-container transition-colors shrink-0"
+                    type="button">
+                    <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                    <span class="">Pilih Berkas PDF</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- Section: Pernyataan Integritas & Keaslian Dokumen -->
+            <div class="bg-surface-container-lowest p-space-md md:p-space-lg rounded-xl shadow-sm">
+              <div class="flex items-center gap-space-xs pb-space-sm mb-space-sm">
+                <span class="material-symbols-outlined text-secondary text-[24px]">gavel</span>
+                <h2 class="font-headline-sm text-headline-sm text-primary font-bold">4. Pernyataan Integritas &amp;
+                  Legalitas Pemohon</h2>
+              </div>
+              <div
+                class="p-space-md bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface leading-relaxed flex flex-col gap-space-sm">
+                <p class="">
+                  Dengan ini saya menyatakan dengan sadar dan sebenar-benarnya bahwa:
+                </p>
+                <ul class="list-disc pl-5 flex flex-col gap-1 text-on-surface-variant font-body-sm text-body-sm">
+                  <li class="">Seluruh data identitas diri, status kelulusan yudisium, dan berkas persyaratan yang saya
+                    unggah pada Portal Layanan Penerbitan Ijazah Universitas Tanjungpura ini adalah sah, benar, dan
+                    merupakan milik sah pemohon pribadi.</li>
+                  <li class="">Saya bersedia menerima sanksi administratif dan hukum sesuai dengan peraturan
+                    perundang-undangan Negara Kesatuan Republik Indonesia apabila terbukti melakukan pemalsuan dokumen
+                    atau manipulasi data akademik.</li>
+                  <li class="">Penerbitan Ijazah bertanda tangan elektronik (TTE BSrE) maupun pencetakan blanko resmi
+                    tunduk penuh pada aturan SK Rektor Untan dan PISN Kemdiktisaintek.</li>
+                </ul>
+                <label class="flex items-start gap-space-sm mt-space-sm cursor-pointer pt-space-xs">
+                  <input checked="" class="mt-1 w-5 h-5 accent-primary rounded cursor-pointer" id="legalCheckbox"
+                    type="checkbox">
+                  <span class="font-title-md text-body-md text-primary font-semibold select-none">
+                    Saya menyetujui seluruh ketentuan legalitas di atas dan menyatakan bahwa data yang diisi telah
+                    diverifikasi kebenarannya. <span class="text-error">*</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+            <!-- Action Buttons Bar -->
+            <div
+              class="flex flex-col sm:flex-row items-center justify-between gap-space-md bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+              <button
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-6 py-2.5 rounded-lg bg-surface-container text-primary font-label-lg text-label-lg hover:bg-surface-container-high transition-colors"
+                type="button">
+                <span class="material-symbols-outlined text-[20px]">save</span>
+                <span class="">Simpan Sebagai Draft</span>
+              </button>
+              <div class="flex items-center gap-space-sm w-full sm:w-auto justify-end">
+                <a class="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-5 py-2.5 rounded-lg bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors"
+                  href="#">
+                  Batal
+                </a>
+                <button
+                  class="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-8 py-2.5 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg hover:bg-primary-container shadow-md transition-all"
+                  type="button">
+                  <span class="">Lanjut ke Tahap Berikutnya</span>
+                  <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- SIDEBAR SUMMARY COLUMN (4 of 12) -->
+          <div class="lg:col-span-4 flex flex-col gap-space-md sticky top-24">
+            <!-- Summary Card -->
+            <div class="bg-surface-container-lowest p-space-md md:p-space-lg rounded-xl shadow-sm">
+              <div class="flex items-center justify-between pb-space-sm mb-space-md">
+                <div class="flex items-center gap-space-xs">
+                  <span class="material-symbols-outlined text-secondary text-[22px]">assignment</span>
+                  <h3 class="font-title-lg text-title-lg text-primary font-bold">Ringkasan Permohonan</h3>
+                </div>
+                <span
+                  class="font-label-sm text-label-sm bg-surface-container text-primary font-bold px-2 py-0.5 rounded">Tahap
+                  1/4</span>
+              </div>
+              <!-- Metadata List -->
+              <div class="flex flex-col gap-space-sm">
+                <div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-0.5">
+                  <span class="font-label-sm text-label-sm text-on-surface-variant">Layanan Terpilih</span>
+                  <span class="font-title-md text-title-md text-primary font-bold" id="sidebarServiceTitle">Penerbitan
+                    Ijazah Baru</span>
+                  <span class="font-body-sm text-[12px] text-on-surface-variant">Yudisium Reguler Mandiri</span>
+                </div>
+                <div class="flex justify-between items-center py-2 px-1">
+                  <span class="font-body-sm text-body-sm text-on-surface-variant">ID Registrasi</span>
+                  <span class="font-label-md text-label-md text-primary font-bold">UNTAN-IJZ-2025-0841</span>
+                </div>
+                <div class="flex justify-between items-center py-2 px-1">
+                  <span class="font-body-sm text-body-sm text-on-surface-variant">NIM Pemohon</span>
+                  <span class="font-label-md text-label-md text-on-surface font-semibold">F1081191042</span>
+                </div>
+                <div class="flex justify-between items-center py-2 px-1">
+                  <span class="font-body-sm text-body-sm text-on-surface-variant">Program Studi</span>
+                  <span class="font-label-md text-label-md text-on-surface font-semibold">S1 Pend. Matematika</span>
+                </div>
+                <div class="flex justify-between items-center py-2 px-1">
+                  <span class="font-body-sm text-body-sm text-on-surface-variant">Kelengkapan Foto</span>
+                  <span class="font-label-sm text-label-sm text-primary font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
+                    <span class="">Standar 4x6 OK</span>
+                  </span>
+                </div>
+                <div class="flex justify-between items-center py-2 px-1">
+                  <span class="font-body-sm text-body-sm text-on-surface-variant">Estimasi Verifikasi</span>
+                  <span class="font-label-md text-label-md text-secondary font-bold">3 - 5 Hari Kerja</span>
+                </div>
+                <div class="flex justify-between items-center py-2 px-1">
+                  <span class="font-body-sm text-body-sm text-on-surface-variant">Biaya Administrasi</span>
+                  <span class="font-label-md text-label-md text-primary font-bold">Gratis (Subsidi BLU UNTAN)</span>
+                </div>
+              </div>
+              <!-- Micro Visual Chart: Completion percentage -->
+              <div
+                class="mt-space-md pt-space-md bg-surface-container-low p-space-sm rounded-lg flex items-center gap-space-sm">
+                <svg class="w-12 h-12 shrink-0 transform -rotate-90" viewBox="0 0 36 36">
+                  <path class="text-surface-container-highest stroke-current"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none"
+                    stroke-width="3.5"></path>
+                  <path class="text-primary stroke-current"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none"
+                    stroke-dasharray="25, 100" stroke-linecap="round" stroke-width="3.5"></path>
+                </svg>
+                <div class="flex flex-col">
+                  <span class="font-label-md text-label-md font-bold text-primary">Kelengkapan Data 25%</span>
+                  <span class="font-body-sm text-[12px] text-on-surface-variant">Identitas &amp; Berkas awal
+                    terisi</span>
+                </div>
+              </div>
+            </div>
+            <!-- Security & Legal Notice Card -->
+            <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+              <div class="flex items-center gap-space-xs mb-space-xs text-primary">
+                <span class="material-symbols-outlined text-[20px]">verified_user</span>
+                <span class="font-title-md text-title-md font-bold">Sertifikasi Keabsahan</span>
+              </div>
+              <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                Ijazah digital yang diterbitkan memiliki stempel QR Code kriptografis BSrE Badan Siber dan Sandi Negara
+                (BSSN) yang dapat diverifikasi keasliannya di laman resmi Kementerian.
+              </p>
+              <div
+                class="mt-space-sm flex items-center gap-space-xs font-label-sm text-label-sm text-secondary font-bold">
+                <span class="material-symbols-outlined text-[16px]">qr_code_scanner</span><span class="">Didukung
+                  Verifikasi PISN Kemdiktisaintek</span></div>
+            </div>
+            <!-- Emergency / ULT Help Desk Card -->
+            <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+              <div class="flex items-center gap-space-xs mb-space-xs text-primary">
+                <span class="material-symbols-outlined text-[20px] text-secondary">contact_support</span>
+                <span class="font-title-md text-title-md font-bold">HelpDesk Pengajuan BAK</span>
+              </div>
+              <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Kendala sinkronisasi NIM atau
+                perubahan gelar yudisium? Kunjungi Meja Pelayanan BAK Untan Gedung Rektorat.</p>
+              <div class="flex flex-col gap-2">
+                <a class="inline-flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-body-sm text-body-sm transition-colors"
+                  href="tel:0561743465">
+                  <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-secondary">phone</span>
+                    <span class="">(0561) 743465</span>
+                  </span>
+                  <span class="font-label-sm text-label-sm text-on-surface-variant">Hunting</span>
+                </a>
+                <a class="inline-flex items-center justify-between p-2 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-body-sm text-body-sm transition-colors"
+                  href="mailto:ijazah@untan.ac.id">
+                  <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-secondary">mail</span>
+                    <span class="">ijazah@untan.ac.id</span>
+                  </span>
+                  <span class="font-label-sm text-label-sm text-on-surface-variant">Email Resmi</span>
+                </a>
+              </div>
+              <div class="mt-space-sm pt-space-xs text-center">
+                <span class="font-label-sm text-label-sm text-on-surface-variant">Layanan Buka: Sen - Kam (08.00 - 16.00
+                  WIB) • Jum (08.00 - 16.30 WIB)</span>
+              </div>
+            </div>
+            <!-- Location Context Card -->
+            <div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
+              <div class="flex items-center justify-between mb-2"><span
+                  class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Lokasi
+                  Pengambilan Fisik</span><span
+                  class="font-label-sm text-[11px] bg-secondary-fixed/50 text-secondary font-bold px-2 py-0.5 rounded-full">Penerbitan
+                  Baru</span></div>
+              <div class="w-full h-28 rounded-lg bg-cover bg-center shadow-inner relative overflow-hidden mb-space-sm"
+                data-location="Universitas Tanjungpura, Pontianak, Indonesia"
+                style="background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAsYaNgUYV6zhvMwMxu9mH2gr9i2fXQMio09g4RvlzXmzI3z00k9q8qYhfJGU8JzenuY7uqi85JbRLVKJRRd_rMgKiPBawFht36TsV4_E5nDFgJNXKzXWRe8lyZnXCG2zUIu98b1ph6vt5cmvCzsQ6faHWRwwBOmWu2Hi3ok7IPLs2L6ps553LKZ7s6p3oFsd1nyPpD-Xyt9rmOz__tkzIpzAEszkPrcxTSAurj3f7eixZlKdy_I7S6&quot;);">
+                <div
+                  class="absolute inset-0 bg-primary/20 backdrop-blur-[1px] flex items-center justify-center p-2 text-center">
+                  <span
+                    class="font-label-sm text-label-sm bg-surface-container-lowest/90 text-primary px-3 py-1 rounded-full font-bold shadow-sm flex items-center gap-1"><span
+                      class="material-symbols-outlined text-[16px] text-secondary">domain</span>Subbag Akademik FKIP
+                    Untan</span></div>
+              </div>
+              <div class="flex flex-col gap-2 font-body-sm text-body-sm">
+                <div class="p-2.5 rounded-lg bg-surface-container-low border-l-2 border-primary">
+                  <div class="flex items-start gap-1.5"><span
+                      class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">school</span>
+                    <div class="flex flex-col"><span class="font-label-sm text-primary font-bold">Penerbitan Baru
+                        (Ijazah Pertama):</span><span
+                        class="text-on-surface-variant text-[12px] leading-relaxed">Pengambilan ijazah &amp; transkrip
+                        fisik dilakukan di <strong>Subbagian Pendidikan &amp; Akademik Fakultas masing-masing</strong>
+                        (sesuai data pemohon: FKIP Untan).</span></div>
+                  </div>
+                </div>
+                <div
+                  class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant text-[11px] flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[16px] text-secondary shrink-0">info</span><span
+                    class="">Pengambilan di <strong>Loket Pelayanan BAK Rektorat</strong> hanya berlaku untuk
+                    <em>Penerbitan Perbaikan</em> atau <em>Penerbitan Ulang</em>.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <script>
+      // Micro-interaction: Update active service selection styling & sidebar metadata
+      document.addEventListener('DOMContentLoaded', () => {
+        const cards = document.querySelectorAll('.service-card');
+        const sidebarTitle = document.getElementById('sidebarServiceTitle');
+
+        const serviceLabels = {
+          'penerbitan_baru': 'Penerbitan Ijazah Baru',
+          'perbaikan_data': 'Penerbitan Perbaikan Data',
+          'penerbitan_ulang': 'Penerbitan Ulang',
+          'pencetakan_ulang': 'Pencetakan Ulang'
+        };
+
+        cards.forEach(card => {
+          card.addEventListener('click', () => {
+            // Reset all cards
+            cards.forEach(c => {
+              c.classList.remove('bg-surface-container-high/80', 'selected');
+              const indicator = c.querySelector('.radio-indicator');
+              if (indicator) {
+                indicator.className = 'radio-indicator w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center text-transparent';
+              }
+            });
+
+            // Activate clicked
+            card.classList.add('bg-surface-container-high/80', 'selected');
+            const indicator = card.querySelector('.radio-indicator');
+            if (indicator) {
+              indicator.className = 'radio-indicator w-5 h-5 rounded-full bg-primary flex items-center justify-center text-on-primary';
+            }
+
+            const input = card.querySelector('input[type="radio"]');
+            if (input) {
+              input.checked = true;
+              if (sidebarTitle && serviceLabels[input.value]) {
+                sidebarTitle.textContent = serviceLabels[input.value];
+              }
+            }
+          });
+        });
+      });
+    </script>
+  </main>
+  <footer class="w-full bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] mt-space-xl">
+    <div class="max-w-7xl mx-auto px-margin py-space-xl">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+        <div class="flex flex-col gap-space-sm">
+          <div class="flex items-center gap-space-xs"><img alt="Logo Universitas Tanjungpura"
+              class="h-16 w-auto object-contain shrink-0" src="logo.png"><span
+              class="font-title-md text-title-md text-primary font-bold">UNTAN</span></div>
+          <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Gedung Rektorat Universitas
+            Tanjungpura<br>Jl. Prof. Dr. H. Hadari Nawawi, Bansir Laut, Kec. Pontianak Tenggara, Kota Pontianak,
+            Kalimantan Barat 78124</p>
+          <div class="flex items-center gap-space-xs mt-space-xs text-on-surface-variant font-body-sm text-body-sm">
+            <span class="material-symbols-outlined text-[18px] text-secondary">mail</span><span
+              class="">ijazah@untan.ac.id</span></div>
+        </div>
+        <div class="flex flex-col gap-space-sm">
+          <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Jam Layanan Terpadu</h3>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Biro Akademik dan Kemahasiswaan (BAK) Gedung
+            Rektorat Untan:</p>
+          <div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-space-xs">
+            <div class="flex justify-between items-center font-body-sm text-body-sm"><span
+                class="text-on-surface font-semibold">Senin - Kamis</span><span class="text-on-surface-variant">08.00 -
+                16.00 WIB</span></div>
+            <div class="flex justify-between items-center font-body-sm text-body-sm"><span
+                class="text-on-surface font-semibold">Jumat</span><span class="text-on-surface-variant">08.00 - 16.30
+                WIB</span></div>
+            <div class="flex justify-between items-center font-body-sm text-body-sm text-error"><span
+                class="font-semibold">Istirahat</span><span class="">11.30 - 13.00 WIB</span></div>
+          </div><span class="font-label-sm text-label-sm text-on-surface-variant">*Sabtu, Minggu &amp; Hari Libur
+            Nasional Tutup</span>
+        </div>
+        <div class="flex flex-col gap-space-sm">
+          <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Tautan Akademik</h3>
+          <ul class="flex flex-col gap-space-xs font-body-sm text-body-sm text-on-surface-variant">
+            <li class=""><a class="hover:text-primary transition-colors flex items-center gap-space-xs" href="#"><span
+                  class="material-symbols-outlined text-[16px]">chevron_right</span>Portal Resmi UNTAN</a></li>
+            <li class=""><a class="hover:text-primary transition-colors flex items-center gap-space-xs" href="#"><span
+                  class="material-symbols-outlined text-[16px]">chevron_right</span>SIAKAD Untan</a></li>
+            <li class=""><a class="hover:text-primary transition-colors flex items-center gap-space-xs" href="#"><span
+                  class="material-symbols-outlined text-[16px]">chevron_right</span>Verifikasi Ijazah (PISN
+                Kemdiktisaintek)</a></li>
+            <li class=""><a class="hover:text-primary transition-colors flex items-center gap-space-xs" href="#"><span
+                  class="material-symbols-outlined text-[16px]">chevron_right</span>Layanan PISN Kemdiktisaintek</a>
+            </li>
+            <li class=""><a class="hover:text-primary transition-colors flex items-center gap-space-xs" href="#"><span
+                  class="material-symbols-outlined text-[16px]">chevron_right</span>Perpustakaan Digital Untan</a></li>
+          </ul>
+        </div>
+        <div class="flex flex-col gap-space-sm">
+          <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Integritas Dokumen</h3>
+          <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Setiap dokumen Ijazah dan
+            Transkrip Nilai digital yang diterbitkan dilengkapi Tanda Tangan Elektronik (TTE) tersertifikasi Balai
+            Sertifikasi Elektronik (BSrE) BSSN.</p>
+          <div class="flex items-center gap-space-xs p-space-sm rounded-lg bg-surface-container"><span
+              class="material-symbols-outlined text-secondary text-[24px]">verified_user</span>
+            <div class="flex flex-col"><span
+                class="font-label-md text-label-md font-bold text-on-surface">Tersertifikasi BSrE</span><span
+                class="font-label-sm text-[11px] text-on-surface-variant">Validitas Hukum Terjamin</span></div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="mt-space-xl pt-space-lg flex flex-col md:flex-row items-center justify-between gap-space-md bg-surface-container-low px-space-md py-space-sm rounded-lg">
+        <p class="font-body-sm text-body-sm text-on-surface-variant text-center md:text-left">© 2025 Universitas
+          Tanjungpura. Seluruh Hak Cipta Dilindungi.</p>
+        <div class="flex items-center gap-space-md font-label-md text-label-md text-on-surface-variant"><a
+            class="hover:text-primary transition-colors" href="#">Kebijakan Privasi</a><span class="">•</span><a
+            class="hover:text-primary transition-colors" href="#">Syarat &amp; Ketentuan</a><span class="">•</span><a
+            class="hover:text-primary transition-colors" href="#">Standar Pelayanan</a></div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const toggleBtn = document.getElementById('mobile-menu-toggle');
+      const drawer = document.getElementById('mobile-menu-drawer');
+      const icon = document.getElementById('menu-icon');
+      if (toggleBtn && drawer) {
+        toggleBtn.addEventListener('click', function () {
+          drawer.classList.toggle('hidden');
+          if (icon) {
+            icon.textContent = drawer.classList.contains('hidden') ? 'menu' : 'close';
+          }
+        });
+
+        // Auto close drawer when any navigation link is clicked
+        drawer.querySelectorAll('a').forEach(function (link) {
+          link.addEventListener('click', function () {
+            drawer.classList.add('hidden');
+            if (icon) icon.textContent = 'menu';
+          });
+        });
+      }
+    });
+  </script>
+
+</body>
+
+</html>

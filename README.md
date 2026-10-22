@@ -65,7 +65,7 @@ cargo test --manifest-path wasm_crop/Cargo.toml
 cargo build --manifest-path wasm_crop/Cargo.toml --target wasm32-unknown-unknown --release
 
 # Salin binary ke folder public
-cp wasm_crop/target/wasm32-unknown-unknown/release/wasm_crop.wasm public/wasm_crop.wasm
+cp wasm_crop/target/wasm32-unknown-unknown/release/wasm_crop.wasm public/crop/wasm_crop.wasm
 ```
 
 ---
@@ -79,13 +79,20 @@ PhotoIjazah/
 │       ├── specs/2026-10-20-photo-crop-wasm-design.md
 │       └── plans/2026-10-20-photo-crop-wasm.md
 ├── public/
-│   ├── index.html        # Antarmuka PixelCrop Studio
-│   ├── style.css         # Tema Darkroom, handles & custom styling
-│   ├── app.js            # Interaksi kanvas, crop box, event listeners
-│   ├── wasm_bridge.js    # Modul loader & memory bridge Rust WebAssembly
-│   ├── wasm_crop.wasm    # Binary WebAssembly terkompilasi (~499 KB)
-│   └── sample.jpg        # Foto formal contoh pas foto
-├── wasm_crop/            # Crate Rust
+│   ├── index.html            # Beranda Layanan Penerbitan Ijazah Untan
+│   ├── panduan.html          # Panduan & Persyaratan Dokumen
+│   ├── pengajuan.html        # Formulir Pengajuan Permohonan Ijazah Online
+│   ├── lacak.html            # Lacak Status Tiket Pengajuan Ijazah
+│   ├── logo.png              # Aset Logo Resmi Universitas Tanjungpura
+│   ├── logo-IAIs.png         # Aset Logo Associate Partner
+│   └── crop/                 # Aplikasi Pemotong Pas Foto 4x6
+│       ├── index.html        # Antarmuka PixelCrop Studio
+│       ├── style.css         # Tema Darkroom, handles & custom styling
+│       ├── app.js            # Interaksi kanvas, crop box, event listeners
+│       ├── wasm_bridge.js    # Modul loader & memory bridge Rust WebAssembly
+│       ├── wasm_crop.wasm    # Binary WebAssembly terkompilasi (~499 KB)
+│       └── sample.jpg        # Foto formal contoh pas foto
+├── wasm_crop/                # Crate Rust
 │   ├── Cargo.toml
 │   ├── src/lib.rs        # Core C-ABI & image processing engine
 │   └── tests/crop_tests.rs

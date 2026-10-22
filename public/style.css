@@ -66,6 +66,7 @@ code, kbd, pre, .font-mono {
   direction: ltr;
   vertical-align: middle;
   user-select: none;
+  font-feature-settings: 'liga';
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }

@@ -4,3 +4,4 @@ wasm_crop/target/
 node_modules/
 
 .vercel
+scratch/

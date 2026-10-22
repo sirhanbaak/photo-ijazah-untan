@@ -1,0 +1,242 @@
+/* ==========================================================================
+   Photo Ijazah Untan (Part of SimalumApps) - Standar Pas Foto 4x6 (Rust WASM)
+   Responsive Mobile, Tablet & Desktop Design System
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+:root {
+  --surface-lowest: #060e20;
+  --surface-base: #0b1326;
+  --surface-low: #131b2e;
+  --surface-card: #171f33;
+  --surface-high: #222a3d;
+  --surface-highest: #2d3449;
+
+  --primary: #c0c1ff;
+  --primary-accent: #6366f1;
+  --primary-container: #8083ff;
+  --secondary: #4cd7f6;
+  --tertiary: #4edea3;
+  --tertiary-container: #00885d;
+
+  --text-primary: #dae2fd;
+  --text-secondary: #c7c4d7;
+  --outline-border: #464554;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--surface-base);
+  color: var(--text-primary);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3, h4, h5, h6, .font-headline {
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+code, kbd, pre, .font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+}
+
+/* Material Symbols Outlined Icon Styling */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  vertical-align: middle;
+  user-select: none;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(70, 69, 84, 0.4);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.6);
+}
+
+/* Canvas Floor Background Grid */
+.canvas-dot-grid {
+  background-color: var(--surface-lowest);
+  background-image: radial-gradient(circle at 1px 1px, rgba(76, 215, 246, 0.12) 1.2px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Scrim Non-Destructive Darkening */
+.scrim-block {
+  background-color: rgba(6, 14, 32, 0.78);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+/* Precision Crop Marquee Box */
+#crop-marquee {
+  position: absolute;
+  touch-action: none;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.95),
+              0 0 0 2px rgba(99, 102, 241, 0.5),
+              0 0 32px rgba(99, 102, 241, 0.35);
+  cursor: move;
+  z-index: 25;
+}
+
+/* Grab Handles with Expanded Invisible Touch Hit Targets */
+.crop-handle {
+  position: absolute;
+  touch-action: none;
+  z-index: 30;
+  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Expanded Touch Hit Area for Mobile & Tablet Fingers */
+.crop-handle::after {
+  content: '';
+  position: absolute;
+  top: -14px;
+  bottom: -14px;
+  left: -14px;
+  right: -14px;
+  z-index: 35;
+}
+
+/* 4 Corner Handles */
+.corner-handle {
+  width: 14px;
+  height: 14px;
+  background-color: #ffffff;
+  border: 2.5px solid #6366f1;
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+.corner-handle:hover, .corner-handle:active {
+  transform: scale(1.35) !important;
+  background-color: #4cd7f6;
+  border-color: #ffffff;
+}
+
+/* 4 Center Edge Handles */
+.edge-handle-h {
+  width: 28px;
+  height: 8px;
+  background-color: #6366f1;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+.edge-handle-h:hover, .edge-handle-h:active {
+  transform: scale(1.3) !important;
+  background-color: #4cd7f6;
+}
+
+.edge-handle-v {
+  width: 8px;
+  height: 28px;
+  background-color: #6366f1;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 9999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+.edge-handle-v:hover, .edge-handle-v:active {
+  transform: scale(1.3) !important;
+  background-color: #4cd7f6;
+}
+
+/* Grab handle positions */
+#handle-tl { top: -7px; left: -7px; cursor: nwse-resize; }
+#handle-tr { top: -7px; right: -7px; cursor: nesw-resize; }
+#handle-bl { bottom: -7px; left: -7px; cursor: nesw-resize; }
+#handle-br { bottom: -7px; right: -7px; cursor: nwse-resize; }
+
+#handle-t  { top: -4px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+#handle-b  { bottom: -4px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+#handle-l  { left: -4px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+#handle-r  { right: -4px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+
+/* Preset Card Active Animation */
+.preset-btn {
+  position: relative;
+  overflow: hidden;
+}
+.preset-btn.active-preset {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(76, 215, 246, 0.15) 100%);
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.35);
+}
+
+/* Modal Appear Animation */
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-content-card {
+  animation: fadeInModal 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Range Input Styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: #222a3d;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #c0c1ff;
+  border: 2px solid #6366f1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  cursor: ew-resize;
+  margin-top: -5px;
+  transition: transform 0.1s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #ffffff;
+}
+
+/* Mobile Inspector Slide-Over Drawer Transitions */
+#right-inspector-panel {
+  will-change: transform;
+}

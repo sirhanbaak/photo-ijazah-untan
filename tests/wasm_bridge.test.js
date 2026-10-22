@@ -2,14 +2,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert';
 import { fileURLToPath } from 'node:url';
-import { WasmCropEngine } from '../public/wasm_bridge.js';
+import { WasmCropEngine } from '../public/crop/wasm_bridge.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function runTests() {
   console.log('Testing WasmCropEngine...');
 
-  const wasmPath = path.join(__dirname, '../public/wasm_crop.wasm');
+  const wasmPath = path.join(__dirname, '../public/crop/wasm_crop.wasm');
   const wasmBuffer = fs.readFileSync(wasmPath);
 
   const engine = new WasmCropEngine();
