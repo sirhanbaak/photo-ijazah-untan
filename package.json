@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "python server.py",
     "start": "python server.py",
-    "build": "echo 'Static assets ready in public/'"
+    "build": "echo 'Static assets ready in public/'",
+    "test": "playwright test",
+    "test:playwright": "playwright test",
+    "test:wasm": "node tests/wasm_bridge.test.js"
   },
   "keywords": [
     "pas-foto",
@@ -17,5 +20,8 @@
     "simalumapps"
   ],
   "author": "SimalumApps",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  }
 }
