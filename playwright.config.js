@@ -27,4 +27,9 @@ module.exports = defineConfig({
       },
     },
   ],
+  webServer: {
+    command: 'python server.py',
+    url: 'http://localhost:8080',
+    reuseExistingServer: true,
+  },
 });

@@ -221,6 +221,40 @@ async function runTests() {
   const setelahError = await engine.cropImage(duaWarna, { ...opsiCrop, rotationDeg: 0 });
   assert.ok(setelahError.data.length > 0, 'Crop valid setelah error harus tetap berhasil');
 
+  // Uji dimensi kustom di luar ukuran preset 4x6 standar
+  const customDimensions = [
+    { name: 'Pas Foto 2x3', w: 236, h: 354 },
+    { name: 'Pas Foto 3x4', w: 354, h: 472 },
+    { name: 'Paspor ICAO 35x45mm', w: 413, h: 531 },
+    { name: 'Square 1:1', w: 500, h: 500 },
+    { name: 'Dimensi Ganjil', w: 333, h: 555 },
+    { name: 'Ukuran Sangat Kecil', w: 64, h: 96 },
+    { name: 'Ukuran Ekstra Besar', w: 1200, h: 1800 },
+  ];
+
+  for (const { name, w, h } of customDimensions) {
+    const res = await engine.cropImage(duaWarna, {
+      cropX: 20,
+      cropY: 20,
+      cropW: 160,
+      cropH: 160,
+      targetW: w,
+      targetH: h,
+      format: 'png',
+      dpi: 300,
+    });
+
+    assert.strictEqual(res.width, w, `Reported width harus ${w} untuk ${name}`);
+    assert.strictEqual(res.height, h, `Reported height harus ${h} untuk ${name}`);
+
+    // Periksa biner PNG IHDR secara langsung
+    const buf = Buffer.from(res.data);
+    const pngW = buf.readUInt32BE(16);
+    const pngH = buf.readUInt32BE(20);
+    assert.strictEqual(pngW, w, `Biner PNG width harus ${w} untuk ${name}`);
+    assert.strictEqual(pngH, h, `Biner PNG height harus ${h} untuk ${name}`);
+  }
+
   console.log('✓ WasmCropEngine successfully initialized and cropped image to target dimensions!');
 }
 

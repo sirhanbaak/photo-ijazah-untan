@@ -113,9 +113,11 @@ test.describe('Aplikasi Crop Photo Ijazah', () => {
     }));
 
     await page.evaluate(() => document.getElementById('rotate-90-btn').click());
-    await page.waitForFunction(() => window.photoCropApp.quarterTurns === 1, null, {
-      timeout: 20000,
-    });
+    await page.waitForFunction(
+      () => window.photoCropApp.quarterTurns === 1 && !window.photoCropApp.isBusy,
+      null,
+      { timeout: 20000 }
+    );
 
     const sesudah = await page.evaluate(() => ({
       w: window.photoCropApp.naturalW,

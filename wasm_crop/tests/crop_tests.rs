@@ -547,3 +547,76 @@ fn crc32(data: &[u8]) -> u32 {
     }
     !crc
 }
+
+#[test]
+fn test_custom_and_arbitrary_dimensions() {
+    // 1. Uji sumber dengan berbagai macam rasio aspek dan ukuran
+    let sources = [
+        ("Landscape 16:9", 1920, 1080),
+        ("Persegi 1:1", 1000, 1000),
+        ("Ultra-tinggi 1:3", 600, 1800),
+        ("Resolusi Kecil", 300, 400),
+        ("Resolusi Tinggi", 3000, 4000),
+    ];
+
+    // 2. Berbagai macam ukuran target di luar preset baku 4x6
+    let custom_targets = [
+        ("Pas Foto 2x3 (300 DPI)", 236, 354, 300),
+        ("Pas Foto 3x4 (300 DPI)", 354, 472, 300),
+        ("Paspor ICAO 35x45mm (300 DPI)", 413, 531, 300),
+        ("Persegi 1:1 (500x500)", 500, 500, 150),
+        ("Dimensi Ganjil (333x555)", 333, 555, 200),
+        ("Dimensi Kecil Ekstrem (64x96)", 64, 96, 72),
+        ("Dimensi Besar (2400x3600)", 2400, 3600, 600),
+    ];
+
+    for &(src_name, src_w, src_h) in &sources {
+        let img: ImageBuffer<Rgba<u8>, Vec<u8>> =
+            ImageBuffer::from_pixel(src_w, src_h, Rgba([120, 160, 200, 255]));
+        let mut src_bytes = Vec::new();
+        img.write_to(&mut Cursor::new(&mut src_bytes), image::ImageOutputFormat::Png)
+            .expect("Gagal encode PNG sumber");
+
+        for &(target_name, target_w, target_h, dpi) in &custom_targets {
+            // Ambil area crop di tengah sumber dengan batas aman
+            let crop_w = (src_w / 2).max(10);
+            let crop_h = (src_h / 2).max(10);
+            let crop_x = (src_w - crop_w) / 4;
+            let crop_y = (src_h - crop_h) / 4;
+
+            for rot in [0.0f32, 12.5f32, -25.0f32] {
+                let out_png = crop_and_resize_image(
+                    &src_bytes,
+                    crop_x,
+                    crop_y,
+                    crop_w,
+                    crop_h,
+                    target_w,
+                    target_h,
+                    rot,
+                    false,
+                    false,
+                    OutputFormat::Png,
+                    dpi,
+                )
+                .unwrap_or_else(|e| {
+                    panic!(
+                        "Gagal crop sumber '{src_name}' ({src_w}x{src_h}) ke target '{target_name}' ({target_w}x{target_h}, rot={rot}): {e}"
+                    )
+                });
+
+                let loaded = image::load_from_memory(&out_png).expect("Output PNG harus dapat didecode");
+                assert_eq!(
+                    loaded.width(),
+                    target_w,
+                    "Lebar output harus persis {target_w} px (sumber: {src_name}, target: {target_name})"
+                );
+                assert_eq!(
+                    loaded.height(),
+                    target_h,
+                    "Tinggi output harus persis {target_h} px (sumber: {src_name}, target: {target_name})"
+                );
+            }
+        }
+    }
+}
