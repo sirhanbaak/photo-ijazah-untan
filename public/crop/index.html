@@ -69,6 +69,9 @@
             "surface-dim": "#0b1326",
             "on-primary": "#1000a9"
           },
+          screens: {
+            xs: '420px'
+          },
           fontFamily: {
             sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
             headline: ['Plus Jakarta Sans', 'Inter', 'Segoe UI', 'sans-serif'],
@@ -171,7 +174,7 @@
             <span class="material-symbols-outlined text-sm">zoom_out</span>
           </button>
           <div class="hidden sm:flex items-center w-20 md:w-28">
-            <input class="w-full h-1 bg-surface-container-high rounded appearance-none cursor-ew-resize accent-primary" id="zoom-slider" max="300" min="25" type="range" value="100">
+            <input class="w-full h-1 bg-surface-container-high rounded appearance-none cursor-ew-resize accent-primary" id="zoom-slider" max="300" min="10" type="range" value="100">
           </div>
           <button class="w-6 h-6 flex items-center justify-center rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" id="zoom-in-btn" title="Zoom In (+)" type="button">
             <span class="material-symbols-outlined text-sm">zoom_in</span>
@@ -579,7 +582,7 @@
         <div class="flex flex-col items-center gap-2 flex-shrink-0">
           <div class="p-1.5 rounded-xl bg-surface-container-lowest border border-outline-variant/40 shadow-inner">
             <div class="w-40 h-56 sm:w-52 sm:h-72 rounded-lg overflow-hidden flex items-center justify-center bg-black/40 shadow-xl border border-white/10">
-              <img id="result-image-preview" src="" alt="Pratinjau Hasil Pas Foto" class="w-full h-full object-cover block">
+              <img id="result-image-preview" src="" alt="Pratinjau Hasil Pas Foto" class="w-full h-full object-contain block">
             </div>
           </div>
           <span class="font-mono text-secondary text-xs font-medium" id="result-badge-ratio">Rasio Pas Foto 4:6</span>

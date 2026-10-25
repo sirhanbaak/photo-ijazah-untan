@@ -1,5 +1,12 @@
 import { WasmCropEngine } from './wasm_bridge.js';
 
+// Batas dimensi sumber agar konsumsi memori engine WebAssembly tetap wajar
+const MAX_SOURCE_DIM = 4096;
+// Batas ukuran berkas unggahan (25 MB)
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+// Format yang dapat dinormalisasi peramban sebelum dikirim ke engine
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
 // Konfigurasi Preset Pas Foto 4x6 Berdasarkan DPI
 const DPI_PRESETS = {
   '72': {
@@ -71,7 +78,10 @@ class PhotoCropApp {
     this.zoom = 1.0;
     this.panX = 0;
     this.panY = 0;
+    // Rotasi halus (-45°..45°) yang ikut diterapkan engine saat ekspor
     this.rotationDeg = 0.0;
+    // Jumlah putaran 90° yang sudah dibakar ke bitmap sumber
+    this.quarterTurns = 0;
     this.flipH = false;
     this.flipV = false;
 
@@ -99,9 +109,15 @@ class PhotoCropApp {
     this.sourceFileName = 'sample_pas_foto.jpg';
     this.naturalW = 1200;
     this.naturalH = 1600;
+    // Blob sumber yang sudah tegak (EXIF ternormalisasi) sebagai basis putaran 90°
+    this.baseBlob = null;
+    // Object URL aktif untuk pratinjau agar tidak menumpuk di memori
+    this.sourceObjectUrl = null;
 
     // Hasil Crop Terakhir
     this.lastCropResult = null;
+    // Penjaga agar operasi berat (crop/rotasi/unggah) tidak berjalan bersamaan
+    this.isBusy = false;
 
     this.initDOM();
     this.initEvents();
@@ -192,6 +208,7 @@ class PhotoCropApp {
     this.resultModal = document.getElementById('result-modal');
     this.closeResultModalBtn = document.getElementById('close-result-modal-btn');
     this.resultImagePreview = document.getElementById('result-image-preview');
+    this.resultBadgeRatio = document.getElementById('result-badge-ratio');
     this.resultPxDim = document.getElementById('result-px-dim');
     this.resultCmDim = document.getElementById('result-cm-dim');
     this.resultDpiInfo = document.getElementById('result-dpi-info');
@@ -221,34 +238,189 @@ class PhotoCropApp {
   }
 
   async loadInitialImage(srcUrl, fileName = 'sample_pas_foto.jpg') {
-    this.sourceFileName = fileName;
-    if (this.headerFilename) this.headerFilename.textContent = fileName;
-
-    const response = await fetch(srcUrl);
+    const response = await fetch(srcUrl, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`Gagal memuat gambar awal (${srcUrl}): status ${response.status}`);
+    }
     const blob = await response.blob();
-    const arrayBuffer = await blob.arrayBuffer();
-    this.sourceBuffer = new Uint8Array(arrayBuffer);
+    await this.applySourceBlob(blob, fileName, 0);
+  }
 
-    const onImgLoaded = () => {
-      this.naturalW = this.sourceImage.naturalWidth || 1200;
-      this.naturalH = this.sourceImage.naturalHeight || 1600;
-
-      const resText = `${this.naturalW} × ${this.naturalH} px`;
-      if (this.headerResolution) this.headerResolution.textContent = `(${resText})`;
-
-      requestAnimationFrame(() => {
-        this.setupDefaultCropBox();
-        this.fitToWindow();
-      });
-    };
-
-    if (this.sourceImage.complete && this.sourceImage.naturalWidth > 0) {
-      onImgLoaded();
-    } else {
-      this.sourceImage.onload = onImgLoaded;
+  /**
+   * Mendekode blob menjadi bitmap yang sudah tegak.
+   * Peramban menerapkan orientasi EXIF secara otomatis, sehingga hasilnya
+   * konsisten dengan pratinjau dan tidak lagi bergantung pada metadata.
+   */
+  async decodeSource(blob) {
+    if (typeof createImageBitmap === 'function') {
+      try {
+        const bitmap = await createImageBitmap(blob, { imageOrientation: 'from-image' });
+        return { image: bitmap, release: () => bitmap.close && bitmap.close() };
+      } catch (_err) {
+        try {
+          const bitmap = await createImageBitmap(blob);
+          return { image: bitmap, release: () => bitmap.close && bitmap.close() };
+        } catch (_err2) {
+          // Lanjut ke fallback <img> di bawah
+        }
+      }
     }
 
-    this.sourceImage.src = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.src = url;
+    try {
+      await img.decode();
+    } catch (err) {
+      URL.revokeObjectURL(url);
+      throw new Error('Berkas gambar tidak dapat dibaca oleh peramban ini.');
+    }
+    return { image: img, release: () => URL.revokeObjectURL(url) };
+  }
+
+  /** Encode canvas menjadi blob pada format yang diminta. */
+  canvasToBlob(canvas, type, quality) {
+    return new Promise((resolve) => {
+      if (typeof canvas.toBlob !== 'function') {
+        resolve(null);
+        return;
+      }
+      canvas.toBlob((blob) => resolve(blob), type, quality);
+    });
+  }
+
+  /**
+   * Menormalkan blob sumber: orientasi EXIF diterapkan peramban, format yang
+   * tidak didukung engine (mis. WebP) ditranskode, dan putaran 90° dibakar ke
+   * bitmap agar koordinat crop selalu searah dengan pratinjau.
+   */
+  async normalizeSourceBlob(blob, quarterTurns = 0) {
+    const { image, release } = await this.decodeSource(blob);
+    try {
+      const sourceW = image.width || image.naturalWidth || 0;
+      const sourceH = image.height || image.naturalHeight || 0;
+      if (!sourceW || !sourceH) {
+        throw new Error('Gambar tidak memiliki dimensi yang valid.');
+      }
+
+      // Batasi dimensi agar pemakaian memori engine tetap aman
+      const scale = Math.min(1, MAX_SOURCE_DIM / Math.max(sourceW, sourceH));
+      const drawW = Math.max(1, Math.round(sourceW * scale));
+      const drawH = Math.max(1, Math.round(sourceH * scale));
+
+      const turns = ((quarterTurns % 4) + 4) % 4;
+      const swapped = turns % 2 === 1;
+      const canvas = document.createElement('canvas');
+      canvas.width = swapped ? drawH : drawW;
+      canvas.height = swapped ? drawW : drawH;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas 2D tidak tersedia di peramban ini.');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((turns * Math.PI) / 2);
+      ctx.drawImage(image, -drawW / 2, -drawH / 2, drawW, drawH);
+
+      // PNG dipertahankan untuk sumber ber-alpha; selain itu JPEG agar hemat memori
+      const keepAlpha = /image\/(png|gif|bmp)/i.test(blob.type || '');
+      const mime = keepAlpha ? 'image/png' : 'image/jpeg';
+      const encoded = await this.canvasToBlob(canvas, mime, 0.95);
+      if (!encoded) throw new Error('Gagal mengubah gambar ke format yang didukung engine.');
+
+      return { blob: encoded, width: canvas.width, height: canvas.height, mime };
+    } finally {
+      release();
+    }
+  }
+
+  /** Menunggu satu frame agar perubahan DOM (mis. overlay loading) sempat tampil. */
+  nextFrame() {
+    return new Promise((resolve) => {
+      let selesai = false;
+      const finish = () => {
+        if (selesai) return;
+        selesai = true;
+        resolve();
+      };
+      requestAnimationFrame(finish);
+      setTimeout(finish, 120);
+    });
+  }
+
+
+  /**
+   * Menjadikan blob sebagai sumber aktif aplikasi.
+   * @param {Blob} blob
+   * @param {string} fileName
+   * @param {number} quarterTurns Jumlah putaran 90° yang dibakar ke bitmap
+   * @param {boolean} updateBase true bila blob adalah sumber asli (bukan hasil rotasi)
+   */
+  async applySourceBlob(blob, fileName, quarterTurns = 0, updateBase = true) {
+    const normalized = await this.normalizeSourceBlob(blob, quarterTurns);
+    const bytes = new Uint8Array(await normalized.blob.arrayBuffer());
+
+    if (updateBase) {
+      this.baseBlob = normalized.blob;
+    }
+    this.quarterTurns = ((quarterTurns % 4) + 4) % 4;
+    this.sourceBuffer = bytes;
+    this.naturalW = normalized.width;
+    this.naturalH = normalized.height;
+    if (fileName) this.sourceFileName = fileName;
+
+    if (this.headerFilename) this.headerFilename.textContent = this.sourceFileName;
+    if (this.headerResolution) {
+      this.headerResolution.textContent = `(${this.naturalW} × ${this.naturalH} px)`;
+    }
+
+    if (this.sourceObjectUrl) {
+      URL.revokeObjectURL(this.sourceObjectUrl);
+    }
+    this.sourceObjectUrl = URL.createObjectURL(normalized.blob);
+    this.sourceImage.src = this.sourceObjectUrl;
+    await this.waitForImageLoad();
+
+    // Pastikan layout sudah diperbarui sebelum mengukur ukuran tampil gambar
+    await this.nextFrame();
+    this.setupDefaultCropBox();
+    this.fitToWindow();
+  }
+
+  /** Menunggu gambar pratinjau siap dipakai, dengan batas waktu agar tidak menggantung. */
+  async waitForImageLoad() {
+    if (typeof this.sourceImage.decode === 'function') {
+      try {
+        await this.sourceImage.decode();
+        return;
+      } catch (_err) {
+        // Lanjut ke penantian berbasis event di bawah
+      }
+    }
+    if (this.sourceImage.complete && this.sourceImage.naturalWidth > 0) return;
+
+    await new Promise((resolve, reject) => {
+      const cleanup = () => {
+        clearTimeout(timer);
+        this.sourceImage.removeEventListener('load', onLoad);
+        this.sourceImage.removeEventListener('error', onError);
+      };
+      const onLoad = () => {
+        cleanup();
+        resolve();
+      };
+      const onError = () => {
+        cleanup();
+        reject(new Error('Gambar gagal dimuat oleh peramban.'));
+      };
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error('Waktu tunggu memuat gambar habis (15 detik).'));
+      }, 15000);
+
+      this.sourceImage.addEventListener('load', onLoad);
+      this.sourceImage.addEventListener('error', onError);
+    });
   }
 
   setupDefaultCropBox() {
@@ -279,9 +451,25 @@ class PhotoCropApp {
 
     if (!imgW || !imgH) return;
 
-    // Boundary clamping
-    this.cropW = Math.max(40, Math.min(this.cropW, imgW));
-    this.cropH = Math.max(60, Math.min(this.cropH, imgH));
+    // Boundary clamping dengan rasio preset tetap terjaga
+    const ratio = this.currentPreset.targetW / this.currentPreset.targetH;
+    const minW = Math.min(imgW, 40);
+    const minH = Math.min(imgH, Math.round(minW / ratio));
+
+    if (this.cropW < minW || this.cropH < minH) {
+      this.cropW = minW;
+      this.cropH = minH;
+    }
+    this.cropW = Math.min(this.cropW, imgW);
+    this.cropH = Math.min(this.cropH, imgH);
+
+    // Bila batas gambar memaksa salah satu sisi mengecil, sisi lain ikut disesuaikan
+    if (this.cropW / this.cropH > ratio) {
+      this.cropW = Math.round(this.cropH * ratio);
+    } else {
+      this.cropH = Math.round(this.cropW / ratio);
+    }
+
     this.cropX = Math.max(0, Math.min(this.cropX, imgW - this.cropW));
     this.cropY = Math.max(0, Math.min(this.cropY, imgH - this.cropH));
 
@@ -401,8 +589,30 @@ class PhotoCropApp {
     }, { passive: true });
 
     // Keyboard Shortcuts
+    const isEditableTarget = (target) => {
+      if (!target || !target.tagName) return false;
+      const tag = target.tagName;
+      return (
+        tag === 'INPUT' ||
+        tag === 'TEXTAREA' ||
+        tag === 'SELECT' ||
+        tag === 'BUTTON' ||
+        target.isContentEditable === true
+      );
+    };
+
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && !this.isSpacePressed && e.target.tagName !== 'INPUT') {
+      // Escape menutup modal hasil yang sedang terbuka
+      if (e.key === 'Escape' && !this.resultModal.classList.contains('hidden')) {
+        this.closeResultModal();
+        return;
+      }
+
+      // Jangan menyerobot pintasan saat fokus berada di kontrol formulir
+      if (isEditableTarget(e.target)) return;
+
+      if (e.code === 'Space' && !this.isSpacePressed) {
+        e.preventDefault();
         this.isSpacePressed = true;
         this.updateCanvasCursor();
       }
@@ -413,7 +623,12 @@ class PhotoCropApp {
       if (e.code === 'KeyH') {
         this.togglePanMode();
       }
-      if (e.code === 'Enter' && this.uploadModal.classList.contains('hidden') && this.resultModal.classList.contains('hidden')) {
+      if (
+        e.code === 'Enter' &&
+        !e.repeat &&
+        this.uploadModal.classList.contains('hidden') &&
+        this.resultModal.classList.contains('hidden')
+      ) {
         this.applyCrop();
       }
     });
@@ -532,17 +747,14 @@ class PhotoCropApp {
 
     // Rotasi & Flip
     this.rotationSlider.addEventListener('input', (e) => {
-      this.rotationDeg = parseFloat(e.target.value);
+      const nilai = parseFloat(e.target.value);
+      this.rotationDeg = Number.isFinite(nilai) ? Math.min(45, Math.max(-45, nilai)) : 0;
       this.rotationValChip.textContent = `${this.rotationDeg > 0 ? '+' : ''}${this.rotationDeg.toFixed(1)}°`;
       this.updateImageOrientation();
     });
 
-    this.rotate90Btn.addEventListener('click', () => {
-      this.rotationDeg = (this.rotationDeg + 90) % 360;
-      this.rotationSlider.value = 0;
-      this.rotationValChip.textContent = `${this.rotationDeg}°`;
-      this.updateImageOrientation();
-    });
+    // Putar 90° dengan membakar rotasi ke bitmap sumber agar kotak crop tetap valid
+    this.rotate90Btn.addEventListener('click', () => this.rotateQuarterTurn());
 
     this.flipHBtn.addEventListener('click', () => {
       this.flipH = !this.flipH;
@@ -554,32 +766,17 @@ class PhotoCropApp {
       this.updateImageOrientation();
     });
 
-    this.resetParamsBtn.addEventListener('click', () => {
-      this.rotationDeg = 0;
-      this.flipH = false;
-      this.flipV = false;
-      this.rotationSlider.value = 0;
-      this.rotationValChip.textContent = '0.0°';
-      this.updateImageOrientation();
-      this.recenterCropBox();
-      this.setZoom(1.0);
-    });
+    this.resetParamsBtn.addEventListener('click', () => this.resetAdjustments());
 
-    // Grid Toggle
-    this.btnGridToggle.addEventListener('click', () => {
+    // Grid Toggle (kedua tombol mengendalikan overlay yang sama)
+    const toggleGrid = () => {
       const isHidden = this.gridRuleThirds.classList.contains('hidden');
-      if (isHidden) {
-        this.gridRuleThirds.classList.remove('hidden');
-        this.gridCrosshair.classList.remove('hidden');
-        this.gridToggleText.textContent = 'Sembunyikan';
-        this.btnGridToggle.querySelector('.material-symbols-outlined').textContent = 'visibility';
-      } else {
-        this.gridRuleThirds.classList.add('hidden');
-        this.gridCrosshair.classList.add('hidden');
-        this.gridToggleText.textContent = 'Tampilkan';
-        this.btnGridToggle.querySelector('.material-symbols-outlined').textContent = 'visibility_off';
-      }
-    });
+      this.setGridVisible(isHidden);
+    };
+    this.btnGridToggle.addEventListener('click', toggleGrid);
+    if (this.btnGridThirds) {
+      this.btnGridThirds.addEventListener('click', toggleGrid);
+    }
 
     // Info & Hotkeys Modal Helper
     const showInfoAlert = () => {
@@ -606,11 +803,20 @@ class PhotoCropApp {
     const openModal = () => {
       this.uploadModal.classList.remove('hidden');
       this.uploadModal.classList.add('flex');
+      this.browseBtn.focus();
     };
     const closeModal = () => {
       this.uploadModal.classList.add('hidden');
       this.uploadModal.classList.remove('flex');
+      if (this.topUploadBtn) this.topUploadBtn.focus();
     };
+
+    // Escape menutup modal unggah
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !this.uploadModal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
 
     this.topUploadBtn.addEventListener('click', openModal);
     this.inspectorDropzone.addEventListener('click', openModal);
@@ -842,53 +1048,92 @@ class PhotoCropApp {
 
     this.presetButtons.forEach((btn) => {
       const isCurrent = btn.dataset.dpi === key;
+      const primed = isCurrent && key === '300';
+
       btn.classList.toggle('active-preset', isCurrent);
-      if (isCurrent) {
-        btn.classList.add('border-primary');
-        if (key === '300') {
-          btn.classList.add('bg-primary-container', 'text-on-primary-container');
-        } else {
-          btn.classList.add('bg-surface-container-high');
-        }
-      } else {
-        btn.classList.remove('border-primary');
-        if (btn.dataset.dpi === '300') {
-          btn.classList.remove('bg-primary-container', 'text-on-primary-container');
-          btn.classList.add('bg-surface-container');
-        } else {
-          btn.classList.remove('bg-surface-container-high');
-        }
-      }
+      btn.classList.toggle('border-primary', isCurrent);
+      btn.classList.toggle('border-outline-variant/30', !isCurrent);
+      btn.classList.toggle('bg-primary-container', primed);
+      btn.classList.toggle('text-on-primary-container', primed);
+      btn.classList.toggle('bg-surface-container-high', isCurrent && !primed);
+      btn.classList.toggle('bg-surface-container', !isCurrent);
+      btn.classList.toggle('text-on-surface-variant', !isCurrent);
+      btn.setAttribute('aria-pressed', isCurrent ? 'true' : 'false');
     });
 
-    this.badgeActiveDpi.textContent = `${this.currentPreset.dpi} DPI Aktif`;
+    // Preset "Konversi Digital" tidak menyebut DPI; tampilkan resolusi sebenarnya
+    const dpiAktif = this.resolvePresetDpi();
+    this.badgeActiveDpi.textContent = `${dpiAktif} DPI Aktif`;
     this.barResolution.textContent = `${this.currentPreset.targetW} × ${this.currentPreset.targetH} px`;
     this.telemetryResolution.textContent = `${this.currentPreset.targetW} × ${this.currentPreset.targetH} px`;
     this.telemetryPhysical.textContent = `${this.currentPreset.cm} (~4 × 6 cm)`;
-    this.telemetryDpi.textContent = `${this.currentPreset.dpi} DPI • sRGB Pas Foto`;
-    this.telemetryTag.textContent = `${this.currentPreset.dpi} DPI Cetak`;
+    this.telemetryDpi.textContent = `${dpiAktif} DPI • sRGB Pas Foto`;
+    this.telemetryTag.textContent = `${dpiAktif} DPI Cetak`;
 
     // Sesuaikan aspek rasio crop box sesuai preset baru
     const targetRatio = this.currentPreset.targetW / this.currentPreset.targetH;
     const imgW = this.sourceImage.offsetWidth;
     const imgH = this.sourceImage.offsetHeight;
+    if (!imgW || !imgH || !this.cropH) {
+      return;
+    }
 
-    let newW = Math.round(this.cropH * targetRatio);
+    let newW = Math.max(40, Math.round(this.cropH * targetRatio));
+    let newH = Math.round(newW / targetRatio);
     if (newW > imgW) {
       newW = imgW;
-      this.cropH = Math.round(newW / targetRatio);
+      newH = Math.round(newW / targetRatio);
     }
+    if (newH > imgH) {
+      newH = imgH;
+      newW = Math.round(newH * targetRatio);
+    }
+
     this.cropW = newW;
+    this.cropH = newH;
     this.cropX = Math.max(0, Math.min(this.cropX, imgW - this.cropW));
     this.cropY = Math.max(0, Math.min(this.cropY, imgH - this.cropH));
 
     this.renderCropMarquee();
   }
 
+  resolvePresetDpi() {
+    const value = Number(this.currentPreset.dpi);
+    if (Number.isFinite(value) && value > 0) return Math.round(value);
+
+    // Preset "Konversi Digital" tidak menyebut DPI eksplisit:
+    // hitung dari lebar target terhadap dimensi fisik 3,99 cm.
+    return Math.round(this.currentPreset.targetW / (3.99 / 2.54));
+  }
+
   updateImageOrientation() {
     const scaleX = this.flipH ? -1 : 1;
     const scaleY = this.flipV ? -1 : 1;
     this.sourceImage.style.transform = `rotate(${this.rotationDeg}deg) scale(${scaleX}, ${scaleY})`;
+  }
+
+  /** Menampilkan / menyembunyikan panduan grid dan menyinkronkan status tombolnya. */
+  setGridVisible(visible) {
+    if (!this.gridRuleThirds || !this.gridCrosshair) return;
+
+    this.gridRuleThirds.classList.toggle('hidden', !visible);
+    this.gridCrosshair.classList.toggle('hidden', !visible);
+
+    if (this.gridToggleText) {
+      this.gridToggleText.textContent = visible ? 'Sembunyikan' : 'Tampilkan';
+    }
+    const toggleIcon = this.btnGridToggle.querySelector('.material-symbols-outlined');
+    if (toggleIcon) toggleIcon.textContent = visible ? 'visibility' : 'visibility_off';
+
+    if (this.btnGridThirds) {
+      this.btnGridThirds.classList.toggle('bg-surface-container-high', visible);
+      this.btnGridThirds.classList.toggle('text-primary', visible);
+      this.btnGridThirds.classList.toggle('border-primary/30', visible);
+      this.btnGridThirds.classList.toggle('bg-surface-container', !visible);
+      this.btnGridThirds.classList.toggle('text-on-surface-variant', !visible);
+      this.btnGridThirds.classList.toggle('border-outline-variant/30', !visible);
+      this.btnGridThirds.setAttribute('aria-pressed', visible ? 'true' : 'false');
+    }
   }
 
   recenterCropBox() {
@@ -900,7 +1145,9 @@ class PhotoCropApp {
   }
 
   setZoom(val) {
-    this.zoom = Math.min(Math.max(val, 0.25), 3.0);
+    const numeric = Number(val);
+    const clamped = Number.isFinite(numeric) ? Math.min(Math.max(numeric, 0.1), 3.0) : 1.0;
+    this.zoom = clamped;
     const pct = Math.round(this.zoom * 100);
     this.zoomIndicator.textContent = `${pct}%`;
     this.zoomSlider.value = pct;
@@ -908,9 +1155,24 @@ class PhotoCropApp {
   }
 
   fitToWindow() {
+    const imgW = this.sourceImage.offsetWidth;
+    const imgH = this.sourceImage.offsetHeight;
+    if (!imgW || !imgH || !this.canvasArena) {
+      this.panX = 0;
+      this.panY = 0;
+      this.setZoom(1.0);
+      return;
+    }
+
+    const arenaRect = this.canvasArena.getBoundingClientRect();
+    const availableW = Math.max(120, arenaRect.width - 48);
+    const availableH = Math.max(120, arenaRect.height - 48);
+    // Skala agar seluruh foto muat di arena, tanpa memperbesar melebihi 100%
+    const fit = Math.min(availableW / imgW, availableH / imgH, 1);
+
     this.panX = 0;
     this.panY = 0;
-    this.setZoom(1.0);
+    this.setZoom(fit);
   }
 
   updateTransform() {
@@ -926,104 +1188,190 @@ class PhotoCropApp {
   }
 
   async handleUploadedFile(file) {
-    if (!file || !file.type.startsWith('image/')) {
-      alert('Harap pilih berkas gambar yang valid (JPG, PNG, atau WEBP).');
+    if (!file) return;
+
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      alert('Format berkas tidak didukung. Gunakan JPG, PNG, atau WEBP.');
+      return;
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      alert(
+        `Ukuran berkas terlalu besar (maksimal ${Math.round(MAX_UPLOAD_BYTES / (1024 * 1024))} MB).`
+      );
       return;
     }
 
+    if (this.isBusy) return;
+
     this.showLoading(true);
+    this.isBusy = true;
     try {
-      const buffer = await file.arrayBuffer();
-      this.sourceBuffer = new Uint8Array(buffer);
-      this.sourceFileName = file.name;
-      if (this.headerFilename) this.headerFilename.textContent = file.name;
+      // Reset seluruh transformasi untuk sumber baru
+      this.rotationDeg = 0;
+      this.flipH = false;
+      this.flipV = false;
+      this.rotationSlider.value = '0';
+      this.rotationValChip.textContent = '0.0°';
+      this.updateImageOrientation();
 
-      const blob = new Blob([this.sourceBuffer], { type: file.type });
-      const objUrl = URL.createObjectURL(blob);
+      await this.applySourceBlob(file, file.name, 0);
 
-      this.sourceImage.onload = () => {
-        this.naturalW = this.sourceImage.naturalWidth;
-        this.naturalH = this.sourceImage.naturalHeight;
-        const resText = `${this.naturalW} × ${this.naturalH} px`;
-        if (this.headerResolution) this.headerResolution.textContent = `(${resText})`;
-
-        requestAnimationFrame(() => {
-          this.setupDefaultCropBox();
-          this.fitToWindow();
-          this.uploadModal.classList.add('hidden');
-          this.uploadModal.classList.remove('flex');
-          this.showLoading(false);
-        });
-      };
-
-      this.sourceImage.src = objUrl;
+      this.uploadModal.classList.add('hidden');
+      this.uploadModal.classList.remove('flex');
     } catch (err) {
-      this.showLoading(false);
       console.error('Gagal membaca gambar:', err);
       alert('Terjadi kesalahan saat memproses gambar: ' + err.message);
+    } finally {
+      this.isBusy = false;
+      this.showLoading(false);
+    }
+  }
+
+  /** Memutar bitmap sumber 90° searah jarum jam lalu mengatur ulang kotak crop. */
+  async rotateQuarterTurn() {
+    if (!this.baseBlob || this.isBusy) return;
+
+    const targetTurns = (this.quarterTurns + 1) % 4;
+    this.showLoading(true);
+    this.isBusy = true;
+    try {
+      await this.applySourceBlob(this.baseBlob, this.sourceFileName, targetTurns, false);
+    } catch (err) {
+      console.error('Gagal memutar gambar:', err);
+      alert('Gagal memutar gambar: ' + err.message);
+    } finally {
+      this.isBusy = false;
+      this.showLoading(false);
+    }
+  }
+
+  /** Mengembalikan rotasi, flip, dan zoom ke kondisi awal. */
+  async resetAdjustments() {
+    if (this.isBusy) return;
+
+    this.showLoading(true);
+    this.isBusy = true;
+    try {
+      if (this.baseBlob && this.quarterTurns !== 0) {
+        await this.applySourceBlob(this.baseBlob, this.sourceFileName, 0, false);
+      }
+      this.rotationDeg = 0;
+      this.flipH = false;
+      this.flipV = false;
+      this.rotationSlider.value = '0';
+      this.rotationValChip.textContent = '0.0°';
+      this.updateImageOrientation();
+      this.setZoom(1.0);
+      this.recenterCropBox();
+    } catch (err) {
+      console.error('Gagal mereset penyesuaian:', err);
+      alert('Gagal mereset penyesuaian: ' + err.message);
+    } finally {
+      this.isBusy = false;
+      this.showLoading(false);
     }
   }
 
   async applyCrop() {
+    if (this.isBusy) return;
     if (!this.sourceBuffer) {
       alert('Belum ada gambar yang dimuat.');
       return;
     }
 
+    const imgW = this.sourceImage.offsetWidth;
+    const imgH = this.sourceImage.offsetHeight;
+    if (!imgW || !imgH) {
+      alert('Gambar belum siap. Tunggu hingga pratinjau selesai dimuat.');
+      return;
+    }
+
+    // Hitung koordinat crop relatif terhadap ukuran asli gambar
+    const scaleX = this.naturalW / imgW;
+    const scaleY = this.naturalH / imgH;
+    if (!Number.isFinite(scaleX) || !Number.isFinite(scaleY) || scaleX <= 0 || scaleY <= 0) {
+      alert('Ukuran gambar tidak valid untuk dipotong.');
+      return;
+    }
+
+    // Batasi ke area gambar agar pembulatan sub-piksel tidak melewati batas engine
+    const exactCropW = Math.min(this.naturalW, Math.max(1, Math.round(this.cropW * scaleX)));
+    const exactCropH = Math.min(this.naturalH, Math.max(1, Math.round(this.cropH * scaleY)));
+    const exactCropX = Math.min(
+      Math.max(0, Math.round(this.cropX * scaleX)),
+      this.naturalW - exactCropW
+    );
+    const exactCropY = Math.min(
+      Math.max(0, Math.round(this.cropY * scaleY)),
+      this.naturalH - exactCropH
+    );
+
     this.showLoading(true);
+    this.isBusy = true;
 
     try {
-      // Hitung koordinat crop relatif terhadap ukuran asli gambar
-      const scaleX = this.naturalW / this.sourceImage.offsetWidth;
-      const scaleY = this.naturalH / this.sourceImage.offsetHeight;
-
-      const exactCropX = Math.round(this.cropX * scaleX);
-      const exactCropY = Math.round(this.cropY * scaleY);
-      const exactCropW = Math.round(this.cropW * scaleX);
-      const exactCropH = Math.round(this.cropH * scaleY);
-
-      const targetW = this.currentPreset.targetW;
-      const targetH = this.currentPreset.targetH;
+      // Beri kesempatan overlay loading tampil sebelum komputasi berat di engine
+      await this.nextFrame();
 
       const result = await this.wasmEngine.cropImage(this.sourceBuffer, {
         cropX: exactCropX,
         cropY: exactCropY,
         cropW: exactCropW,
         cropH: exactCropH,
-        targetW: targetW,
-        targetH: targetH,
+        targetW: this.currentPreset.targetW,
+        targetH: this.currentPreset.targetH,
+        // Hanya rotasi halus; putaran 90° sudah dibakar ke bitmap sumber
         rotationDeg: this.rotationDeg,
         flipH: this.flipH,
         flipV: this.flipV,
         format: this.currentFormat,
+        dpi: this.resolvePresetDpi(),
       });
 
+      this.releaseResultUrl();
       this.lastCropResult = result;
       this.showCroppedResult(result);
     } catch (err) {
       console.error('Pemotongan via Rust WASM gagal:', err);
       alert('Gagal memotong foto: ' + err.message);
     } finally {
+      this.isBusy = false;
       this.showLoading(false);
     }
+  }
+
+  /** Melepas object URL hasil crop sebelumnya agar tidak menumpuk di memori. */
+  releaseResultUrl() {
+    if (this.lastCropResult && this.lastCropResult.url) {
+      URL.revokeObjectURL(this.lastCropResult.url);
+    }
+    this.lastCropResult = null;
   }
 
   showCroppedResult(result) {
     this.resultImagePreview.src = result.url;
     this.resultPxDim.textContent = `${result.width} × ${result.height} px`;
     this.resultCmDim.textContent = this.currentPreset.cm;
-    this.resultDpiInfo.textContent = `${this.currentPreset.dpi} DPI • ${this.currentPreset.category.split('/')[0].trim()}`;
-    
+    this.resultDpiInfo.textContent = `${result.dpi} DPI • ${this.currentPreset.category.split('/')[0].trim()}`;
+    if (this.resultBadgeRatio) {
+      this.resultBadgeRatio.textContent = `Rasio ${result.width}:${result.height}`;
+    }
+
     const kb = (result.sizeBytes / 1024).toFixed(1);
     this.resultFilesize.textContent = `~${kb} KB (${result.format.toUpperCase()})`;
 
     this.resultModal.classList.remove('hidden');
     this.resultModal.classList.add('flex');
+    if (this.downloadFinalBtn) this.downloadFinalBtn.focus();
   }
 
   closeResultModal() {
     this.resultModal.classList.add('hidden');
     this.resultModal.classList.remove('flex');
+    // Lepas URL hasil agar memori tidak terus bertambah
+    this.releaseResultUrl();
+    this.resultImagePreview.removeAttribute('src');
+    if (this.topApplyBtn) this.topApplyBtn.focus();
   }
 
   selectOutputFormat(format) {
@@ -1050,10 +1398,10 @@ class PhotoCropApp {
       return;
     }
 
-    const ext = this.currentFormat === 'png' ? 'png' : 'jpg';
-    const dpiTag = `${this.currentPreset.dpi}dpi`;
+    const ext = this.lastCropResult.format === 'png' ? 'png' : 'jpg';
+    const dpiTag = `${this.lastCropResult.dpi}dpi`;
     const dimTag = `${this.lastCropResult.width}x${this.lastCropResult.height}`;
-    const baseName = this.sourceFileName.replace(/\.[^/.]+$/, '');
+    const baseName = (this.sourceFileName || 'foto').replace(/\.[^/.]+$/, '') || 'foto';
     const downloadName = `pas_foto_4x6_${baseName}_${dpiTag}_${dimTag}.${ext}`;
 
     const a = document.createElement('a');

@@ -9,6 +9,7 @@ import http.server
 import os
 import socketserver
 import sys
+from urllib.parse import urlsplit
 
 PORT = 8080
 DIRECTORY = os.path.join(os.path.dirname(__file__), "public")
@@ -20,12 +21,23 @@ class WasmHandler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
 
     def end_headers(self):
-        # Header CORS standar & no-cache untuk pengembangan
+        # Header CORS standar
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
-        self.send_header("Pragma", "no-cache")
-        self.send_header("Expires", "0")
+        if self.is_document_request():
+            # Dokumen HTML tidak boleh di-cache agar perubahan langsung terlihat
+            self.send_header("Cache-Control", "no-store, must-revalidate")
+            self.send_header("Pragma", "no-cache")
+            self.send_header("Expires", "0")
+        else:
+            # Aset statis (wasm, js, css, gambar) boleh di-cache singkat
+            self.send_header("Cache-Control", "public, max-age=3600")
         super().end_headers()
+
+    def is_document_request(self):
+        path = urlsplit(self.path).path
+        if path.endswith("/"):
+            return True
+        return path.endswith(".html") or "." not in os.path.basename(path)
 
     def guess_type(self, path):
         if path.endswith(".wasm"):
@@ -39,7 +51,9 @@ class WasmHandler(http.server.SimpleHTTPRequestHandler):
         return super().guess_type(path)
 
 class ThreadingWasmServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    allow_reuse_address = True
+    # Di Windows SO_REUSEADDR mengizinkan dua proses mengikat port yang sama;
+    # lebih aman membiarkannya nonaktif dan memakai loop pencarian port.
+    allow_reuse_address = os.name != "nt"
     daemon_threads = True
 
 def run():
@@ -53,11 +67,19 @@ def run():
                 print(f"============================================================")
                 sys.stdout.flush()
                 httpd.serve_forever()
-                break
+                return
         except OSError as e:
-            if "address already in use" in str(e).lower() or e.errno in (98, 10048):
+            if e.errno in (98, 10048) or "address already in use" in str(e).lower():
+                print(f"  Port {p} sedang dipakai, mencoba port berikutnya...")
                 continue
             raise
 
+    print(
+        f"Gagal menjalankan server: port {PORT}-{PORT + 19} semuanya tidak tersedia.",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
 if __name__ == "__main__":
     run()
+

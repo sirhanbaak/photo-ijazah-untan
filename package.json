@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "python server.py",
     "start": "python server.py",
-    "build": "echo 'Static assets ready in public/'",
-    "test": "playwright test",
+    "build": "node scripts/check-assets.mjs",
+    "build:wasm": "cargo build --release --target wasm32-unknown-unknown --manifest-path wasm_crop/Cargo.toml && node scripts/copy-wasm.mjs",
+    "test": "npm run test:wasm && npm run test:playwright",
     "test:playwright": "playwright test",
     "test:wasm": "node tests/wasm_bridge.test.js"
   },

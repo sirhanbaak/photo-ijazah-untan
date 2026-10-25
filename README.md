@@ -29,11 +29,12 @@ Ukuran foto 4×6 cm standar pas foto dokumen resmi (ijazah, buku nikah, paspor, 
   - Dilengkapi garis bantu **Rule of Thirds (3×3)** dan titik bidik tengah (*crosshair*) untuk memudahkan penyesuaian posisi wajah dan bahu.
 - 🔍 **Kanvas Interaktif**:
   - Kontrol Zoom (25% s/d 300%) dan Pan (*geser kanvas dengan mouse atau tahan Spasi*).
-  - Pelurusan rotasi halus (-45° s/d +45°) serta putar bertahap 90° dan flip horizontal/vertikal.
+  - Pelurusan rotasi halus (-45° s/d +45°) serta putar bertahap 90° dan flip horizontal/vertikal — hasil ekspor selalu sama dengan pratinjau.
 - 🖼️ **Area Pratinjau Terpisah**:
   - Hasil pemotongan ditampilkan pada dialog pratinjau khusus lengkap dengan informasi ukuran piksel, dimensi fisik cetak (cm), DPI, dan perkiraan ukuran file.
   - Pilihan format ekspor: **JPEG** (kualitas 95% untuk upload ijazah) atau **PNG** (lossless).
   - Tombol unduh otomatis dengan penamaan berkas terstruktur.
+- 🏷️ **Metadata DPI Tertanam**: Berkas hasil ekspor menyimpan densitas cetak langsung di dalam metadata — chunk `pHYs` untuk PNG dan segmen `APP0/JFIF` untuk JPEG — sehingga aplikasi cetak membaca **300 DPI**, bukan 72 DPI bawaan.
 
 ---
 
@@ -58,15 +59,28 @@ Jika Anda memodifikasi kode pemrosesan di folder `wasm_crop/src/lib.rs`:
 # Pastikan target wasm32 terpasang
 rustup target add wasm32-unknown-unknown
 
-# Jalankan pengujian unit test Rust
+# Uji engine Rust (termasuk regresi rotasi & validasi area crop)
 cargo test --manifest-path wasm_crop/Cargo.toml
 
-# Kompilasi ke binary release WebAssembly
-cargo build --manifest-path wasm_crop/Cargo.toml --target wasm32-unknown-unknown --release
-
-# Salin binary ke folder public
-cp wasm_crop/target/wasm32-unknown-unknown/release/wasm_crop.wasm public/crop/wasm_crop.wasm
+# Kompilasi release lalu salin otomatis ke public/crop/wasm_crop.wasm
+npm run build:wasm
 ```
+
+### 3. Menjalankan Pengujian
+
+```bash
+npm run test:wasm        # Uji bridge WebAssembly via Node
+npm run test:playwright  # Uji E2E Chromium (Desktop & Mobile)
+npm test                 # Keduanya
+```
+
+### 4. Batas Pemrosesan
+
+- Ukuran berkas unggahan maksimum **25 MB**.
+- Dimensi sumber dibatasi **4096 px** pada sisi terpanjang sebelum dikirim ke engine.
+- Orientasi EXIF dan format seperti WebP dinormalisasi di peramban (canvas), sehingga engine Rust selalu menerima JPEG/PNG yang sudah tegak.
+- Rotasi halus (-45° s/d +45°) dan putaran 90° menghasilkan berkas ekspor yang identik dengan pratinjau.
+- Koordinat crop divalidasi di UI dan di engine; area di luar batas ditolak dengan pesan kesalahan spesifik.
 
 ---
 
@@ -90,7 +104,7 @@ PhotoIjazah/
 │       ├── style.css         # Tema Darkroom, handles & custom styling
 │       ├── app.js            # Interaksi kanvas, crop box, event listeners
 │       ├── wasm_bridge.js    # Modul loader & memory bridge Rust WebAssembly
-│       ├── wasm_crop.wasm    # Binary WebAssembly terkompilasi (~499 KB)
+│       ├── wasm_crop.wasm    # Binary WebAssembly terkompilasi (~480 KB)
 │       └── sample.jpg        # Foto formal contoh pas foto
 ├── wasm_crop/                # Crate Rust
 │   ├── Cargo.toml

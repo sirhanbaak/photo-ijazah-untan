@@ -383,6 +383,7 @@
                   class="font-label-sm text-label-sm bg-secondary text-on-secondary px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0">Aktif</span>
               </div>
             </div>
+            <form class="flex flex-col gap-space-lg" id="ijazahForm">
             <!-- Section: Identitas Mahasiswa & Data Akademik -->
             <div class="bg-surface-container-lowest p-space-md md:p-space-lg rounded-xl shadow-sm">
               <div class="flex items-center justify-between pb-space-sm mb-space-md border-b-0">
@@ -401,7 +402,7 @@
                 Pastikan nama lengkap dan identitas kelahiran ditulis persis sesuai dengan dokumen sah negara (Akta
                 Kelahiran / e-KTP) untuk menghindari kekeliruan cetak penulisan ijazah negara.
               </p>
-              <form class="flex flex-col gap-space-md" id="ijazahForm">
+              <div class="flex flex-col gap-space-md">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
                   <!-- NIM -->
                   <div class="flex flex-col gap-1.5">
@@ -548,7 +549,7 @@
                       permohonan dikirimkan kemari</span>
                   </div>
                 </div>
-              </form>
+              </div>
             </div>
             <!-- Section: Unggah Berkas & Pas Foto Resmi -->
             <div class="bg-surface-container-lowest p-space-md md:p-space-lg rounded-xl shadow-sm">
@@ -598,20 +599,22 @@
                         </div>
                       </div>
                       <div class="mt-space-md flex flex-wrap items-center gap-space-sm">
-                        <button
-                          class="inline-flex items-center gap-space-xs px-4 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary-container shadow-sm transition-colors"
-                          type="button">
+                        <label
+                          class="inline-flex items-center gap-space-xs px-4 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary-container shadow-sm transition-colors cursor-pointer"
+                          title="Pilih berkas pas foto 4×6 (JPG/PNG, maks 2 MB)">
                           <span class="material-symbols-outlined text-[18px]">file_upload</span>
                           <span class="">Ganti Pas Foto (Maks 2 MB)</span>
-                        </button>
+                          <input class="sr-only" id="fotoIjazah" name="foto" type="file"
+                            accept="image/jpeg,image/png">
+                        </label>
                         <a href="/crop/" target="_blank"
                           class="inline-flex items-center gap-space-xs px-4 py-2 bg-secondary-container text-on-secondary-container font-label-md text-label-md font-bold rounded-lg hover:brightness-110 shadow-sm transition-all"
                           title="Buka aplikasi pemotong foto 4x6 di tab baru">
                           <span class="material-symbols-outlined text-[18px]">crop</span>
                           <span class="">Sesuaikan Foto dengan Photo Ijazah Untan</span>
                         </a>
-                        <span class="font-label-sm text-label-sm text-on-surface-variant">Terunggah: <strong
-                            class="text-primary font-semibold">FOTO_IJAZAH_F1081191042.JPG (1.4 MB)</strong></span>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant" id="fotoStatus">Belum ada
+                          berkas dipilih</span>
                       </div>
                     </div>
                   </div>
@@ -702,6 +705,13 @@
                 </label>
               </div>
             </div>
+            <!-- Catatan Mode Demo -->
+            <div
+              class="flex items-start gap-space-xs p-space-sm rounded-lg bg-secondary-container/40 text-on-secondary-container font-body-sm text-body-sm">
+              <span class="material-symbols-outlined text-[18px]">info</span>
+              <span>Mode demo: formulir ini belum terhubung ke layanan backend. Data yang diisi tidak dikirim
+                maupun disimpan.</span>
+            </div>
             <!-- Action Buttons Bar -->
             <div
               class="flex flex-col sm:flex-row items-center justify-between gap-space-md bg-surface-container-lowest p-space-md rounded-xl shadow-sm">
@@ -724,6 +734,7 @@
                 </button>
               </div>
             </div>
+            </form>
           </div>
           <!-- SIDEBAR SUMMARY COLUMN (4 of 12) -->
           <div class="lg:col-span-4 flex flex-col gap-space-md sticky top-24">
@@ -1012,6 +1023,20 @@
             drawer.classList.add('hidden');
             if (icon) icon.textContent = 'menu';
           });
+        });
+      }
+    });
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Tampilkan nama berkas yang dipilih pada bagian unggah pas foto
+      const fotoInput = document.getElementById('fotoIjazah');
+      const fotoStatus = document.getElementById('fotoStatus');
+      if (fotoInput && fotoStatus) {
+        fotoInput.addEventListener('change', function () {
+          const file = fotoInput.files && fotoInput.files[0];
+          fotoStatus.textContent = file
+            ? file.name + ' (' + (file.size / (1024 * 1024)).toFixed(2) + ' MB)'
+            : 'Belum ada berkas dipilih';
         });
       }
     });
