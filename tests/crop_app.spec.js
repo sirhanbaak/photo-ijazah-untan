@@ -165,7 +165,8 @@ test.describe('Aplikasi Crop Photo Ijazah', () => {
     await page.waitForFunction(
       () =>
         window.photoCropApp.sourceFileName === 'unggahan.jpg' &&
-        window.photoCropApp.quarterTurns === 0,
+        window.photoCropApp.quarterTurns === 0 &&
+        !window.photoCropApp.isBusy,
       null,
       { timeout: 20000 }
     );
@@ -237,5 +238,82 @@ test.describe('Aplikasi Crop Photo Ijazah', () => {
     await page.keyboard.press('Space');
     const spacePressed = await page.evaluate(() => window.photoCropApp.isSpacePressed);
     expect(spacePressed).toBe(false);
+  });
+test('tombol gunakan hasil crop memindahkan foto ke formulir pengajuan tanpa ter-overwrite oleh cekDataMahasiswa', async ({ page }) => {
+    await openApp(page);
+
+    // 1. Terapkan crop untuk membuka modal hasil
+    await page.evaluate(() => window.photoCropApp.applyCrop());
+    await expect(page.locator('#result-modal')).toBeVisible();
+
+    // 2. Klik tombol "Gunakan Hasil Crop di Formulir Pengajuan Ijazah" di dalam modal
+    await Promise.all([
+      page.waitForNavigation({ url: /pengajuan\.html(\?cropped=1)?/ }),
+      page.locator('#use-in-pengajuan-btn').click()
+    ]);
+
+    // 3. Pastikan sudah berada di halaman pengajuan.html
+    expect(page.url()).toContain('pengajuan.html');
+
+    // 4. Verifikasi preview foto menampilkan foto hasil crop (bukan contoh awal contoh_foto_ijazah.jpg)
+    const preview = page.locator('#previewFoto');
+    await expect(preview).toBeVisible();
+    const initialSrc = await preview.getAttribute('src');
+    expect(initialSrc).not.toBe('contoh_foto_ijazah.jpg');
+    expect(Boolean(initialSrc.startsWith('blob:') || initialSrc.startsWith('data:'))).toBe(true);
+
+    // 5. Tunggu 1200ms untuk memastikan timeout 500ms auto-check cekDataMahasiswa telah selesai
+    await page.waitForTimeout(1200);
+
+    // Verifikasi bahwa preview foto TIDAK ter-overwrite oleh foto database lama
+    const afterCheckSrc = await preview.getAttribute('src');
+    expect(afterCheckSrc).toBe(initialSrc);
+
+    // 6. Verifikasi banner status foto terverifikasi
+    const noticeBox = page.locator('#fotoNoticeBox');
+    await expect(noticeBox).toBeVisible();
+    await expect(noticeBox).toContainText('Pas Foto Terverifikasi Hasil Crop');
+    await expect(noticeBox).toContainText('450');
+    await expect(noticeBox).toContainText('660');
+
+    // 7. Verifikasi activeCroppedPhotoFile tersimpan di state window
+    const fileState = await page.evaluate(() => {
+      return {
+        hasFile: Boolean(window.activeCroppedPhotoFile),
+        name: window.activeCroppedPhotoFile ? window.activeCroppedPhotoFile.name : null,
+        size: window.activeCroppedPhotoFile ? window.activeCroppedPhotoFile.size : 0
+      };
+    });
+    expect(fileState.hasFile).toBe(true);
+    expect(fileState.size).toBeGreaterThan(1000);
+  });
+
+  test('tombol langsung gunakan di pengajuan (header / sidebar) otomatis crop dan beralih ke form pengajuan', async ({ page }) => {
+    await openApp(page);
+
+    const isMobile = await page.evaluate(() => window.innerWidth < 1024);
+    const targetBtn = isMobile ? page.locator('#top-use-pengajuan-btn') : page.locator('#direct-use-pengajuan-btn');
+
+    await Promise.all([
+      page.waitForNavigation({ url: /pengajuan\.html(\?cropped=1)?/ }),
+      targetBtn.click()
+    ]);
+
+    expect(page.url()).toContain('pengajuan.html');
+
+    const preview = page.locator('#previewFoto');
+    await expect(preview).toBeVisible();
+    const src = await preview.getAttribute('src');
+    expect(src).not.toBe('contoh_foto_ijazah.jpg');
+    expect(Boolean(src.startsWith('blob:') || src.startsWith('data:'))).toBe(true);
+
+    // Tunggu auto cek mahasiswa
+    await page.waitForTimeout(1200);
+    const finalSrc = await preview.getAttribute('src');
+    expect(finalSrc).toBe(src);
+
+    const noticeBox = page.locator('#fotoNoticeBox');
+    await expect(noticeBox).toBeVisible();
+    await expect(noticeBox).toContainText('Pas Foto Terverifikasi Hasil Crop');
   });
 });

@@ -2,40 +2,319 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-error-container":"#93000a","background":"#faf8ff","on-secondary":"#ffffff","on-primary-fixed":"#001a41","surface-container-high":"#e2e7ff","on-primary-container":"#7c94c8","secondary-fixed":"#ffdcc3","on-tertiary":"#ffffff","primary-container":"#0f2c59","error-container":"#ffdad6","surface":"#faf8ff","surface-container-low":"#f2f3ff","inverse-surface":"#283044","outline":"#747780","tertiary-container":"#00304c","surface-tint":"#465e8e","tertiary-fixed":"#cce5ff","surface-bright":"#faf8ff","on-tertiary-container":"#379ce0","inverse-primary":"#aec7fd","surface-container-lowest":"#ffffff","on-secondary-fixed-variant":"#6e3900","error":"#ba1a1a","on-secondary-container":"#663500","outline-variant":"#c4c6d0","surface-container-highest":"#dae2fd","inverse-on-surface":"#eef0ff","primary":"#00173b","on-background":"#131b2e","primary-fixed-dim":"#aec7fd","tertiary-fixed-dim":"#93ccff","secondary":"#904d00","surface-container":"#eaedff","on-primary":"#ffffff","on-tertiary-fixed-variant":"#004b73","secondary-container":"#fe932c","on-error":"#ffffff","on-tertiary-fixed":"#001d31","on-surface":"#131b2e","tertiary":"#001a2d","on-primary-fixed-variant":"#2d4674","primary-fixed":"#d8e2ff","on-surface-variant":"#44474f","on-secondary-fixed":"#2f1500","surface-variant":"#dae2fd","surface-dim":"#d2d9f4","secondary-fixed-dim":"#ffb77d"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-md":"1rem","margin-sm":"1rem","space-xl":"2.5rem","space-xs":"0.25rem","space-sm":"0.5rem","space-lg":"1.5rem","margin":"2rem","gutter":"1.5rem","gutter-sm":"1rem"},"fontFamily":{"body-md":["Inter"],"title-md":["Inter"],"title-lg":["Plus Jakarta Sans"],"body-sm":["Inter"],"display-lg-mobile":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"display-lg":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"label-sm":["Inter"],"label-md":["Inter"],"label-lg":["Inter"],"body-lg":["Inter"]},"fontSize":{"body-md":["14px",{"lineHeight":"22px","fontWeight":"400"}],"title-md":["16px",{"lineHeight":"24px","fontWeight":"600"}],"title-lg":["18px",{"lineHeight":"26px","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","fontWeight":"400"}],"display-lg-mobile":["30px",{"lineHeight":"38px","letterSpacing":"-0.015em","fontWeight":"800"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"display-lg":["40px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"800"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"700"}],"label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"700"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"label-lg":["14px",{"lineHeight":"20px","letterSpacing":"0.01em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"26px","fontWeight":"400"}]}}}};</script>  <!-- Supabase JS Library & Integration Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabaseClient.js"></script>
+  <script src="user/userAuth.js"></script>
+  <script src="js/megaMenu.js"></script>
 </head><body class="bg-background font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-[#07132b]/95 backdrop-blur-xl border-b border-white/10 shadow-lg">
   <div class="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
     
     <!-- Brand Logo & Title -->
-    <a href="index.html" class="flex items-center gap-2.5 sm:gap-3 hover:opacity-95 transition-opacity shrink-0">
+    <a href="index.html" class="flex items-center gap-2.5 sm:gap-3 hover:opacity-95 transition-opacity min-w-0 flex-1 sm:flex-initial">
       <img src="logo.png" alt="Logo Resmi Universitas Tanjungpura" class="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm shrink-0">
       <div class="flex flex-col justify-center">
-        <span class="font-bold text-sm sm:text-base lg:text-lg text-white tracking-tight leading-tight whitespace-nowrap">Universitas Tanjungpura</span>
-        <span class="text-[11px] sm:text-xs text-slate-300 font-medium leading-tight whitespace-nowrap">Portal Layanan Penerbitan Ijazah</span>
+        <span class="font-bold text-sm sm:text-base lg:text-lg text-white tracking-tight leading-tight truncate">Universitas Tanjungpura</span>
+        <span class="text-[11px] sm:text-xs text-slate-300 font-medium leading-tight truncate">Portal Layanan Penerbitan Ijazah</span>
       </div>
     </a>
 
-    <!-- Desktop Navigation Links (Visible on lg and up) -->
-    <nav class="hidden lg:flex items-center gap-1 xl:gap-1.5 bg-white/5 p-1 rounded-xl border border-white/10">
-      <a href="index.html"  class="px-3 py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all text-on-surface-variant hover:text-on-surface hover:bg-surface-container">Beranda Layanan</a>
-      <a href="panduan.html"  class="px-3 py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all text-on-surface-variant hover:text-on-surface hover:bg-surface-container">Panduan &amp; Prosedur</a>
-      <a href="pengajuan.html"  class="px-3 py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all text-on-surface-variant hover:text-on-surface hover:bg-surface-container">Ajukan Permohonan</a>
-      <a href="lacak.html" aria-current="page" class="px-3 py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all bg-primary text-on-primary font-bold shadow-sm">Lacak Status</a>
-      <a href="index.html#faq-dan-kontak" class="px-3 py-1.5 rounded-lg text-xs xl:text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all">HelpDesk &amp; Jawaban (FAQ)</a>
-      <a href="/crop/" class="ml-1 px-3 py-1.5 rounded-lg text-xs xl:text-sm font-bold bg-[#00885d] hover:bg-[#4edea3] text-[#002113] hover:text-[#000703] shadow-[0_2px_10px_rgba(0,136,93,0.35)] transition-all flex items-center gap-1.5">
+    <!-- Desktop Navigation Links with Mega Menu (Visible on lg and up) -->
+    <nav class="hidden lg:flex items-center gap-1 xl:gap-2 bg-white/5 p-1 rounded-2xl border border-white/10">
+      <!-- 1. Beranda -->
+      <a href="index.html" class="px-3.5 py-2 rounded-xl text-xs xl:text-sm font-semibold transition-all text-slate-200 hover:text-white hover:bg-white/10 flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[18px]">home</span>
+        <span>Beranda</span>
+      </a>
+
+      <!-- 2. Layanan Ijazah (Mega Menu Dropdown - Active Category) -->
+      <div class="relative group mega-menu-container" id="megaMenuLayanan">
+        <button type="button" id="btnMegaMenuLayanan" class="px-3.5 py-2 rounded-xl text-xs xl:text-sm font-bold transition-all bg-white/15 text-white border border-white/20 shadow-sm flex items-center gap-1.5 focus:outline-none cursor-pointer" aria-expanded="false" aria-haspopup="true">
+          <span class="material-symbols-outlined text-[18px] text-[#fe932c]">school</span>
+          <span>Layanan Ijazah</span>
+          <span class="material-symbols-outlined text-sm transition-transform duration-200 group-hover:rotate-180 chevron-icon">expand_more</span>
+        </button>
+
+        <!-- Mega Menu Panel (Layanan Ijazah) -->
+        <div id="panelMegaMenuLayanan" class="mega-menu-panel absolute left-1/2 -translate-x-1/2 mt-2 w-[760px] xl:w-[820px] max-w-[92vw] bg-[#fbfaf6] border border-[#e2ddd2] rounded-2xl shadow-[0_20px_50px_rgba(0,23,59,0.22)] p-5 z-50 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 pointer-events-none group-hover:pointer-events-auto text-slate-800">
+          <div class="grid grid-cols-12 gap-5">
+            <!-- Kolom 1: Alur Layanan Inti (5 cols) -->
+            <div class="col-span-5 space-y-2">
+              <div class="flex items-center gap-2 pb-2 border-b border-[#e5e0d3]">
+                <span class="material-symbols-outlined text-[16px] text-amber-700">assignment</span>
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-800">Pengajuan &amp; Status</span>
+              </div>
+
+              <!-- Ajukan Permohonan -->
+              <a href="pengajuan.html" class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+                <div class="w-9 h-9 rounded-lg bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                  <span class="material-symbols-outlined text-[20px]">assignment_add</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-slate-900 group-hover/item:text-emerald-800 transition-colors">Ajukan Permohonan</span>
+                  <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Penerbitan baru, ralat ijazah, atau ganti hilang/rusak</span>
+                </div>
+              </a>
+
+              <!-- Lacak Status (Active Page) -->
+              <a href="lacak.html" aria-current="page" class="flex items-start gap-3 p-2.5 rounded-xl bg-blue-100/90 border border-blue-400 text-blue-950 font-bold transition-colors group/item shadow-xs">
+                <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                  <span class="material-symbols-outlined text-[20px]">track_changes</span>
+                </div>
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-blue-950">Lacak Status Berkas</span>
+                    <span class="text-[9px] uppercase px-1.5 py-0.2 rounded bg-blue-700 text-white font-extrabold">Aktif</span>
+                  </div>
+                  <span class="text-[11px] text-blue-900 leading-snug mt-0.5">Pantau real-time 6 tahapan verifikasi via nomor tiket</span>
+                </div>
+              </a>
+
+              <!-- Katalog Layanan -->
+              <a href="index.html#katalog-layanan" class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+                <div class="w-9 h-9 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                  <span class="material-symbols-outlined text-[20px]">layers</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-slate-900 group-hover/item:text-amber-800 transition-colors">Katalog 5 Jenis Layanan</span>
+                  <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Ijazah Sarjana, Magister, Doktor, Profesi &amp; Diploma</span>
+                </div>
+              </a>
+            </div>
+
+            <!-- Kolom 2: Legalitas & Pengambilan (4 cols) -->
+            <div class="col-span-4 space-y-2">
+              <div class="flex items-center gap-2 pb-2 border-b border-[#e5e0d3]">
+                <span class="material-symbols-outlined text-[16px] text-teal-700">verified</span>
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-teal-800">Legalitas &amp; Pengambilan</span>
+              </div>
+
+              <!-- Sinkronisasi PIN & PDDikti -->
+              <a href="index.html#tte-bsre" class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+                <div class="w-9 h-9 rounded-lg bg-teal-100 border border-teal-300 flex items-center justify-center text-teal-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                  <span class="material-symbols-outlined text-[20px]">badge</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-slate-900 group-hover/item:text-teal-800 transition-colors">Validasi PIN PDDikti</span>
+                  <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Penomoran Ijazah Nasional Kemdiktisaintek RI</span>
+                </div>
+              </a>
+
+              <!-- Verifikasi TTE BSrE -->
+              <a href="index.html#tte-bsre" class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+                <div class="w-9 h-9 rounded-lg bg-cyan-100 border border-cyan-300 flex items-center justify-center text-cyan-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                  <span class="material-symbols-outlined text-[20px]">verified_user</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-slate-900 group-hover/item:text-cyan-800 transition-colors">Sertifikasi TTE BSrE</span>
+                  <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Validasi keabsahan tanda tangan digital BSSN</span>
+                </div>
+              </a>
+
+              <!-- Loket Pengambilan -->
+              <a href="panduan.html#syarat-loket" class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+                <div class="w-9 h-9 rounded-lg bg-indigo-100 border border-indigo-300 flex items-center justify-center text-indigo-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                  <span class="material-symbols-outlined text-[20px]">storefront</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-slate-900 group-hover/item:text-indigo-800 transition-colors">Loket Pengambilan</span>
+                  <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Syarat pengambilan ijazah &amp; legalisir fisik di BAK</span>
+                </div>
+              </a>
+            </div>
+
+            <!-- Kolom 3: Highlight Info Card (3 cols) -->
+            <div class="col-span-3 flex flex-col justify-between p-3.5 rounded-xl bg-gradient-to-br from-[#00173b] via-[#0f2c59] to-[#07132b] border border-blue-900/40 text-white shadow-md">
+              <div>
+                <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-300 bg-amber-400/15 px-2 py-0.5 rounded-full border border-amber-400/30 mb-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                  Layanan Terpadu
+                </span>
+                <h4 class="text-xs font-bold leading-tight text-white mb-1">Loket BAK UNTAN</h4>
+                <p class="text-[11px] text-slate-200 leading-relaxed">
+                  Gedung Rektorat Lt. 1<br>
+                  Senin - Jumat<br>
+                  <span class="text-white font-medium">08.00 - 15.30 WIB</span>
+                </p>
+              </div>
+              <div class="pt-3 border-t border-white/15 mt-2">
+                <a href="https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20ingin%20tanya%20layanan%20ijazah" target="_blank" class="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-[11px] font-bold text-white transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-[#4cd7f6]">support_agent</span>
+                  <span>Tanya Petugas</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Panduan & Bantuan (Dropdown / Submenu) -->
+      <div class="relative group mega-menu-container" id="megaMenuPanduan">
+        <button type="button" id="btnMegaMenuPanduan" class="px-3.5 py-2 rounded-xl text-xs xl:text-sm font-semibold transition-all text-slate-200 hover:text-white hover:bg-white/10 flex items-center gap-1.5 focus:outline-none cursor-pointer" aria-expanded="false" aria-haspopup="true">
+          <span class="material-symbols-outlined text-[18px] text-[#4cd7f6]">menu_book</span>
+          <span>Panduan &amp; Bantuan</span>
+          <span class="material-symbols-outlined text-sm transition-transform duration-200 group-hover:rotate-180 chevron-icon">expand_more</span>
+        </button>
+
+        <!-- Dropdown Panel (Panduan & Bantuan) -->
+        <div id="panelMegaMenuPanduan" class="mega-menu-panel absolute left-1/2 -translate-x-1/2 mt-2 w-[520px] max-w-[92vw] bg-[#fbfaf6] border border-[#e2ddd2] rounded-2xl shadow-[0_20px_50px_rgba(0,23,59,0.22)] p-4 z-50 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 pointer-events-none group-hover:pointer-events-auto text-slate-800">
+          <div class="grid grid-cols-2 gap-3">
+            
+            <!-- Panduan & Prosedur -->
+            <a href="panduan.html" class="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 border border-blue-300 flex items-center justify-center text-blue-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                <span class="material-symbols-outlined text-[18px]">menu_book</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-slate-900 group-hover/item:text-blue-800 transition-colors">Panduan &amp; Prosedur</span>
+                <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Alur 6 tahapan penerbitan &amp; verifikasi</span>
+              </div>
+            </a>
+
+            <!-- Standar Pas Foto -->
+            <a href="panduan.html#standar-foto" class="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                <span class="material-symbols-outlined text-[18px]">portrait</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-slate-900 group-hover/item:text-emerald-800 transition-colors">Standar Pas Foto 4x6</span>
+                <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Latar biru/merah &amp; busana resmi</span>
+              </div>
+            </a>
+
+            <!-- FAQ & Helpdesk -->
+            <a href="index.html#faq-dan-kontak" class="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+              <div class="w-8 h-8 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                <span class="material-symbols-outlined text-[18px]">quiz</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-slate-900 group-hover/item:text-amber-800 transition-colors">HelpDesk &amp; FAQ</span>
+                <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Tanya jawab kendala ijazah &amp; berkas</span>
+              </div>
+            </a>
+
+            <!-- WhatsApp HelpDesk -->
+            <a href="https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20butuh%20bantuan%20layanan%20ijazah" target="_blank" class="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+              <div class="w-8 h-8 rounded-lg bg-teal-100 border border-teal-300 flex items-center justify-center text-teal-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                <span class="material-symbols-outlined text-[18px]">support_agent</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-slate-900 group-hover/item:text-teal-800 transition-colors">WhatsApp HelpDesk</span>
+                <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Layanan bantuan resmi petugas BAK</span>
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Portal Akun (Mega Menu Dropdown) -->
+      <div class="relative group mega-menu-container" id="megaMenuAkun">
+        <button type="button" id="btnMegaMenuAkun" class="px-3.5 py-2 rounded-xl text-xs xl:text-sm font-semibold transition-all text-slate-200 hover:text-white hover:bg-white/10 flex items-center gap-1.5 focus:outline-none cursor-pointer" aria-expanded="false" aria-haspopup="true">
+          <span class="material-symbols-outlined text-[18px] text-secondary">account_circle</span>
+          <span>Portal Akun</span>
+          <span class="material-symbols-outlined text-sm transition-transform duration-200 group-hover:rotate-180 chevron-icon">expand_more</span>
+        </button>
+
+        <!-- Dropdown Panel (Portal Akun) -->
+        <div id="panelMegaMenuAkun" class="mega-menu-panel absolute right-0 xl:left-1/2 xl:-translate-x-1/2 mt-2 w-[520px] max-w-[92vw] bg-[#fbfaf6] border border-[#e2ddd2] rounded-2xl shadow-[0_20px_50px_rgba(0,23,59,0.22)] p-4 z-50 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 pointer-events-none group-hover:pointer-events-auto text-slate-800">
+          <div class="grid grid-cols-2 gap-3">
+            
+            <!-- Kolom 1: Dasbor & Masuk Akun -->
+            <div class="space-y-2">
+              <div class="flex items-center gap-1.5 pb-1.5 border-b border-[#e5e0d3]">
+                <span class="material-symbols-outlined text-[15px] text-amber-700">manage_accounts</span>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-800">Akses Akun</span>
+              </div>
+
+              <!-- Dasbor Pemohon -->
+              <a href="user/index.html" class="flex items-start gap-2.5 p-2 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+                <div class="w-8 h-8 rounded-lg bg-blue-100 border border-blue-300 flex items-center justify-center text-blue-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                  <span class="material-symbols-outlined text-[18px]">space_dashboard</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-slate-900 group-hover/item:text-blue-800 transition-colors">Dasbor Pemohon</span>
+                  <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Status berkas &amp; riwayat pengajuan</span>
+                </div>
+              </a>
+
+              <!-- Masuk Akun -->
+              <a href="user/login.html" class="flex items-start gap-2.5 p-2 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+                <div class="w-8 h-8 rounded-lg bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                  <span class="material-symbols-outlined text-[18px]">login</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-slate-900 group-hover/item:text-emerald-800 transition-colors">Masuk Akun</span>
+                  <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Login mahasiswa &amp; alumni pemohon</span>
+                </div>
+              </a>
+            </div>
+
+            <!-- Kolom 2: Keamanan & Pemulihan Akun -->
+            <div class="space-y-2">
+              <div class="flex items-center gap-1.5 pb-1.5 border-b border-[#e5e0d3]">
+                <span class="material-symbols-outlined text-[15px] text-teal-700">security</span>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-teal-800">Keamanan &amp; MFA</span>
+              </div>
+
+              <!-- Pengaturan Akun & MFA -->
+              <a href="user/index.html#pengaturan-keamanan" class="flex items-start gap-2.5 p-2 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+                <div class="w-8 h-8 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                  <span class="material-symbols-outlined text-[18px]">lock</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-slate-900 group-hover/item:text-amber-800 transition-colors">Pengaturan &amp; MFA</span>
+                  <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Ubah password &amp; aktivasi 2FA</span>
+                </div>
+              </a>
+
+              <!-- Lupa Kata Sandi -->
+              <a href="user/forgot-password.html" class="flex items-start gap-2.5 p-2 rounded-xl hover:bg-[#f0ece1] transition-colors group/item border border-transparent hover:border-[#dfd9cb]">
+                <div class="w-8 h-8 rounded-lg bg-cyan-100 border border-cyan-300 flex items-center justify-center text-cyan-800 shrink-0 group-hover/item:scale-105 transition-transform shadow-xs">
+                  <span class="material-symbols-outlined text-[18px]">lock_reset</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-bold text-slate-900 group-hover/item:text-cyan-800 transition-colors">Lupa Password</span>
+                  <span class="text-[11px] text-slate-600 leading-snug mt-0.5">Reset akses via verifikasi email</span>
+                </div>
+              </a>
+            </div>
+
+          </div>
+
+          <!-- Footer Baris Proteksi -->
+          <div class="mt-3 pt-2.5 border-t border-[#e5e0d3] flex items-center justify-between text-[11px] text-slate-600 px-1">
+            <span class="flex items-center gap-1.5 text-emerald-800 font-bold">
+              <span class="material-symbols-outlined text-[16px] text-emerald-700">verified_user</span>
+              Proteksi Simalum MFA Aktif
+            </span>
+            <a href="panduan.html" class="text-blue-800 hover:text-blue-950 font-bold flex items-center gap-0.5 hover:underline">
+              Buku Panduan <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+              Proteksi Simalum MFA Aktif
+            </span>
+            <a href="panduan.html" class="text-secondary hover:underline font-semibold flex items-center gap-0.5">
+              Buku Panduan <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. PixelCrop 4x6 (WASM) Standalone Nav Button -->
+      <a href="/crop/" class="ml-1 px-3 py-1.5 rounded-xl text-xs xl:text-sm font-bold bg-[#00885d] hover:bg-[#4edea3] text-[#002113] hover:text-[#000703] shadow-[0_2px_10px_rgba(0,136,93,0.35)] transition-all flex items-center gap-1.5 shrink-0" title="Aplikasi Pemotong Pas Foto 4x6 (Rust WASM)">
         <span class="material-symbols-outlined text-[17px]">crop</span>
         <span>Crop Pas Foto 4x6</span>
+        <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-[#002113] text-[#4edea3] uppercase tracking-wide">WASM</span>
       </a>
     </nav>
 
     <!-- Right Side Actions & Mobile Hamburger -->
-    <div class="flex items-center gap-2">
-      <a href="https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20butuh%20bantuan%20layanan%20ijazah" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-semibold shadow-sm transition-all">
-        <span class="material-symbols-outlined text-[18px] text-[#4cd7f6]">support_agent</span>
-        <span class="hidden md:inline">HelpDesk BAK</span>
-      </a>
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+
+      <!-- User Profile Nav Container (Avatar & Submenu or Login Button) -->
+      <div id="userProfileHeader" class="relative"></div>
 
       <!-- Mobile Hamburger Button -->
-      <button id="mobile-menu-toggle" type="button" class="lg:hidden p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 border border-white/15 transition-colors focus:outline-none" aria-label="Buka Menu">
+      <button id="mobile-menu-toggle" type="button" class="lg:hidden p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 border border-white/15 transition-colors focus:outline-none" aria-label="Buka Menu">
         <span id="menu-icon" class="material-symbols-outlined text-2xl">menu</span>
       </button>
     </div>
@@ -43,33 +322,44 @@
   </div>
 
   <!-- Mobile Collapsible Menu Drawer -->
-  <div id="mobile-menu-drawer" class="hidden lg:hidden bg-[#07132b] border-b border-white/10 px-4 py-3 space-y-1 shadow-2xl transition-all">
-    <a href="index.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
-      <span class="material-symbols-outlined text-lg">home</span>
-      <span>Beranda Layanan</span>
-    </a>
-    <a href="panduan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
-      <span class="material-symbols-outlined text-lg">menu_book</span>
-      <span>Panduan &amp; Prosedur</span>
-    </a>
-    <a href="pengajuan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
-      <span class="material-symbols-outlined text-lg">assignment</span>
-      <span>Ajukan Permohonan</span>
-    </a>
-    <a href="lacak.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold bg-primary text-on-primary font-bold shadow-sm">
-      <span class="material-symbols-outlined text-lg">track_changes</span>
-      <span>Lacak Status</span>
-    </a>
-    <a href="index.html#faq-dan-kontak" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white">
-      <span class="material-symbols-outlined text-lg">quiz</span>
-      <span>HelpDesk &amp; Jawaban (FAQ)</span>
-    </a>
+  <div id="mobile-menu-drawer" class="hidden lg:hidden bg-[#07132b] border-b border-white/10 px-4 py-3 space-y-2 shadow-2xl transition-all max-h-[85vh] overflow-y-auto">
+    <div id="mobileUserProfileDrawer" class="pb-2 mb-2 border-b border-white/10"></div>
+    
+    <div class="space-y-1">
+      <div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Navigasi Utama</div>
+      <a href="index.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
+        <span class="material-symbols-outlined text-lg">home</span>
+        <span>Beranda Layanan</span>
+      </a>
+      <a href="pengajuan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
+        <span class="material-symbols-outlined text-lg text-emerald-400">assignment</span>
+        <span>Ajukan Permohonan</span>
+      </a>
+      <a href="lacak.html" aria-current="page" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold bg-primary text-on-primary font-bold shadow-sm">
+        <span class="material-symbols-outlined text-lg text-blue-400">track_changes</span>
+        <span>Lacak Status Berkas</span>
+      </a>
+      <a href="panduan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
+        <span class="material-symbols-outlined text-lg text-amber-400">menu_book</span>
+        <span>Panduan &amp; Prosedur</span>
+      </a>
+      <a href="index.html#faq-dan-kontak" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white">
+        <span class="material-symbols-outlined text-lg text-cyan-400">quiz</span>
+        <span>HelpDesk &amp; Jawaban (FAQ)</span>
+      </a>
+      <a href="user/index.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
+        <span class="material-symbols-outlined text-lg text-secondary">account_circle</span>
+        <span>Portal Akun Pengguna</span>
+      </a>
+    </div>
+
     <div class="pt-2 border-t border-white/10 flex flex-col gap-2">
-      <a href="/crop/" class="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-[#00885d] text-[#002113] font-bold text-sm shadow-md">
+      <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Alat &amp; Bantuan Cepat</div>
+      <a href="/crop/" class="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg bg-[#00885d] text-[#002113] font-bold text-sm shadow-md hover:bg-[#4edea3] transition-colors">
         <span class="material-symbols-outlined text-lg">crop</span>
         <span>Aplikasi Pemotong Pas Foto 4x6 (WASM)</span>
       </a>
-      <a href="https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20butuh%20bantuan%20layanan%20ijazah" target="_blank" class="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-lg bg-white/5 text-slate-200 border border-white/10 text-xs font-semibold">
+      <a href="https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20butuh%20bantuan%20layanan%20ijazah" target="_blank" class="flex items-center justify-center gap-2 w-full py-2 px-4 rounded-lg bg-white/5 text-slate-200 border border-white/10 text-xs font-semibold hover:bg-white/10 transition-colors">
         <span class="material-symbols-outlined text-base text-[#4cd7f6]">support_agent</span>
         <span>Hubungi HelpDesk BAK Untan</span>
       </a>
@@ -199,12 +489,21 @@
 </div>
 </div>
 <!-- Current Status Badge -->
-<div class="flex flex-col sm:items-end">
-<span class="font-label-sm text-label-sm text-on-surface-variant mb-1">Status Progres Saat Ini</span>
-<span id="displayStatusBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md font-bold shadow-sm">
-<span class="w-2.5 h-2.5 rounded-full bg-secondary animate-ping"></span>
-                Dalam Proses Validasi Akademik BAAK
-              </span>
+<div class="flex flex-col sm:items-end gap-2">
+  <div class="flex flex-col sm:items-end">
+    <span class="font-label-sm text-label-sm text-on-surface-variant mb-1">Status Progres Berkas</span>
+    <span id="displayStatusBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md font-bold shadow-sm">
+      <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-ping"></span>
+      Dalam Proses Validasi Akademik BAAK
+    </span>
+  </div>
+  <div class="flex flex-col sm:items-end">
+    <span class="font-label-sm text-label-sm text-on-surface-variant mb-0.5">Status Ijazah</span>
+    <span id="displayStatusIjazahBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-label-sm text-xs font-bold shadow-sm">
+      <span class="material-symbols-outlined text-[16px]">lock_open</span>
+      <span id="displayStatusIjazahText">Status Ijazah: <strong>Pengajuan</strong> (Pembaruan Terbuka)</span>
+    </span>
+  </div>
 </div>
 </div>
 <!-- Structured 4-Field Identity Matrix -->
@@ -685,6 +984,32 @@
         elStatusBadge.innerHTML = badgeHtml;
       }
 
+      // Render Status Ijazah (Pengajuan | Proses Cetak | Final)
+      const elStatusIjazahBadge = document.getElementById('displayStatusIjazahBadge');
+      const statusIjazah = data.status_ijazah || 'Pengajuan';
+
+      if (elStatusIjazahBadge) {
+        if (statusIjazah === 'Pengajuan') {
+          elStatusIjazahBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-label-sm text-xs font-bold shadow-sm';
+          elStatusIjazahBadge.innerHTML = `<span class="material-symbols-outlined text-[16px] text-emerald-700">lock_open</span><span>Status Ijazah: <strong>Pengajuan</strong> (Pembaruan Terbuka)</span>`;
+        } else if (statusIjazah === 'Proses Cetak') {
+          elStatusIjazahBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-label-sm text-xs font-bold shadow-sm';
+          elStatusIjazahBadge.innerHTML = `<span class="material-symbols-outlined text-[16px] text-amber-700">print</span><span>Status Ijazah: <strong>Proses Cetak</strong> (Data &amp; Berkas Terkunci)</span>`;
+        } else if (statusIjazah === 'Final') {
+          elStatusIjazahBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-300 font-label-sm text-xs font-bold shadow-sm';
+          elStatusIjazahBadge.innerHTML = `<span class="material-symbols-outlined text-[16px] text-blue-700">verified</span><span>Status Ijazah: <strong>Final</strong> (Ijazah Terbit &amp; Terkunci)</span>`;
+        } else if (statusIjazah === 'Ditolak') {
+          elStatusIjazahBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-800 border border-red-300 font-label-sm text-xs font-bold shadow-sm';
+          elStatusIjazahBadge.innerHTML = `<span class="material-symbols-outlined text-[16px] text-red-700">cancel</span><span>Status Ijazah: <strong>Ditolak</strong> (Permohonan Ditolak &amp; Terkunci)</span>`;
+        } else if (statusIjazah === 'Dibatalkan') {
+          elStatusIjazahBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-200 text-slate-800 border border-slate-400 font-label-sm text-xs font-bold shadow-sm';
+          elStatusIjazahBadge.innerHTML = `<span class="material-symbols-outlined text-[16px] text-slate-700">block</span><span>Status Ijazah: <strong>Dibatalkan</strong> (Permohonan Dibatalkan &amp; Terkunci)</span>`;
+        } else {
+          elStatusIjazahBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-xs font-bold shadow-sm';
+          elStatusIjazahBadge.innerHTML = `<span>Status Ijazah: <strong>${statusIjazah}</strong></span>`;
+        }
+      }
+
       if (elNama) elNama.textContent = data.nama_lengkap || '-';
       if (elNim) elNim.textContent = `NIM: ${data.nim || '-'}`;
       if (elProdi) elProdi.textContent = data.prodi || '-';
@@ -851,14 +1176,19 @@
       try {
         if (window.UntanSupabase) {
           const res = await window.UntanSupabase.getPengajuan(input);
+          const noticeBox = document.getElementById('trackingNoticeBox');
           if (res.success && res.data) {
             renderTrackingData(res.data, res.riwayat);
-            const noticeBox = document.getElementById('trackingNoticeBox');
             if (noticeBox) noticeBox.classList.add('hidden');
           } else if (res.notFound) {
-            alert(res.message || `Data permohonan dengan kata kunci "${input}" tidak ditemukan.`);
+            alert(res.message || `Data permohonan dengan kata kunci "${input}" tidak ditemukan dalam sistem database.`);
+            if (noticeBox) {
+              noticeBox.classList.remove('hidden');
+              noticeBox.className = 'mb-space-md flex items-start gap-space-xs p-space-sm rounded-lg bg-red-100 text-red-900 border border-red-200 font-body-sm text-body-sm';
+              noticeBox.innerHTML = `<span class="material-symbols-outlined text-[18px] text-red-700">warning</span><span>Data permohonan dengan kata kunci "<strong>${input}</strong>" tidak ditemukan. Pastikan format Nomor Tiket (UNTAN-IJZ-YYYY-XXXX) atau NIM sudah benar.</span>`;
+            }
           } else {
-            console.warn('Pelacakan lokal:', res.error);
+            console.warn('Pelacakan lokal / offline:', res.error);
           }
         }
       } catch (err) {
@@ -937,15 +1267,39 @@
       }
     }
 
-    // Auto-search dari parameter URL (?ticket=... atau ?nim=...)
+    // Inisialisasi Navigasi Pengguna & Auto-search dari parameter URL atau Akun Login
     document.addEventListener('DOMContentLoaded', function() {
+      // Inisialisasi Avatar & Dropdown Akun Pengguna
+      if (window.UntanUserAuth && typeof window.UntanUserAuth.initHeaderNav === 'function') {
+        window.UntanUserAuth.initHeaderNav('userProfileHeader', 'mobileUserProfileDrawer');
+      }
+
       const params = new URLSearchParams(window.location.search);
       const q = params.get('ticket') || params.get('nim');
+      const input = document.getElementById('searchQuery');
+
       if (q) {
-        const input = document.getElementById('searchQuery');
         if (input) {
           input.value = q;
           triggerSearchVisual();
+        }
+      } else {
+        // Jika pengguna sudah login, prioritaskan NIM akun pengguna
+        const currentUser = window.UntanUserAuth ? window.UntanUserAuth.getCurrentUser() : null;
+        if (currentUser && currentUser.nim && input) {
+          input.value = currentUser.nim;
+          triggerSearchVisual();
+        } else if (input && input.value) {
+          // Muat data live awal dari Supabase jika koneksi aktif
+          if (window.UntanSupabase) {
+            window.UntanSupabase.getPengajuan(input.value).then(res => {
+              if (res.success && res.data) {
+                renderTrackingData(res.data, res.riwayat);
+                const noticeBox = document.getElementById('trackingNoticeBox');
+                if (noticeBox) noticeBox.classList.add('hidden');
+              }
+            }).catch(e => console.warn('Koneksi live awal dilewati:', e));
+          }
         }
       }
     });

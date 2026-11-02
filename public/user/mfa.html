@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifikasi Multi-Faktor (MFA) - Portal Ijazah Untan</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#00173b",
+            "primary-container": "#0f2c59",
+            "secondary": "#fe932c",
+            "secondary-dark": "#904d00",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f3ff",
+            "surface-container": "#eaedff",
+            "surface-container-high": "#e2e7ff",
+            "outline-variant": "#c4c6d0",
+            "on-surface": "#131b2e",
+            "on-surface-variant": "#44474f",
+            "error": "#ba1a1a"
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Supabase JS & Modul Autentikasi -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabaseClient.js"></script>
+  <script src="userAuth.js"></script>
+</head>
+<body class="bg-[#07132b] text-on-surface font-sans min-h-screen flex flex-col justify-between antialiased selection:bg-secondary/30">
+
+  <!-- Header Navigasi Minimalis -->
+  <header class="w-full bg-[#07132b]/95 backdrop-blur-xl border-b border-white/10 py-4 px-4 sm:px-8">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="../index.html" class="flex items-center gap-3 hover:opacity-90 transition-opacity">
+        <img src="../logo.png" alt="Logo Universitas Tanjungpura" class="w-10 h-10 object-contain drop-shadow-sm">
+        <div class="flex flex-col">
+          <span class="font-display font-bold text-sm sm:text-base text-white tracking-tight leading-tight">Universitas Tanjungpura</span>
+          <span class="text-[11px] text-slate-300 font-medium">Sistem Verifikasi Autentikasi Ganda</span>
+        </div>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="login.html?relogin=1" class="text-xs text-slate-300 hover:text-white flex items-center gap-1 transition-colors">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          <span>Batal &amp; Kembali</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main MFA Card -->
+  <main class="flex-1 flex items-center justify-center p-4 sm:p-6 my-6">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+      
+      <!-- Top Decorative Banner -->
+      <div class="bg-gradient-to-r from-[#00173b] to-[#0f2c59] p-6 text-white text-center relative overflow-hidden">
+        <div class="w-14 h-14 rounded-2xl bg-secondary/20 border border-secondary/40 mx-auto flex items-center justify-center mb-3 shadow-inner">
+          <span class="material-symbols-outlined text-3xl text-secondary">verified_user</span>
+        </div>
+        <h1 class="font-display font-bold text-xl sm:text-2xl text-white">Verifikasi Multi-Faktor (MFA)</h1>
+        <p class="text-xs text-slate-300 mt-1" id="mfaSubTitle">Perlindungan Keamanan Tingkat Lanjut Akun Sivitas Akademika</p>
+      </div>
+
+      <div class="p-6 sm:p-8 flex flex-col gap-6">
+
+        <!-- User Identity Info Pill -->
+        <div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold">
+              <span class="material-symbols-outlined text-[18px]">person</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="font-bold text-primary" id="mfaUserName">Nama Pengguna</span>
+              <span class="text-on-surface-variant font-mono text-[11px]" id="mfaUserEmail">email@untan.ac.id</span>
+            </div>
+          </div>
+          <span class="px-2.5 py-1 rounded-full font-bold uppercase text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+            <span class="material-symbols-outlined text-[13px]">shield</span>
+            <span>MFA Aktif</span>
+          </span>
+        </div>
+
+        <!-- Alert Box -->
+        <div id="mfaAlert" class="hidden p-3 rounded-xl text-xs font-medium flex items-start gap-2.5 transition-all"></div>
+
+        <!-- Pilihan Tab Metode Verifikasi -->
+        <div>
+          <label class="block text-xs font-bold text-primary uppercase tracking-wider mb-2">
+            Pilih Metode Verifikasi:
+          </label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" id="tabEmailBtn" class="mfa-tab-btn py-2 px-2.5 rounded-xl border border-primary bg-primary text-white text-xs font-bold flex flex-col items-center gap-1 transition-all">
+              <span class="material-symbols-outlined text-[20px]">mail</span>
+              <span>Email OTP</span>
+            </button>
+            <button type="button" id="tabAppBtn" class="mfa-tab-btn py-2 px-2.5 rounded-xl border border-outline-variant/40 bg-surface-container-low hover:bg-surface-container text-on-surface-variant text-xs font-semibold flex flex-col items-center gap-1 transition-all">
+              <span class="material-symbols-outlined text-[20px]">smartphone</span>
+              <span>Aplikasi HP</span>
+            </button>
+            <button type="button" id="tabBackupBtn" class="mfa-tab-btn py-2 px-2.5 rounded-xl border border-outline-variant/40 bg-surface-container-low hover:bg-surface-container text-on-surface-variant text-xs font-semibold flex flex-col items-center gap-1 transition-all">
+              <span class="material-symbols-outlined text-[20px]">key</span>
+              <span>Kode Cadangan</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- PANEL 1: EMAIL OTP -->
+        <div id="panelEmail" class="mfa-panel flex flex-col gap-4">
+          <div class="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-950 flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-blue-700 text-[20px] shrink-0 mt-0.5">mark_email_read</span>
+            <div class="leading-relaxed">
+              Kode OTP 6-digit telah dikirimkan ke alamat email terdaftar: <strong id="hintEmailTarget" class="font-mono">...</strong>.
+              Masukkan kode tersebut untuk memvalidasi akses Anda.
+            </div>
+          </div>
+
+          <!-- Input 6 Digit OTP -->
+          <div>
+            <label for="inputEmailOtp" class="block text-xs font-bold text-primary mb-1.5">
+              Masukkan 6-Digit Kode OTP Email:
+            </label>
+            <div class="flex items-center gap-2">
+              <input type="text" id="inputEmailOtp" maxlength="6" placeholder="000000" autofocus
+                class="w-full h-12 text-center text-xl font-mono tracking-widest font-bold bg-surface-container-low rounded-xl border border-outline-variant/60 focus:outline-none focus:ring-2 focus:ring-primary text-on-surface">
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-on-surface-variant pt-1">
+            <span>Tidak menerima kode?</span>
+            <button type="button" id="btnResendEmailOtp" class="text-blue-700 font-bold hover:underline flex items-center gap-1">
+              <span class="material-symbols-outlined text-[15px]">refresh</span>
+              <span>Kirim Ulang Kode</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- PANEL 2: SMARTPHONE AUTHENTICATOR APP (TOTP) -->
+        <div id="panelApp" class="mfa-panel hidden flex flex-col gap-4">
+          <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-emerald-700 text-[20px] shrink-0 mt-0.5">phonelink_lock</span>
+            <div class="leading-relaxed">
+              Buka aplikasi autentikator di smartphone Anda (seperti <strong>Google Authenticator, Microsoft Authenticator, atau Authy</strong>) dan masukkan 6 digit kode yang sedang ditampilkan.
+            </div>
+          </div>
+
+          <div>
+            <label for="inputAppOtp" class="block text-xs font-bold text-primary mb-1.5">
+              Masukkan 6-Digit Kode Aplikasi Smartphone:
+            </label>
+            <input type="text" id="inputAppOtp" maxlength="6" placeholder="000000"
+              class="w-full h-12 text-center text-xl font-mono tracking-widest font-bold bg-surface-container-low rounded-xl border border-outline-variant/60 focus:outline-none focus:ring-2 focus:ring-primary text-on-surface">
+          </div>
+
+          <!-- Opsi Beralih ke SMS Smartphone -->
+          <div class="p-2.5 rounded-lg bg-surface-container-low border border-outline-variant/40 flex items-center justify-between text-xs">
+            <span class="text-on-surface-variant">Kendala membuka aplikasi?</span>
+            <button type="button" id="btnSwitchToSms" class="text-secondary-dark font-bold hover:underline">
+              Gunakan SMS OTP ke HP
+            </button>
+          </div>
+        </div>
+
+        <!-- PANEL 3: KODE CADANGAN DARURAT (BACKUP CODES) -->
+        <div id="panelBackup" class="mfa-panel hidden flex flex-col gap-4">
+          <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-950 flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-amber-700 text-[20px] shrink-0 mt-0.5">shield_person</span>
+            <div class="leading-relaxed">
+              Masukkan salah satu dari 8-digit <strong>Kode Cadangan Pemulihan</strong> yang Anda simpan saat mengaktifkan MFA.
+            </div>
+          </div>
+
+          <div>
+            <label for="inputBackupCode" class="block text-xs font-bold text-primary mb-1.5">
+              Masukkan 8-Digit Kode Cadangan:
+            </label>
+            <input type="text" id="inputBackupCode" maxlength="8" placeholder="Contoh: 83921045"
+              class="w-full h-12 text-center text-xl font-mono tracking-widest font-bold bg-surface-container-low rounded-xl border border-outline-variant/60 focus:outline-none focus:ring-2 focus:ring-primary text-on-surface">
+          </div>
+        </div>
+
+        <!-- Tombol Eksekusi Verifikasi -->
+        <button type="button" id="btnVerifyMfa"
+          class="w-full h-12 rounded-xl bg-primary hover:bg-primary-container text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">check_circle</span>
+          <span id="btnVerifyText">Konfirmasi &amp; Masuk Akun</span>
+        </button>
+
+        <!-- Sandbox Simulation Helper (Mempermudah Pengujian Langsung) -->
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col gap-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-700 flex items-center gap-1">
+              <span class="material-symbols-outlined text-[16px] text-amber-600">developer_mode</span>
+              <span>Bantuan Pengujian Cepat:</span>
+            </span>
+            <button type="button" id="btnAutoFillOtp" class="text-blue-700 font-bold hover:underline text-[11px]">
+              Otomatis Isi Kode Valid
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500" id="otpSimulationHint">
+            Kode pengujian: <code class="font-bold text-primary bg-slate-200 px-1 py-0.5 rounded" id="hintSimulatedCode">123456</code> (atau kode OTP yang di-generate).
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-center text-xs text-slate-400 py-4 border-t border-white/10">
+    &copy; 2026 Universitas Tanjungpura. Sistem Autentikasi Terintegrasi SimalumApps.
+  </footer>
+
+  <script>
+    let activeMethod = 'email';
+    let pendingSession = null;
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      const alertBox = document.getElementById('mfaAlert');
+      const btnVerify = document.getElementById('btnVerifyMfa');
+      const btnVerifyText = document.getElementById('btnVerifyText');
+
+      // Ambil data pending session dari sessionStorage
+      const rawPending = sessionStorage.getItem('UNTAN_PENDING_MFA');
+      if (!rawPending) {
+        alertBox.className = 'p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-center gap-2';
+        alertBox.innerHTML = `<span>Tidak ada sesi verifikasi aktif. Silakan login terlebih dahulu.</span>`;
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1500);
+        return;
+      }
+
+      try {
+        pendingSession = JSON.parse(rawPending);
+      } catch (e) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Isi UI Pengguna
+      document.getElementById('mfaUserName').textContent = pendingSession.user.nama_lengkap || 'Pengguna Untan';
+      document.getElementById('mfaUserEmail').textContent = pendingSession.user.email || 'email@untan.ac.id';
+      document.getElementById('hintEmailTarget').textContent = pendingSession.user.email || 'email@untan.ac.id';
+
+      // Set metode default sesuai setting user
+      if (pendingSession.mfaSettings && pendingSession.mfaSettings.primary_method) {
+        activeMethod = pendingSession.mfaSettings.primary_method;
+      }
+
+      // Siapkan kode simulasi pada helper pengujian
+      updateSimulatedOtpDisplay();
+
+      // Switch Tab Function
+      function switchTab(method) {
+        activeMethod = method;
+
+        const tabs = {
+          'email': document.getElementById('tabEmailBtn'),
+          'authenticator_app': document.getElementById('tabAppBtn'),
+          'backup_code': document.getElementById('tabBackupBtn')
+        };
+
+        const panels = {
+          'email': document.getElementById('panelEmail'),
+          'authenticator_app': document.getElementById('panelApp'),
+          'backup_code': document.getElementById('panelBackup')
+        };
+
+        Object.keys(tabs).forEach(m => {
+          if (m === method) {
+            tabs[m].className = 'mfa-tab-btn py-2 px-2.5 rounded-xl border border-primary bg-primary text-white text-xs font-bold flex flex-col items-center gap-1 transition-all shadow-sm';
+            panels[m].classList.remove('hidden');
+          } else {
+            tabs[m].className = 'mfa-tab-btn py-2 px-2.5 rounded-xl border border-outline-variant/40 bg-surface-container-low hover:bg-surface-container text-on-surface-variant text-xs font-semibold flex flex-col items-center gap-1 transition-all';
+            panels[m].classList.add('hidden');
+          }
+        });
+
+        updateSimulatedOtpDisplay();
+      }
+
+      document.getElementById('tabEmailBtn').addEventListener('click', () => switchTab('email'));
+      document.getElementById('tabAppBtn').addEventListener('click', () => switchTab('authenticator_app'));
+      document.getElementById('tabBackupBtn').addEventListener('click', () => switchTab('backup_code'));
+
+      // Switch to SMS sub-option
+      document.getElementById('btnSwitchToSms').addEventListener('click', () => {
+        activeMethod = 'sms';
+        alert(`Kode SMS OTP telah dikirimkan ke nomor smartphone terdaftar: ${pendingSession.user.phone_number || '08xxxxxx'}.\n\nGunakan kode: ${pendingSession.emailOtp || '123456'}`);
+        document.getElementById('inputAppOtp').focus();
+      });
+
+      // Bantuan Otomatis Isi Kode
+      async function updateSimulatedOtpDisplay() {
+        const hintEl = document.getElementById('hintSimulatedCode');
+        if (activeMethod === 'email' || activeMethod === 'sms') {
+          hintEl.textContent = pendingSession.emailOtp || '123456';
+        } else if (activeMethod === 'authenticator_app') {
+          const secret = pendingSession.mfaSettings.authenticator_secret || 'JBSWY3DPEHPK3PXP';
+          const totp = await window.UntanUserAuth.getSimulatedTOTP(secret);
+          hintEl.textContent = totp || '123456';
+        } else if (activeMethod === 'backup_code') {
+          const codes = pendingSession.mfaSettings.backup_codes || ['83921045'];
+          hintEl.textContent = codes[0] || '83921045';
+        }
+      }
+
+      document.getElementById('btnAutoFillOtp').addEventListener('click', async () => {
+        if (activeMethod === 'email') {
+          document.getElementById('inputEmailOtp').value = pendingSession.emailOtp || '123456';
+        } else if (activeMethod === 'authenticator_app' || activeMethod === 'sms') {
+          const secret = pendingSession.mfaSettings.authenticator_secret || 'JBSWY3DPEHPK3PXP';
+          const totp = await window.UntanUserAuth.getSimulatedTOTP(secret);
+          document.getElementById('inputAppOtp').value = totp || '123456';
+        } else if (activeMethod === 'backup_code') {
+          const codes = pendingSession.mfaSettings.backup_codes || ['83921045'];
+          document.getElementById('inputBackupCode').value = codes[0] || '83921045';
+        }
+      });
+
+      // Tombol Kirim Ulang Email OTP
+      document.getElementById('btnResendEmailOtp').addEventListener('click', () => {
+        const newOtp = window.UntanUserAuth.generateOTP(6);
+        pendingSession.emailOtp = newOtp;
+        sessionStorage.setItem('UNTAN_PENDING_MFA', JSON.stringify(pendingSession));
+        updateSimulatedOtpDisplay();
+        alert(`Kode OTP baru telah dikirimkan ke ${pendingSession.user.email}!\n\nKode OTP Baru: ${newOtp}`);
+      });
+
+      // Aktifkan tab awal
+      switchTab(activeMethod === 'authenticator_app' ? 'authenticator_app' : 'email');
+
+      // Eksekusi Verifikasi MFA
+      btnVerify.addEventListener('click', async () => {
+        let enteredCode = '';
+        if (activeMethod === 'email') {
+          enteredCode = document.getElementById('inputEmailOtp').value.trim();
+        } else if (activeMethod === 'authenticator_app' || activeMethod === 'sms') {
+          enteredCode = document.getElementById('inputAppOtp').value.trim();
+        } else if (activeMethod === 'backup_code') {
+          enteredCode = document.getElementById('inputBackupCode').value.trim();
+        }
+
+        if (!enteredCode) {
+          alertBox.className = 'p-3 rounded-xl bg-red-50 border border-red-300 text-red-900 text-xs flex items-center gap-2';
+          alertBox.innerHTML = `<span>Mohon masukkan kode verifikasi terlebih dahulu.</span>`;
+          return;
+        }
+
+        btnVerify.disabled = true;
+        btnVerifyText.textContent = 'Memverifikasi Kode...';
+        alertBox.className = 'hidden';
+
+        try {
+          const res = await window.UntanUserAuth.verifyMfa(pendingSession.sessionToken, enteredCode, activeMethod);
+
+          if (res.success) {
+            alertBox.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs flex items-center gap-2';
+            alertBox.innerHTML = `
+              <span class="material-symbols-outlined text-emerald-600 text-[20px]">verified</span>
+              <span>Autentikasi Multi-Faktor Berhasil! Mengalihkan ke dashboard akun Anda...</span>
+            `;
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 200);
+          } else {
+            alertBox.className = 'p-3 rounded-xl bg-red-50 border border-red-300 text-red-900 text-xs flex items-center gap-2';
+            alertBox.innerHTML = `
+              <span class="material-symbols-outlined text-red-600 text-[20px]">error</span>
+              <span>${res.message}</span>
+            `;
+          }
+        } catch (err) {
+          alertBox.className = 'p-3 rounded-xl bg-red-50 border border-red-300 text-red-900 text-xs flex items-center gap-2';
+          alertBox.innerHTML = `<span>Terjadi kesalahan: ${err.message}</span>`;
+        } finally {
+          btnVerify.disabled = false;
+          btnVerifyText.textContent = 'Konfirmasi & Masuk Akun';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

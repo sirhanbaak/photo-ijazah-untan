@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masuk Akun Pengguna - Portal Layanan Ijazah Untan</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#00173b",
+            "primary-container": "#0f2c59",
+            "secondary": "#fe932c",
+            "secondary-dark": "#904d00",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f3ff",
+            "surface-container": "#eaedff",
+            "surface-container-high": "#e2e7ff",
+            "outline-variant": "#c4c6d0",
+            "on-surface": "#131b2e",
+            "on-surface-variant": "#44474f",
+            "error": "#ba1a1a"
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Supabase JS & Modul Autentikasi -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabaseClient.js"></script>
+  <script src="userAuth.js"></script>
+</head>
+<body class="bg-[#07132b] text-on-surface font-sans min-h-screen flex flex-col justify-between antialiased selection:bg-secondary/30">
+
+  <!-- Header Navigasi Minimalis -->
+  <header class="w-full bg-[#07132b]/95 backdrop-blur-xl border-b border-white/10 py-4 px-4 sm:px-8">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="../index.html" class="flex items-center gap-3 hover:opacity-90 transition-opacity">
+        <img src="../logo.png" alt="Logo Universitas Tanjungpura" class="w-10 h-10 object-contain drop-shadow-sm">
+        <div class="flex flex-col">
+          <span class="font-display font-bold text-sm sm:text-base text-white tracking-tight leading-tight">Universitas Tanjungpura</span>
+          <span class="text-[11px] text-slate-300 font-medium">Portal Layanan Penerbitan Ijazah</span>
+        </div>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="../index.html" class="text-xs text-slate-300 hover:text-white flex items-center gap-1 transition-colors">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          <span>Kembali ke Beranda</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Login Card Container -->
+  <main class="flex-1 flex items-center justify-center p-4 sm:p-6 my-6">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+      
+      <!-- Top Decorative Banner -->
+      <div class="bg-gradient-to-r from-[#00173b] to-[#0f2c59] p-6 text-white text-center relative overflow-hidden">
+        <div class="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-secondary/20 blur-xl"></div>
+        <div class="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md mx-auto flex items-center justify-center mb-3 shadow-inner border border-white/15">
+          <span class="material-symbols-outlined text-2xl text-secondary">lock</span>
+        </div>
+        <h1 class="font-display font-bold text-xl sm:text-2xl text-white">Masuk Portal Pengguna</h1>
+        <p class="text-xs text-slate-300 mt-1">Layanan Ijazah Mahasiswa, Alumni &amp; Sivitas Akademika</p>
+      </div>
+
+      <!-- Form Card Content -->
+      <div class="p-6 sm:p-8 flex flex-col gap-5">
+        
+        <!-- Alert Notifikasi -->
+        <div id="loginAlert" class="hidden p-3 rounded-xl text-xs font-medium flex items-start gap-2.5 transition-all"></div>
+
+        <form id="loginForm" class="flex flex-col gap-4">
+          <!-- Input Identifier (NIM / Email) -->
+          <div>
+            <label for="identifier" class="block text-xs font-bold text-[#00173b] uppercase tracking-wider mb-1.5 flex items-center gap-1">
+              <span class="material-symbols-outlined text-[16px] text-secondary">badge</span>
+              <span>NIM atau Alamat Email Resmi</span>
+            </label>
+            <input type="text" id="identifier" name="identifier" required placeholder="Contoh: F1081191042 atau nama@student.untan.ac.id"
+              class="w-full h-11 px-3.5 text-sm bg-surface-container-low rounded-xl border border-outline-variant/60 focus:outline-none focus:ring-2 focus:ring-[#00173b] text-on-surface transition-all">
+          </div>
+
+          <!-- Input Password -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="password" class="block text-xs font-bold text-[#00173b] uppercase tracking-wider flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px] text-secondary">key</span>
+                <span>Kata Sandi</span>
+              </label>
+              <a href="forgot-password.html" class="text-xs text-blue-700 hover:text-blue-900 font-semibold hover:underline">
+                Lupa Kata Sandi?
+              </a>
+            </div>
+            <div class="relative">
+              <input type="password" id="password" name="password" required placeholder="Masukkan kata sandi akun Anda"
+                class="w-full h-11 px-3.5 pr-10 text-sm bg-surface-container-low rounded-xl border border-outline-variant/60 focus:outline-none focus:ring-2 focus:ring-[#00173b] text-on-surface transition-all">
+              <button type="button" id="togglePasswordBtn" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface" title="Lihat Kata Sandi">
+                <span id="togglePasswordIcon" class="material-symbols-outlined text-[18px]">visibility</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember Me & Security Note -->
+          <div class="flex items-center justify-between pt-1">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="rememberMe" checked class="w-4 h-4 rounded text-[#00173b] focus:ring-[#00173b] border-outline-variant">
+              <span class="text-xs text-on-surface-variant font-medium">Ingat perangkat ini</span>
+            </label>
+            <span class="text-[11px] text-emerald-700 font-semibold flex items-center gap-0.5" title="Dilindungi sistem Autentikasi Multi-Faktor">
+              <span class="material-symbols-outlined text-[14px]">shield</span>
+              <span>Proteksi MFA</span>
+            </span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="btnSubmitLogin"
+            class="w-full h-11 rounded-xl bg-[#00173b] hover:bg-[#0f2c59] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-1">
+            <span class="material-symbols-outlined text-[18px]">login</span>
+            <span id="btnSubmitText">Masuk ke Portal</span>
+          </button>
+        </form>
+
+        <!-- Akun Demo Cepat (1-Click Test Login) -->
+        <div class="mt-2 pt-4 border-t border-slate-200">
+          <span class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2 text-center">
+            Pilih Akun Demo Uji Coba Cepat:
+          </span>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button type="button" onclick="fillDemoAccount('F1081191042', 'PasswordUntan123!')" 
+              class="p-2 rounded-lg bg-surface-container-low hover:bg-surface-container border border-outline-variant/40 text-left transition-colors flex flex-col">
+              <span class="font-bold text-[#00173b]">🎓 Mahasiswa (MFA Email)</span>
+              <span class="text-[10px] text-slate-500 font-mono">F1081191042</span>
+            </button>
+            <button type="button" onclick="fillDemoAccount('D101181042', 'PasswordUntan123!')"
+              class="p-2 rounded-lg bg-surface-container-low hover:bg-surface-container border border-outline-variant/40 text-left transition-colors flex flex-col">
+              <span class="font-bold text-[#00173b]">📱 Alumni (MFA Smartphone)</span>
+              <span class="text-[10px] text-slate-500 font-mono">D101181042</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Help Link -->
+        <div class="text-center text-xs text-on-surface-variant">
+          Belum memiliki akun terdaftar? 
+          <a href="../pengajuan.html" class="text-secondary-dark font-bold hover:underline">
+            Ajukan Permohonan Ijazah Baru
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-xs text-slate-400 py-4 border-t border-white/10">
+    &copy; 2026 Universitas Tanjungpura. Biro Akademik dan Kemahasiswaan (BAK).
+  </footer>
+
+  <script>
+    function fillDemoAccount(id, pass) {
+      document.getElementById('identifier').value = id;
+      document.getElementById('password').value = pass;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Toggle Password Visibility
+      const toggleBtn = document.getElementById('togglePasswordBtn');
+      const passInput = document.getElementById('password');
+      const passIcon = document.getElementById('togglePasswordIcon');
+      if (toggleBtn && passInput) {
+        toggleBtn.addEventListener('click', function () {
+          const isPass = passInput.type === 'password';
+          passInput.type = isPass ? 'text' : 'password';
+          if (passIcon) passIcon.textContent = isPass ? 'visibility_off' : 'visibility';
+        });
+      }
+
+      // Cek apakah sudah login sebelumnya
+      if (window.UntanUserAuth) {
+        const currentUser = window.UntanUserAuth.getCurrentUser();
+        if (currentUser) {
+          // Arahkan ke dashboard jika sudah login
+          const params = new URLSearchParams(window.location.search);
+          if (!params.get('relogin')) {
+            window.location.href = 'index.html';
+            return;
+          } else {
+            window.UntanUserAuth.logout();
+          }
+        }
+      }
+
+      // Handle Submit Login
+      const form = document.getElementById('loginForm');
+      const alertBox = document.getElementById('loginAlert');
+      const btnSubmit = document.getElementById('btnSubmitLogin');
+      const btnText = document.getElementById('btnSubmitText');
+
+      if (form) {
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault();
+
+          const identifier = document.getElementById('identifier').value.trim();
+          const password = document.getElementById('password').value;
+
+          if (!identifier || !password) return;
+
+          btnSubmit.disabled = true;
+          btnText.textContent = 'Memverifikasi...';
+          alertBox.className = 'hidden';
+
+          try {
+            const res = await window.UntanUserAuth.login(identifier, password);
+
+            if (res.success) {
+              // KASUS 1: Memerlukan Verifikasi MFA (Email OTP / Smartphone Authenticator / SMS)
+              if (res.requireMfa) {
+                alertBox.className = 'p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-center gap-2';
+                alertBox.innerHTML = `
+                  <span class="material-symbols-outlined text-amber-600 text-[20px] animate-spin">sync</span>
+                  <span>Kredensial cocok! Mengarahkan ke Verifikasi Multi-Faktor (${res.method === 'email' ? 'Email OTP' : 'Smartphone'})...</span>
+                `;
+                setTimeout(() => {
+                  window.location.href = `mfa.html?token=${encodeURIComponent(res.sessionToken)}`;
+                }, 200);
+                return;
+              }
+
+              // KASUS 2: Login Berhasil Langsung (Tanpa MFA)
+              alertBox.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs flex items-center gap-2';
+              alertBox.innerHTML = `
+                <span class="material-symbols-outlined text-emerald-600 text-[20px]">check_circle</span>
+                <span>${res.message} Mengalihkan ke dashboard...</span>
+              `;
+              setTimeout(() => {
+                window.location.href = 'index.html';
+              }, 200);
+
+            } else {
+              alertBox.className = 'p-3 rounded-xl bg-red-50 border border-red-300 text-red-900 text-xs flex items-start gap-2';
+              alertBox.innerHTML = `
+                <span class="material-symbols-outlined text-red-600 text-[20px] shrink-0 mt-0.5">error</span>
+                <span>${res.message}</span>
+              `;
+            }
+          } catch (err) {
+            console.error(err);
+            alertBox.className = 'p-3 rounded-xl bg-red-50 border border-red-300 text-red-900 text-xs flex items-start gap-2';
+            alertBox.innerHTML = `<span class="material-symbols-outlined text-red-600 text-[20px]">error</span><span>Terjadi kesalahan saat memproses login: ${err.message}</span>`;
+          } finally {
+            btnSubmit.disabled = false;
+            btnText.textContent = 'Masuk ke Portal';
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -217,6 +217,10 @@ class PhotoCropApp {
     this.formatPngBtn = document.getElementById('format-png-btn');
     this.resultEditAgainBtn = document.getElementById('result-edit-again-btn');
     this.downloadFinalBtn = document.getElementById('download-final-btn');
+    this.useInPengajuanBtn = document.getElementById('use-in-pengajuan-btn');
+    this.directUsePengajuanBtn = document.getElementById('direct-use-pengajuan-btn');
+    this.topUsePengajuanBtn = document.getElementById('top-use-pengajuan-btn');
+    this.dockBtnUsePengajuan = document.getElementById('dock-btn-use-pengajuan');
 
     // Loading
     this.loadingOverlay = document.getElementById('loading-overlay');
@@ -860,6 +864,10 @@ class PhotoCropApp {
     this.closeResultModalBtn.addEventListener('click', () => this.closeResultModal());
     this.resultEditAgainBtn.addEventListener('click', () => this.closeResultModal());
     this.downloadFinalBtn.addEventListener('click', () => this.downloadCroppedPhoto());
+    if (this.useInPengajuanBtn) this.useInPengajuanBtn.addEventListener('click', () => this.useInPengajuan());
+    if (this.directUsePengajuanBtn) this.directUsePengajuanBtn.addEventListener('click', () => this.useInPengajuan());
+    if (this.topUsePengajuanBtn) this.topUsePengajuanBtn.addEventListener('click', () => this.useInPengajuan());
+    if (this.dockBtnUsePengajuan) this.dockBtnUsePengajuan.addEventListener('click', () => this.useInPengajuan());
 
     this.formatJpgBtn.addEventListener('click', () => this.selectOutputFormat('jpeg'));
     this.formatPngBtn.addEventListener('click', () => this.selectOutputFormat('png'));
@@ -1201,7 +1209,12 @@ class PhotoCropApp {
       return;
     }
 
-    if (this.isBusy) return;
+    if (this.isBusy) {
+      for (let i = 0; i < 50 && this.isBusy; i++) {
+        await new Promise(r => setTimeout(r, 100));
+      }
+      if (this.isBusy) return;
+    }
 
     this.showLoading(true);
     this.isBusy = true;
@@ -1222,6 +1235,7 @@ class PhotoCropApp {
       console.error('Gagal membaca gambar:', err);
       alert('Terjadi kesalahan saat memproses gambar: ' + err.message);
     } finally {
+      if (this.fileInput) this.fileInput.value = '';
       this.isBusy = false;
       this.showLoading(false);
     }
@@ -1389,6 +1403,63 @@ class PhotoCropApp {
 
     if (!this.resultModal.classList.contains('hidden')) {
       this.applyCrop();
+    }
+  }
+
+  async useInPengajuan() {
+    if (this.isBusy) return;
+    if (!this.sourceBuffer) {
+      alert('Belum ada foto yang dimuat untuk dipotong.');
+      return;
+    }
+
+    // Jika belum ada hasil crop atau hasil sebelumnya dilepas, proses crop terlebih dahulu
+    if (!this.lastCropResult || !this.lastCropResult.blob) {
+      await this.applyCrop();
+    }
+
+    if (!this.lastCropResult || !this.lastCropResult.blob) {
+      alert('Gagal memproses crop foto.');
+      return;
+    }
+
+    this.showLoading(true);
+
+    try {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const dataUrl = reader.result;
+          const fileName = `pas_foto_4x6_${this.currentPresetKey || '300'}dpi.jpg`;
+          sessionStorage.setItem('UNTAN_CROPPED_FOTO_DATA', dataUrl);
+          sessionStorage.setItem('UNTAN_CROPPED_FOTO_NAME', fileName);
+          sessionStorage.setItem('UNTAN_CROPPED_FOTO_W', String(this.currentPreset.targetW));
+          sessionStorage.setItem('UNTAN_CROPPED_FOTO_H', String(this.currentPreset.targetH));
+
+          try {
+            localStorage.setItem('UNTAN_CROPPED_FOTO_DATA', dataUrl);
+            localStorage.setItem('UNTAN_CROPPED_FOTO_NAME', fileName);
+            localStorage.setItem('UNTAN_CROPPED_FOTO_W', String(this.currentPreset.targetW));
+            localStorage.setItem('UNTAN_CROPPED_FOTO_H', String(this.currentPreset.targetH));
+          } catch (_) {}
+        } catch (err) {
+          console.warn('Gagal menyimpan hasil crop ke storage:', err);
+        }
+
+        // Arahkan ke formulir pengajuan dengan penanda query cropped=1
+        window.location.href = '../pengajuan.html?cropped=1';
+      };
+
+      reader.onerror = () => {
+        this.showLoading(false);
+        alert('Gagal membaca data hasil crop untuk formulir pengajuan.');
+      };
+
+      reader.readAsDataURL(this.lastCropResult.blob);
+    } catch (e) {
+      this.showLoading(false);
+      console.error(e);
+      alert('Terjadi kesalahan saat memindahkan foto ke formulir: ' + e.message);
     }
   }
 
