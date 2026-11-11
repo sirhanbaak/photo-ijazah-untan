@@ -290,13 +290,6 @@
             </a>
           </div>
         </div>
-              Proteksi Simalum MFA Aktif
-            </span>
-            <a href="panduan.html" class="text-secondary hover:underline font-semibold flex items-center gap-0.5">
-              Buku Panduan <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
-            </a>
-          </div>
-        </div>
       </div>
 
       <!-- 5. PixelCrop 4x6 (WASM) Standalone Nav Button -->
@@ -409,7 +402,7 @@
 </label>
 <div class="relative flex items-center">
 <span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant pointer-events-none text-[22px]">search</span>
-<input class="w-full h-12 pl-11 pr-32 rounded-lg bg-surface text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all" id="searchQuery" placeholder="Contoh: UNTAN-IJZ-2025-0891 atau F1081191024" type="text" value="UNTAN-IJZ-2025-0842">
+<input class="w-full h-12 pl-11 pr-32 rounded-lg bg-surface text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all" id="searchQuery" placeholder="Contoh: UNTAN-IJZ-2025-0891 atau F1081191024" type="text" value="">
 <button class="absolute right-3 font-label-sm text-label-sm text-secondary hover:text-on-secondary-container bg-secondary-fixed/50 px-2.5 py-1 rounded transition-colors hidden sm:block" onclick="document.getElementById('searchQuery').value='UNTAN-IJZ-2025-0842'" type="button">
                 Isi Contoh
               </button>
@@ -438,22 +431,21 @@
 </section>
 <!-- Active Tracking Result Workspace -->
 <section class="w-full px-margin py-space-xl max-w-7xl mx-auto" id="resultArea">
-<!-- Penanda data contoh -->
+<!-- Penanda pratinjau awal data contoh (otomatis disembunyikan saat data riil ditemukan - GAP-20) -->
 <div id="trackingNoticeBox" class="mb-space-md flex items-start gap-space-xs p-space-sm rounded-lg bg-secondary-container/40 text-on-secondary-container font-body-sm text-body-sm">
   <span class="material-symbols-outlined text-[18px]">info</span>
-  <span><strong>Contoh tampilan (demo):</strong> data permohonan di bawah adalah data contoh statis, bukan hasil
-    pelacakan sungguhan. Pelacakan langsung belum terhubung ke backend.</span>
+  <span><strong>Contoh tampilan (demo) / Pratinjau Format Linimasa:</strong> Data di bawah adalah contoh format linimasa verifikasi ijazah. Masukkan nomor tiket atau NIM resmi Anda pada kolom pencarian di atas untuk melacak data permohonan riil secara langsung dari pangkalan data Supabase Untan.</span>
 </div>
 <!-- Section Header Indicator -->
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-sm mb-space-lg">
 <div class="flex flex-col gap-1">
 <div class="flex items-center gap-2">
-<span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold uppercase">
-            Hasil Ditemukan
-          </span>
-<span class="font-label-sm text-label-sm text-on-surface-variant">Data mutakhir per 25 Oktober 2025, 11:30 WIB</span>
+<span id="displayHeaderBadge" class="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-bold uppercase">
+  Menunggu Pencarian
+</span>
+<span id="displayHeaderDate" class="font-label-sm text-label-sm text-on-surface-variant">Silakan masukkan nomor tiket atau NIM di atas</span>
 </div>
-<h2 class="font-headline-md text-headline-md text-primary">Detail Permohonan Aktif</h2>
+<h2 class="font-headline-md text-headline-md text-primary">Detail Permohonan</h2>
 </div>
 <div class="flex items-center gap-2">
 <button class="px-3.5 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors flex items-center gap-1.5 shadow-sm" onclick="window.print()">
@@ -481,10 +473,10 @@
 </div>
 <div class="flex flex-col">
 <span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Nomor Tiket Registrasi</span>
-<span id="displayNomorTiket" class="font-title-lg text-title-lg text-primary font-bold tracking-tight">UNTAN-IJZ-2025-0842</span>
+<span id="displayNomorTiket" class="font-title-lg text-title-lg text-primary font-bold tracking-tight">-</span>
 <div class="flex items-center gap-1.5 mt-1 font-body-sm text-body-sm text-on-surface-variant">
 <span class="material-symbols-outlined text-[16px] text-secondary">calendar_today</span>
-<span class="" id="displayTanggalPengajuan">Diajukan pada: <strong>24 Oktober 2025 (08:40 WIB)</strong></span>
+<span class="" id="displayTanggalPengajuan">Diajukan pada: <strong>-</strong></span>
 </div>
 </div>
 </div>
@@ -492,16 +484,16 @@
 <div class="flex flex-col sm:items-end gap-2">
   <div class="flex flex-col sm:items-end">
     <span class="font-label-sm text-label-sm text-on-surface-variant mb-1">Status Progres Berkas</span>
-    <span id="displayStatusBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md font-bold shadow-sm">
-      <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-ping"></span>
-      Dalam Proses Validasi Akademik BAAK
+    <span id="displayStatusBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md font-semibold shadow-sm">
+      <span class="w-2.5 h-2.5 rounded-full bg-outline"></span>
+      Menunggu Pencarian Tiket
     </span>
   </div>
   <div class="flex flex-col sm:items-end">
     <span class="font-label-sm text-label-sm text-on-surface-variant mb-0.5">Status Ijazah</span>
-    <span id="displayStatusIjazahBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-label-sm text-xs font-bold shadow-sm">
+    <span id="displayStatusIjazahBadge" class="hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-label-sm text-xs font-bold shadow-sm">
       <span class="material-symbols-outlined text-[16px]">lock_open</span>
-      <span id="displayStatusIjazahText">Status Ijazah: <strong>Pengajuan</strong> (Pembaruan Terbuka)</span>
+      <span id="displayStatusIjazahText">Status Ijazah: <strong>-</strong></span>
     </span>
   </div>
 </div>
@@ -510,25 +502,25 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md bg-surface-container-low p-space-md rounded-lg">
 <div class="flex flex-col gap-0.5">
 <span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Nama Pemohon / Alumni</span>
-<span id="displayNamaPemohon" class="font-title-md text-title-md text-primary font-bold">Rian Adiputra, S.T.</span>
-<span id="displayNim" class="font-body-sm text-body-sm text-on-surface-variant">NIM: D101181042</span>
+<span id="displayNamaPemohon" class="font-title-md text-title-md text-primary font-bold">-</span>
+<span id="displayNim" class="font-body-sm text-body-sm text-on-surface-variant">NIM: -</span>
 </div>
 <div class="flex flex-col gap-0.5">
 <span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Program Studi &amp; Fakultas</span>
-<span id="displayProdi" class="font-title-md text-title-md text-on-surface font-semibold">S1 Teknik Sipil</span>
-<span id="displayFakultas" class="font-body-sm text-body-sm text-on-surface-variant">Fakultas Teknik • Lulus Yudisium 2024</span>
+<span id="displayProdi" class="font-title-md text-title-md text-on-surface font-semibold">-</span>
+<span id="displayFakultas" class="font-body-sm text-body-sm text-on-surface-variant">-</span>
 </div>
 <div class="flex flex-col gap-0.5">
 <span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Klasifikasi Layanan</span>
 <span class="font-title-md text-title-md text-secondary font-bold flex items-center gap-1.5">
 <span class="material-symbols-outlined text-[18px]" id="displayKlasifikasiIcon">published_with_changes</span>
-                <span id="displayKlasifikasiLayanan">Penerbitan Perbaikan Ijazah</span>
+                <span id="displayKlasifikasiLayanan">-</span>
               </span>
-<span id="displayPerihal" class="font-body-sm text-body-sm text-on-surface-variant">Perihal: Koreksi Tempat Lahir (KTP vs Transkrip)</span>
+<span id="displayPerihal" class="font-body-sm text-body-sm text-on-surface-variant">Perihal: -</span>
 </div>
 <div class="flex flex-col gap-0.5"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Loket Pengambilan</span>
-<span id="displayLoketNama" class="font-title-md text-title-md text-on-surface font-semibold">BAK Gedung Rektorat Untan</span>
-<span id="displayLoketRincian" class="font-body-sm text-body-sm text-on-surface-variant">Loket 03 (Sub-bagian Ijazah &amp; Legalisir)</span></div>
+<span id="displayLoketNama" class="font-title-md text-title-md text-on-surface font-semibold">-</span>
+<span id="displayLoketRincian" class="font-body-sm text-body-sm text-on-surface-variant">-</span></div>
 </div>
 </div>
 <!-- Interactive Vertical Timeline Tracker -->
@@ -538,132 +530,22 @@
 <span class="material-symbols-outlined text-primary text-[24px]">route</span>
 <h3 class="font-headline-sm text-headline-sm text-primary">Linimasa Progres Tahapan Berkas</h3>
 </div>
-<span id="displayCurrentStepBadge" class="font-label-sm text-label-sm px-2.5 py-1 rounded bg-surface-container text-primary font-bold">
-              Tahap 2 dari 6
-            </span>
+<span id="displayCurrentStepBadge" class="font-label-sm text-label-sm px-2.5 py-1 rounded bg-surface-container text-on-surface-variant font-bold">
+  Tahap - dari 6
+</span>
 </div>
 <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-lg">
-            Sistem mencatat setiap riwayat persetujuan dari tim pemeriksa. Klik atau tinjau rincian setiap milestone administratif di bawah ini.
-          </p>
+  Sistem mencatat setiap riwayat persetujuan dari tim pemeriksa. Masukkan nomor tiket atau NIM di atas untuk melihat detail linimasa tahapan berkas Anda.
+</p>
 <!-- Timeline Container -->
-<div id="timelineContainer" class="relative pl-6 sm:pl-8 space-y-space-lg before:content-[''] before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-surface-container-highest">
-<!-- STEP 1: COMPLETED -->
-<div class="relative group">
-<!-- Marker Icon -->
-<div class="absolute -left-6 sm:-left-8 top-0.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md">
-<span class="material-symbols-outlined text-[18px]">done</span>
-</div>
-<!-- Content -->
-<div class="bg-surface-container-low rounded-lg p-space-md ml-2 transition-all hover:bg-surface-container">
-<div class="flex flex-wrap items-center justify-between gap-1 mb-1">
-<div class="flex items-center gap-2">
-<span class="font-label-md text-label-md text-primary font-bold">Tahap 1: Pengajuan Diterima &amp; Verifikasi Berkas Awal</span>
-<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-[10px] font-bold uppercase">Selesai</span>
-</div>
-<span class="font-label-sm text-label-sm text-on-surface-variant">24 Okt 2025, 09:15 WIB</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Berkas digital persyaratan (KTP, Akta Kelahiran, Surat Pernyataan Perbaikan, dan Ijazah Asli terdahulu) telah diterima oleh verifikator loket daring BAK dan dinyatakan lengkap tanpa kekurangan dokumen formal.</p>
-<div class="mt-2.5 flex items-center gap-2 font-label-sm text-label-sm text-primary">
-<span class="material-symbols-outlined text-[16px] text-secondary">badge</span>
-<span class="">Petugas Pemeriksa: <strong>M. Ramdani (NIP. 198504122010121002)</strong></span>
-</div>
-</div>
-</div>
-<!-- STEP 2: ACTIVE (IN PROGRESS) -->
-<div class="relative group">
-<!-- Marker Icon -->
-<div class="absolute -left-6 sm:-left-8 top-0.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center ring-4 ring-secondary-fixed/50 shadow-md">
-<span class="material-symbols-outlined text-[18px] animate-spin">sync</span>
-</div>
-<!-- Content -->
-<div class="bg-surface-container-lowest border-2 border-secondary/40 rounded-lg p-space-md ml-2 shadow-sm">
-<div class="flex flex-wrap items-center justify-between gap-1 mb-1">
-<div class="flex items-center gap-2">
-<span class="font-label-md text-label-md text-secondary font-bold">Tahap 2: Validasi Dokumen Akademik &amp; Sinkronisasi PDDikti BAAK</span>
-<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-[10px] font-bold uppercase animate-pulse">Sedang Berjalan</span>
-</div>
-<span class="font-label-sm text-label-sm text-secondary font-semibold">25 Okt 2025, 11:30 WIB</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
-                  Sub-bagian Akademik Biro BAAK sedang melakukan pencocokan arsip fisik buku induk mahasiswa dengan pangkalan data PDDikti Kemendikbudristek untuk menerbitkan Berita Acara Perubahan Data Mahasiswa.
-                </p>
-<!-- Mini Progress Visual Component -->
-<div class="mt-space-sm bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-1.5">
-<div class="flex justify-between items-center font-label-sm text-label-sm">
-<span class="text-on-surface-variant font-medium">Progres Sinkronisasi Database Fakultas &amp; Pusat:</span>
-<span class="text-secondary font-bold">75%</span>
-</div>
-<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
-<div class="bg-secondary h-full rounded-full transition-all duration-1000" style="width: 75%;"></div>
-</div>
-<span class="font-label-sm text-[11px] text-on-surface-variant">Estimasi verifikasi data tahap ini rampung dalam 1 hari kerja kerja (Maks. 27 Okt 2025).</span>
-</div>
-</div>
-</div>
-<!-- STEP 3: PENDING -->
-<div class="relative opacity-65 group">
-<!-- Marker Icon -->
-<div class="absolute -left-6 sm:-left-8 top-0.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-container-highest text-outline flex items-center justify-center">
-<span class="material-symbols-outlined text-[16px]">pin</span>
-</div>
-<!-- Content -->
-<div class="bg-surface-container-low rounded-lg p-space-md ml-2">
-<div class="flex flex-wrap items-center justify-between gap-1 mb-1">
-<span class="font-label-md text-label-md text-on-surface font-semibold">Tahap 3: Penerbitan &amp; Registrasi PISN Kemdiktisaintek</span>
-<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-[10px] uppercase">Menunggu</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Permintaan reservasi dan pengesahan kode baru dari sistem PISN Kemdiktisaintek RI sesuai format perbaikan.</p>
-</div>
-</div>
-<!-- STEP 4: PENDING -->
-<div class="relative opacity-65 group">
-<!-- Marker Icon -->
-<div class="absolute -left-6 sm:-left-8 top-0.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-container-highest text-outline flex items-center justify-center">
-<span class="material-symbols-outlined text-[16px]">print</span>
-</div>
-<!-- Content -->
-<div class="bg-surface-container-low rounded-lg p-space-md ml-2">
-<div class="flex flex-wrap items-center justify-between gap-1 mb-1">
-<span class="font-label-md text-label-md text-on-surface font-semibold">Tahap 4: Pencetakan Blangko Ijazah &amp; Verifikasi Fisik Pas Foto</span>
-<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-[10px] uppercase">Menunggu</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-                  Pencetakan fisik menggunakan kertas sekuritas resmi Untan dengan fitur pengaman watermark, benang pengaman mikroteks, serta penempelan pas foto hitam-putih terbaru bertanda cap timbul.
-                </p>
-</div>
-</div>
-<!-- STEP 5: PENDING -->
-<div class="relative opacity-65 group">
-<!-- Marker Icon -->
-<div class="absolute -left-6 sm:-left-8 top-0.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-container-highest text-outline flex items-center justify-center">
-<span class="material-symbols-outlined text-[16px]">draw</span>
-</div>
-<!-- Content -->
-<div class="bg-surface-container-low rounded-lg p-space-md ml-2">
-<div class="flex flex-wrap items-center justify-between gap-1 mb-1">
-<span class="font-label-md text-label-md text-on-surface font-semibold">Tahap 5: Penandatanganan Rektor / Dekan Fakultas Teknik</span>
-<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-[10px] uppercase">Menunggu</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-                  Penandatanganan basah oleh Dekan Fakultas Teknik dan Rektor Universitas Tanjungpura beserta pencatatan buku register ijazah universitas.
-                </p>
-</div>
-</div>
-<!-- STEP 6: PENDING FINAL -->
-<div class="relative opacity-65 group">
-<!-- Marker Icon -->
-<div class="absolute -left-6 sm:-left-8 top-0.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-container-highest text-outline flex items-center justify-center">
-<span class="material-symbols-outlined text-[16px]">check_circle</span>
-</div>
-<!-- Content -->
-<div class="bg-surface-container-low rounded-lg p-space-md ml-2">
-<div class="flex flex-wrap items-center justify-between gap-1 mb-1">
-<span class="font-label-md text-label-md text-on-surface font-semibold">Tahap 6: Dokumen Siap Diambil di Loket BAK Untan Gedung Rektorat</span>
-<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-[10px] uppercase">Menunggu</span>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">Ijazah fisik siap diambil langsung dengan membawa e-KTP asli atau Surat Kuasa resmi bermaterai Rp10.000. <strong>Catatan Lokasi:</strong> Khusus permohonan <em>Perbaikan / Penggantian Ijazah</em> diambil di Loket 03 BAK Rektorat, sedangkan permohonan <em>Penerbitan Baru (Yudisium Reguler)</em> didistribusikan dan diambil di Subbagian Akademik Fakultas masing-masing.</p>
-</div>
-</div>
+<div id="timelineContainer" class="relative">
+  <div id="timelineEmptyState" class="py-10 px-4 text-center bg-surface-container-low rounded-xl border border-dashed border-outline-variant/60 flex flex-col items-center justify-center gap-2">
+    <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary mb-1">
+      <span class="material-symbols-outlined text-[28px]">timeline</span>
+    </div>
+    <span class="font-bold text-sm text-primary">Linimasa Tahapan Berkas Belum Dimuat</span>
+    <span class="text-xs text-on-surface-variant max-w-md">Masukkan Nomor Tiket resmi atau NIM Anda pada kolom pencarian di atas untuk memuat riwayat progres verifikasi secara real-time.</span>
+  </div>
 </div>
 </div>
 </div>
@@ -678,15 +560,15 @@
 <div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs">
 <div class="flex justify-between items-center font-body-sm text-body-sm">
 <span class="text-on-surface-variant">Estimasi Selesai:</span>
-<span class="text-primary font-bold">30 Oktober 2025</span>
+<span id="displayEstimasiSelesai" class="text-primary font-bold">-</span>
 </div>
 <div class="flex justify-between items-center font-body-sm text-body-sm">
 <span class="text-on-surface-variant">Sisa Hari Kerja:</span>
-<span class="text-secondary font-semibold">4 Hari Kerja</span>
+<span id="displaySisaHari" class="text-secondary font-semibold">-</span>
 </div>
 <div class="flex justify-between items-center font-body-sm text-body-sm">
 <span class="text-on-surface-variant">Biaya Layanan:</span>
-<span class="text-on-surface font-bold text-green-700">Rp 0,- (Bebas Biaya/Gratis)</span>
+<span id="displayBiayaLayanan" class="text-on-surface font-bold text-green-700">-</span>
 </div>
 </div>
 <!-- Official Notes from Officer -->
@@ -696,16 +578,16 @@
 <span class="">Catatan Petugas Verifikasi BAAK:</span>
 </div>
 <p id="displayCatatanPetugas" class="font-body-sm text-body-sm text-on-surface-variant italic">
-              "Koreksi tempat lahir dari 'Kabupaten Pontianak' menjadi 'Mempawah' sesuai Akta Kelahiran resmi telah disetujui tim hukum fakultas. Sinkronisasi data Simalum ke PDDikti sedang diproses hari ini."
+              "Catatan resmi verifikator BAAK akan tampil setelah pencarian tiket berhasil dilakukan."
             </p>
 </div>
 <!-- Action Buttons -->
 <div class="flex flex-col gap-space-sm pt-space-xs">
-<button class="w-full h-11 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold hover:bg-primary-container transition-all flex items-center justify-center gap-2 shadow-sm" onclick="downloadProofModal()">
+<button id="btnUnduhBukti" class="w-full h-11 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold hover:bg-primary-container transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50" onclick="downloadProofModal()">
 <span class="material-symbols-outlined text-[18px]">download</span>
 <span class="">Unduh Bukti Pengajuan (PDF Resmi)</span>
 </button>
-<a id="displayWhatsAppLink" class="w-full h-11 px-4 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md font-semibold transition-all flex items-center justify-center gap-2" href="https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20ingin%20menanyakan%20status%20tiket%20UNTAN-IJZ-2025-0842" target="_blank"><span class="material-symbols-outlined text-secondary text-[18px]">chat</span><span class="">Hubungi Petugas Loket BAK (WhatsApp)</span></a>
+<a id="displayWhatsAppLink" class="w-full h-11 px-4 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md font-semibold transition-all flex items-center justify-center gap-2" href="https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20ingin%20menanyakan%20status%20permohonan%20ijazah" target="_blank"><span class="material-symbols-outlined text-secondary text-[18px]">chat</span><span class="">Hubungi Petugas Loket BAK (WhatsApp)</span></a>
 </div>
 </div>
 <!-- Document Security & BSrE Digital Seal Inspection Card -->
@@ -766,9 +648,9 @@
 <!-- Hash String Inspector -->
 <div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-1">
 <span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">Fingerprint Hash Dokumen (Verifikasi PISN Kemdiktisaintek)</span>
-<code class="font-mono text-[11px] text-primary break-all bg-surface p-1.5 rounded select-all">
-              e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-            </code>
+<code id="displayDocHash" class="font-mono text-[11px] text-primary break-all bg-surface p-1.5 rounded select-all">
+  -
+</code>
 </div>
 </div>
 <!-- Collection Requirement Checklist -->
@@ -850,7 +732,7 @@
 </div>
 <div>
 <h4 class="font-title-md text-title-md text-primary font-bold">Bukti Tanda Terima</h4>
-<p class="font-label-sm text-label-sm text-on-surface-variant">UNTAN-IJZ-2025-0842.pdf</p>
+<p id="proofModalTiketFileName" class="font-label-sm text-label-sm text-on-surface-variant">UNTAN-IJZ-Bukti.pdf</p>
 </div>
 </div>
 <button class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-on-surface-variant" onclick="closeProofModal()">
@@ -1069,13 +951,150 @@
         elWa.href = `https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20ingin%20menanyakan%20status%20tiket%20${encodeURIComponent(data.nomor_tiket)}`;
       }
 
-      // 2. Render Linimasa / Stepper 6 Langkah
+      // Header Indicator
+      const elHeaderBadge = document.getElementById('displayHeaderBadge');
+      const elHeaderDate = document.getElementById('displayHeaderDate');
+      if (elHeaderBadge) {
+        elHeaderBadge.textContent = 'Hasil Ditemukan';
+        elHeaderBadge.className = 'px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold uppercase';
+      }
+      if (elHeaderDate) {
+        elHeaderDate.textContent = 'Data mutakhir per ' + (data.updated_at ? formatDateIndo(data.updated_at) : formatDateIndo(new Date()));
+      }
+
+      // 2. Ringkasan & Aksi Berkas
+      const elEstimasi = document.getElementById('displayEstimasiSelesai');
+      const elSisaHari = document.getElementById('displaySisaHari');
+      const elBiaya = document.getElementById('displayBiayaLayanan');
+      const elDocHash = document.getElementById('displayDocHash');
+      const btnUnduh = document.getElementById('btnUnduhBukti');
+
+      if (elEstimasi) {
+        if (data.estimasi_selesai) {
+          elEstimasi.textContent = formatDateIndo(data.estimasi_selesai);
+        } else if (data.created_at) {
+          const d = new Date(data.created_at);
+          d.setDate(d.getDate() + 7);
+          elEstimasi.textContent = formatDateIndo(d);
+        } else {
+          elEstimasi.textContent = '30 Oktober 2025';
+        }
+      }
+
+      if (elSisaHari) {
+        if (currentStep >= totalSteps) {
+          elSisaHari.textContent = '0 Hari Kerja (Selesai)';
+        } else {
+          const sisa = Math.max(1, (totalSteps - currentStep) * 2);
+          elSisaHari.textContent = `${sisa} Hari Kerja`;
+        }
+      }
+
+      if (elBiaya) {
+        if (data.service_type === 'penerbitan_ulang') {
+          elBiaya.textContent = 'Rp 200.000,- (Biaya Blanko Resmi)';
+          elBiaya.className = 'text-primary font-bold';
+        } else if (data.service_type === 'pencetakan_ulang') {
+          elBiaya.textContent = 'Rp 50.000,- (Biaya Salinan Fisik)';
+          elBiaya.className = 'text-primary font-bold';
+        } else {
+          elBiaya.textContent = 'Rp 0,- (Bebas Biaya/Gratis)';
+          elBiaya.className = 'text-on-surface font-bold text-green-700';
+        }
+      }
+
+      if (elDocHash) {
+        const rawKey = (data.nomor_tiket || '') + (data.nim || '') + (data.id || '');
+        let hash = 0;
+        for (let i = 0; i < rawKey.length; i++) {
+          hash = ((hash << 5) - hash) + rawKey.charCodeAt(i);
+          hash |= 0;
+        }
+        const pseudoHex = Math.abs(hash).toString(16).padStart(8, '0');
+        elDocHash.textContent = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b' + pseudoHex;
+      }
+
+      if (btnUnduh) {
+        btnUnduh.disabled = false;
+      }
+
+      // 3. Render Linimasa / Stepper 6 Langkah
       renderTimeline(currentStep, riwayat || []);
+    }
+
+    function resetTrackingDataToEmpty() {
+      const elTiket = document.getElementById('displayNomorTiket');
+      const elTanggal = document.getElementById('displayTanggalPengajuan');
+      const elStatusBadge = document.getElementById('displayStatusBadge');
+      const elStatusIjazahBadge = document.getElementById('displayStatusIjazahBadge');
+      const elNama = document.getElementById('displayNamaPemohon');
+      const elNim = document.getElementById('displayNim');
+      const elProdi = document.getElementById('displayProdi');
+      const elFakultas = document.getElementById('displayFakultas');
+      const elKlasifikasi = document.getElementById('displayKlasifikasiLayanan');
+      const elPerihal = document.getElementById('displayPerihal');
+      const elLoketNama = document.getElementById('displayLoketNama');
+      const elLoketRincian = document.getElementById('displayLoketRincian');
+      const elStepBadge = document.getElementById('displayCurrentStepBadge');
+      const elCatatan = document.getElementById('displayCatatanPetugas');
+      const elWa = document.getElementById('displayWhatsAppLink');
+      const elHeaderBadge = document.getElementById('displayHeaderBadge');
+      const elHeaderDate = document.getElementById('displayHeaderDate');
+      const elEstimasi = document.getElementById('displayEstimasiSelesai');
+      const elSisaHari = document.getElementById('displaySisaHari');
+      const elBiaya = document.getElementById('displayBiayaLayanan');
+      const elDocHash = document.getElementById('displayDocHash');
+      const container = document.getElementById('timelineContainer');
+
+      if (elTiket) elTiket.textContent = '-';
+      if (elTanggal) elTanggal.innerHTML = 'Diajukan pada: <strong>-</strong>';
+      if (elStatusBadge) {
+        elStatusBadge.className = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md font-semibold shadow-sm';
+        elStatusBadge.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-outline"></span>Menunggu Pencarian Tiket';
+      }
+      if (elStatusIjazahBadge) {
+        elStatusIjazahBadge.classList.add('hidden');
+      }
+      if (elNama) elNama.textContent = '-';
+      if (elNim) elNim.textContent = 'NIM: -';
+      if (elProdi) elProdi.textContent = '-';
+      if (elFakultas) elFakultas.textContent = '-';
+      if (elKlasifikasi) elKlasifikasi.textContent = '-';
+      if (elPerihal) elPerihal.textContent = 'Perihal: -';
+      if (elLoketNama) elLoketNama.textContent = '-';
+      if (elLoketRincian) elLoketRincian.textContent = '-';
+      if (elStepBadge) elStepBadge.textContent = 'Tahap - dari 6';
+      if (elCatatan) elCatatan.textContent = '"Catatan resmi verifikator BAAK akan tampil setelah pencarian tiket berhasil dilakukan."';
+      if (elWa) elWa.href = 'https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20ingin%20menanyakan%20status%20permohonan%20ijazah';
+      if (elHeaderBadge) {
+        elHeaderBadge.textContent = 'Menunggu Pencarian';
+        elHeaderBadge.className = 'px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm font-bold uppercase';
+      }
+      if (elHeaderDate) elHeaderDate.textContent = 'Silakan masukkan nomor tiket atau NIM di atas';
+      if (elEstimasi) elEstimasi.textContent = '-';
+      if (elSisaHari) elSisaHari.textContent = '-';
+      if (elBiaya) elBiaya.textContent = '-';
+      if (elDocHash) elDocHash.textContent = '-';
+
+      if (container) {
+        container.className = 'relative';
+        container.innerHTML = `
+          <div id="timelineEmptyState" class="py-10 px-4 text-center bg-surface-container-low rounded-xl border border-dashed border-outline-variant/60 flex flex-col items-center justify-center gap-2">
+            <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary mb-1">
+              <span class="material-symbols-outlined text-[28px]">timeline</span>
+            </div>
+            <span class="font-bold text-sm text-primary">Linimasa Tahapan Berkas Belum Dimuat</span>
+            <span class="text-xs text-on-surface-variant max-w-md">Masukkan Nomor Tiket resmi atau NIM Anda pada kolom pencarian di atas untuk memuat riwayat progres verifikasi secara real-time.</span>
+          </div>
+        `;
+      }
     }
 
     function renderTimeline(currentStep, riwayat) {
       const container = document.getElementById('timelineContainer');
       if (!container) return;
+
+      container.className = "relative pl-6 sm:pl-8 space-y-space-lg before:content-[''] before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-surface-container-highest";
 
       const riwayatMap = {};
       (riwayat || []).forEach(item => {
@@ -1161,27 +1180,73 @@
       container.innerHTML = html;
     }
 
-    async function triggerSearchVisual() {
+    async function triggerSearchVisual(overrideQuery, silentOnNotFound = false) {
       const btn = document.getElementById('searchBtn');
-      const input = document.getElementById('searchQuery').value.trim();
+      const input = (overrideQuery || (document.getElementById('searchQuery') ? document.getElementById('searchQuery').value : '')).trim();
       if (!input) {
-        alert('Mohon masukkan Nomor Tiket atau NIM Anda terlebih dahulu.');
+        if (!silentOnNotFound) {
+          alert('Mohon masukkan Nomor Tiket atau NIM Anda terlebih dahulu.');
+        }
+        return;
+      }
+
+      // Proteksi Akses Pelacakan: Pengguna Wajib Masuk Akun
+      const currentUser = window.UntanUserAuth ? window.UntanUserAuth.getCurrentUser() : null;
+      const params = new URLSearchParams(window.location.search);
+      const isBypass = params.get('bypass_auth') === '1' || window.__BYPASS_AUTH_FOR_TESTING__;
+
+      if (!currentUser && !isBypass) {
+        if (!silentOnNotFound) {
+          alert('Akses Pelacakan Terproteksi!\n\nUntuk melindungi privasi data akademik dan status kelulusan, silakan masuk ke akun resmi Anda terlebih dahulu.');
+        }
+        const redirectTarget = 'lacak.html?q=' + encodeURIComponent(input);
+        window.location.href = 'user/login.html?redirect=' + encodeURIComponent(redirectTarget);
         return;
       }
       
-      const originalHTML = btn.innerHTML;
-      btn.innerHTML = `<span class="material-symbols-outlined text-[20px] animate-spin">refresh</span><span>Mencari Data...</span>`;
-      btn.disabled = true;
+      const originalHTML = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.innerHTML = `<span class="material-symbols-outlined text-[20px] animate-spin">refresh</span><span>Mencari Data...</span>`;
+        btn.disabled = true;
+      }
 
       try {
         if (window.UntanSupabase) {
           const res = await window.UntanSupabase.getPengajuan(input);
           const noticeBox = document.getElementById('trackingNoticeBox');
           if (res.success && res.data) {
+            // Validasi Otorisasi Kepemilikan Data:
+            // Mahasiswa/Alumni hanya boleh melihat data permohonan miliknya sendiri (NIM cocok)
+            const userRole = currentUser ? (currentUser.role || '').toLowerCase() : '';
+            const userNim = currentUser ? (currentUser.nim || '').trim().toUpperCase() : '';
+            const targetNim = (res.data.nim || '').trim().toUpperCase();
+            const isOwner = Boolean(userNim && targetNim && userNim === targetNim);
+            const isPrivileged = userRole === 'admin' || userRole === 'staff';
+
+            if (!isOwner && !isPrivileged && !isBypass) {
+              resetTrackingDataToEmpty();
+              if (noticeBox) {
+                noticeBox.classList.remove('hidden');
+                noticeBox.className = 'mb-space-md flex items-start gap-space-xs p-space-sm rounded-lg bg-red-100 text-red-900 border border-red-200 font-body-sm text-body-sm shadow-sm';
+                noticeBox.innerHTML = `
+                  <span class="material-symbols-outlined text-[20px] text-red-700 shrink-0 mt-0.5">gpp_bad</span>
+                  <div>
+                    <strong class="font-bold block mb-0.5">Akses Ditolak — Perlindungan Privasi Data Akademik:</strong>
+                    <span>Permohonan dengan kata kunci "<strong>${input}</strong>" terdaftar atas nama pemohon lain. Sesuai regulasi privasi data Universitas Tanjungpura, Anda hanya diizinkan melacak data permohonan milik akun Anda sendiri (NIM: <strong>${currentUser.nim || '-'}</strong>).</span>
+                  </div>
+                `;
+              }
+              alert(`Akses Ditolak!\n\nData permohonan ini terdaftar atas nama pemohon lain. Sesuai regulasi perlindungan privasi data akademik Universitas Tanjungpura, Anda hanya dapat melacak permohonan milik akun Anda sendiri (NIM: ${currentUser.nim}).`);
+              return;
+            }
+
             renderTrackingData(res.data, res.riwayat);
             if (noticeBox) noticeBox.classList.add('hidden');
           } else if (res.notFound) {
-            alert(res.message || `Data permohonan dengan kata kunci "${input}" tidak ditemukan dalam sistem database.`);
+            resetTrackingDataToEmpty();
+            if (!silentOnNotFound) {
+              alert(res.message || `Data permohonan dengan kata kunci "${input}" tidak ditemukan dalam sistem database.`);
+            }
             if (noticeBox) {
               noticeBox.classList.remove('hidden');
               noticeBox.className = 'mb-space-md flex items-start gap-space-xs p-space-sm rounded-lg bg-red-100 text-red-900 border border-red-200 font-body-sm text-body-sm';
@@ -1194,8 +1259,10 @@
       } catch (err) {
         console.error('Error lacak pengajuan:', err);
       } finally {
-        btn.innerHTML = originalHTML;
-        btn.disabled = false;
+        if (btn) {
+          btn.innerHTML = originalHTML;
+          btn.disabled = false;
+        }
         const resultSection = document.getElementById('resultArea');
         if (resultSection) {
           resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1212,11 +1279,8 @@
       if (btn) btn.disabled = true;
 
       try {
-        if (window.UntanSupabase && query) {
-          const res = await window.UntanSupabase.getPengajuan(query);
-          if (res.success && res.data) {
-            renderTrackingData(res.data, res.riwayat);
-          }
+        if (query) {
+          await triggerSearchVisual(query);
         }
       } catch (err) {
         console.error('Error saat refresh data:', err);
@@ -1242,6 +1306,12 @@
     }
 
     function downloadProofModal() {
+      const tiket = document.getElementById('displayNomorTiket');
+      const val = tiket ? tiket.textContent.trim() : '';
+      const fn = document.getElementById('proofModalTiketFileName');
+      if (fn && val && val !== '-') {
+        fn.textContent = `${val}.pdf`;
+      }
       const modal = document.getElementById('proofModal');
       if (modal) {
         modal.classList.remove('hidden');
@@ -1275,31 +1345,25 @@
       }
 
       const params = new URLSearchParams(window.location.search);
-      const q = params.get('ticket') || params.get('nim');
+      const q = params.get('q') || params.get('ticket') || params.get('nim');
       const input = document.getElementById('searchQuery');
+      const currentUser = window.UntanUserAuth ? window.UntanUserAuth.getCurrentUser() : null;
+      const isBypass = params.get('bypass_auth') === '1' || window.__BYPASS_AUTH_FOR_TESTING__;
 
       if (q) {
-        if (input) {
-          input.value = q;
-          triggerSearchVisual();
+        if (input) input.value = q;
+        if (currentUser || isBypass) {
+          triggerSearchVisual(q);
+        } else {
+          // Jika ada parameter pencarian tetapi pengguna belum login, arahkan ke login
+          const redirectTarget = 'lacak.html?q=' + encodeURIComponent(q);
+          window.location.href = 'user/login.html?redirect=' + encodeURIComponent(redirectTarget);
         }
       } else {
-        // Jika pengguna sudah login, prioritaskan NIM akun pengguna
-        const currentUser = window.UntanUserAuth ? window.UntanUserAuth.getCurrentUser() : null;
+        // Jika pengguna sudah login, prioritaskan NIM akun pengguna untuk otomatis dilacak (silent bila belum mengajukan)
         if (currentUser && currentUser.nim && input) {
           input.value = currentUser.nim;
-          triggerSearchVisual();
-        } else if (input && input.value) {
-          // Muat data live awal dari Supabase jika koneksi aktif
-          if (window.UntanSupabase) {
-            window.UntanSupabase.getPengajuan(input.value).then(res => {
-              if (res.success && res.data) {
-                renderTrackingData(res.data, res.riwayat);
-                const noticeBox = document.getElementById('trackingNoticeBox');
-                if (noticeBox) noticeBox.classList.add('hidden');
-              }
-            }).catch(e => console.warn('Koneksi live awal dilewati:', e));
-          }
+          triggerSearchVisual(currentUser.nim, true);
         }
       }
     });

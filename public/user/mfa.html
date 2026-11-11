@@ -371,13 +371,28 @@
           const res = await window.UntanUserAuth.verifyMfa(pendingSession.sessionToken, enteredCode, activeMethod);
 
           if (res.success) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectParam = urlParams.get('redirect');
+            let targetUrl = 'index.html';
+            if (redirectParam) {
+              const clean = decodeURIComponent(redirectParam).trim();
+              if (!clean.startsWith('http://') && !clean.startsWith('https://') && !clean.startsWith('//')) {
+                if (clean.includes('pengajuan.html') || clean.includes('lacak.html')) {
+                  targetUrl = clean.startsWith('../') ? clean : ('../' + clean.replace(/^\/+/, ''));
+                } else {
+                  targetUrl = clean;
+                }
+              }
+            }
+
+            const targetLabel = redirectParam ? (redirectParam.includes('lacak') ? 'halaman pelacakan' : 'halaman pengajuan') : 'dashboard akun';
             alertBox.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs flex items-center gap-2';
             alertBox.innerHTML = `
               <span class="material-symbols-outlined text-emerald-600 text-[20px]">verified</span>
-              <span>Autentikasi Multi-Faktor Berhasil! Mengalihkan ke dashboard akun Anda...</span>
+              <span>Autentikasi Multi-Faktor Berhasil! Mengalihkan ke ${targetLabel} Anda...</span>
             `;
             setTimeout(() => {
-              window.location.href = 'index.html';
+              window.location.href = targetUrl;
             }, 200);
           } else {
             alertBox.className = 'p-3 rounded-xl bg-red-50 border border-red-300 text-red-900 text-xs flex items-center gap-2';

@@ -32,7 +32,7 @@ test.describe('Fase 1: Penyelarasan Frontend-Backend (GAP-01, GAP-02, GAP-03)', 
       await d.accept();
     });
 
-    await page.goto('/user/login.html');
+    await page.goto('/user/login.html?relogin=1');
 
     // Login sebagai Siti Aminah
     await page.fill('#identifier', 'F1081191002');
@@ -130,6 +130,15 @@ test.describe('Fase 1: Penyelarasan Frontend-Backend (GAP-01, GAP-02, GAP-03)', 
           ]
         };
       };
+
+      // Set sesi pengguna sesuai pemilik tiket yang diuji
+      if (window.UntanUserAuth && typeof window.UntanUserAuth.completeLoginSession === 'function') {
+        window.UntanUserAuth.completeLoginSession({
+          id: 'c1d2e3f4-a5b6-7890-cdef-333333333332',
+          nim: 'D101181042',
+          nama_lengkap: 'RIAN ADIPUTRA, S.T.'
+        });
+      }
 
       document.getElementById('searchQuery').value = 'UNTAN-IJZ-2025-0842';
       await triggerSearchVisual();

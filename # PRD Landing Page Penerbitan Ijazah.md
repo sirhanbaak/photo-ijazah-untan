@@ -1,8 +1,8 @@
 # PRD Portal Layanan Penerbitan Ijazah Universitas Tanjungpura
 
-**Versi Dokumen:** 3.5  
+**Versi Dokumen:** 3.9  
 **Status:** Disahkan & Disesuaikan dengan Seluruh Implementasi Terakhir  
-**Tanggal Pembaruan:** 1 November 2026  
+**Tanggal Pembaruan:** 11 November 2026  
 **Kepemilikan:** Biro Akademik dan Kemahasiswaan (BAK) Universitas Tanjungpura & Tim Pengembang SimalumApps  
 
 ---
@@ -199,7 +199,8 @@ CREATE TABLE IF NOT EXISTS public.pengajuan_ijazah (
     whatsapp VARCHAR(30),
     email VARCHAR(100),
     foto_url TEXT,
-    berkas_syarat_urls JSONB DEFAULT '{}'::jsonb,
+    berkas_ktp_url TEXT,
+    berkas_pendukung_url TEXT,
     alasan_permohonan TEXT,
     catatan_petugas TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
@@ -227,7 +228,7 @@ Sistem menerapkan **Rule Penguncian Terpusat**:
 
 ### 5.4. Pembersihan Otomatis Berkas Lama (*Auto-delete Replaced Files*)
 Untuk menjaga kebersihan storage dan kepatuhan terhadap batasan kuota:
-- Setiap kali terjadi pembaruan berkas pas foto (`foto_url`) atau dokumen persyaratan (`berkas_syarat_urls`), klien secara otomatis mendeteksi URL berkas lama di bucket `dokumen-ijazah`.
+- Setiap kali terjadi pembaruan berkas pas foto (`foto_url`) atau dokumen persyaratan (`berkas_ktp_url`, `berkas_pendukung_url`), klien secara otomatis mendeteksi URL berkas lama di bucket `dokumen-ijazah`.
 - Berkas lama diekstrak path relatifnya (misal: `pas-foto/1730000000_foto.jpg`) dan dihapus secara permanen via `UntanSupabase.deleteFile()` sebelum atau bersamaan dengan pendaftaran URL baru.
 - Jika berkas yang diganti adalah berkas bawaan contoh/statis (bukan dari bucket Supabase), sistem melewatinya secara aman tanpa melempar kesalahan.
 
@@ -337,7 +338,144 @@ CREATE TABLE IF NOT EXISTS public.user_login_logs (
 );
 ```
 
-#### 7. Standar Kriptografi & Mekanisme Pengamanan
+#### 7. Tabel `public.user_sessions` (Manajemen Sesi Pengguna Aktif & Pencabutan Sesi)
+Mencatat sesi aktif per perangkat/peramban, mengelola token sesi resmi, dan mendukung pencabutan sesi jarak jauh (*remote logout*):
+```sql
+CREATE TABLE IF NOT EXISTS public.user_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    session_token VARCHAR(255) UNIQUE NOT NULL,
+    device_type VARCHAR(50) DEFAULT 'desktop', -- 'desktop', 'mobile', 'tablet'
+    device_name VARCHAR(150),
+    browser VARCHAR(100),
+    os VARCHAR(100),
+    ip_address VARCHAR(50),
+    user_agent TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    is_revoked BOOLEAN NOT NULL DEFAULT false,
+    revoked_at TIMESTAMP WITH TIME ZONE,
+    revoked_reason VARCHAR(100), -- 'user_logout', 'password_changed', 'security_revoke'
+    last_activity_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+```
+
+#### 8. Tabel `public.auth_otp_codes` (Sentralisasi Kode OTP Multi-Saluran)
+Mengelola kode OTP lintas kanal (Surel, SMS, WhatsApp) untuk verifikasi MFA, pemulihan akun, dan validasi nomor telepon:
+```sql
+CREATE TABLE IF NOT EXISTS public.auth_otp_codes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    identifier VARCHAR(100) NOT NULL, -- email atau nomor handphone/WA
+    otp_code VARCHAR(10) NOT NULL,
+    purpose VARCHAR(50) NOT NULL DEFAULT 'mfa_login', -- 'mfa_login', 'forgot_password', 'verify_phone'
+    channel VARCHAR(30) NOT NULL DEFAULT 'email', -- 'email', 'sms', 'whatsapp'
+    attempts_count INT NOT NULL DEFAULT 0,
+    max_attempts INT NOT NULL DEFAULT 5,
+    is_used BOOLEAN NOT NULL DEFAULT false,
+    used_at TIMESTAMP WITH TIME ZONE,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+```
+
+#### 9. Tabel `public.user_trusted_devices` (Perangkat Terpercaya - Ingat Perangkat Ini)
+Mendukung fitur *"Ingat perangkat ini selama 30 hari"* untuk melewati tantangan MFA berulang pada komputer/gawai pribadi yang sah:
+```sql
+CREATE TABLE IF NOT EXISTS public.user_trusted_devices (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    device_fingerprint VARCHAR(255) NOT NULL,
+    device_name VARCHAR(150) NOT NULL,
+    browser VARCHAR(100),
+    ip_address VARCHAR(50),
+    trusted_until TIMESTAMP WITH TIME ZONE NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT unique_user_device UNIQUE (user_id, device_fingerprint)
+);
+```
+
+#### 10. Tabel `public.audit_auth_logs` (Jejak Audit Keamanan Akun Komprehensif)
+Mencatat seluruh peristiwa penting terkait akun (perubahan kata sandi, aktivasi/deaktivasi MFA, reset password, pencabutan sesi) untuk kepatuhan dan audit investigatif:
+```sql
+CREATE TABLE IF NOT EXISTS public.audit_auth_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
+    event_type VARCHAR(100) NOT NULL, -- 'login_success', 'logout', 'password_changed', 'mfa_enabled', dsb.
+    severity VARCHAR(20) NOT NULL DEFAULT 'info', -- 'info', 'warning', 'critical'
+    description TEXT NOT NULL,
+    ip_address VARCHAR(50),
+    user_agent TEXT,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+```
+
+#### 11. Tabel `public.user_profiles` (Biodata Lengkap Pemohon & Data Akademik)
+Menyimpan profil kependudukan (NIK, jenis kelamin, domisili) dan data akademik kelulusan pemohon yang terhubung 1-to-1 dengan akun pengguna:
+```sql
+CREATE TABLE IF NOT EXISTS public.user_profiles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    nik VARCHAR(20),
+    tempat_lahir VARCHAR(100),
+    tanggal_lahir DATE,
+    jenis_kelamin VARCHAR(20), -- 'Laki-laki', 'Perempuan'
+    alamat_domisili TEXT,
+    kota_kabupaten VARCHAR(100),
+    provinsi VARCHAR(100),
+    kode_pos VARCHAR(10),
+    tahun_masuk INT,
+    tahun_lulus INT,
+    ipk NUMERIC(3,2),
+    nomor_sk_yudisium VARCHAR(100),
+    tanggal_yudisium DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT unique_user_profile UNIQUE (user_id)
+);
+```
+
+#### 12. Tabel `public.user_notification_preferences` (Preferensi Saluran Notifikasi)
+Mengontrol penerimaan notifikasi keamanan akun dan informasi pembaruan status ijazah melalui Surel dan WhatsApp:
+```sql
+CREATE TABLE IF NOT EXISTS public.user_notification_preferences (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    notify_login_new_device BOOLEAN NOT NULL DEFAULT true,
+    notify_status_change BOOLEAN NOT NULL DEFAULT true,
+    notify_security_alerts BOOLEAN NOT NULL DEFAULT true,
+    notify_via_email BOOLEAN NOT NULL DEFAULT true,
+    notify_via_whatsapp BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT unique_user_notif_pref UNIQUE (user_id)
+);
+```
+
+#### 13. Tabel `public.user_notifications` (Pusat Notifikasi Pemohon Dalam Aplikasi)
+Menampung riwayat pesan, pengumuman, dan pembaruan berkas ijazah yang dapat dibaca pemohon di dalam portal:
+```sql
+CREATE TABLE IF NOT EXISTS public.user_notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    title VARCHAR(200) NOT NULL,
+    message TEXT NOT NULL,
+    category VARCHAR(50) NOT NULL DEFAULT 'academic', -- 'security', 'academic', 'system'
+    action_url VARCHAR(255),
+    is_read BOOLEAN NOT NULL DEFAULT false,
+    read_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+```
+
+#### 14. Trigger Otomatis Pembatalan Sesi & View `v_user_account_overview`
+- **Trigger `trg_user_password_change`:** Secara otomatis mencabut seluruh sesi login aktif (`is_active = false, is_revoked = true`) dan mencatat peristiwa audit ketika kolom `password_hash` pada tabel `users` diperbarui.
+- **View `v_user_account_overview`:** Menggabungkan data akun pengguna, status MFA, preferensi notifikasi, profil biodata, dan jumlah sesi aktif untuk kemudahan kueri dasbor administrasi.
+
+#### 15. Standar Kriptografi & Mekanisme Pengamanan
 - **Hashing Kata Sandi:** Menggunakan **Web Crypto API (SubtleCrypto SHA-256)** dengan *cryptographic salt* unik per pengguna (`SHA-256(password + salt)`). Kata sandi mentah tidak pernah disimpan dalam plain text.
 - **Autentikasi Smartphone (TOTP RFC 6238):**
   - Implementasi murni JavaScript dari algoritma Time-Based One-Time Password (RFC 6238).
@@ -517,3 +655,8 @@ Seluruh fungsionalitas portal dilindungi oleh **50 skenario pengujian otomatis e
 | **3.3** | 1 Nov 2026 | **Penyelarasan Frontend-Backend Fase 1 (GAP-01, GAP-02, GAP-03):**<br>1. **Koneksi Relasional Pengguna `user_id` (GAP-01):** Menyematkan `user_id` dari sesi login resmi pengguna ke dalam muatan (`payload`) pengiriman formulir permohonan ijazah (`submitPengajuan`) dan pembaruan identitas, menghubungkan secara permanen tabel `public.pengajuan_ijazah` dengan `public.users`.<br>2. **Penyelarasan Nilai Enum `Dibatalkan` (GAP-02):** Menambahkan status resmi `Dibatalkan` ke dalam kamus `STATUS_IJAZAH` klien, validasi `isValidStatusIjazah()`, penolakan mutlak pembaruan berkas/data pada `canUpdatePengajuan('Dibatalkan')`, serta visualisasi lencana abu-abu berikon `block` di antarmuka `lacak.html` dan `pengajuan.html`.<br>3. **Integrasi Live Backend Pelacakan Real-Time (GAP-03):** Menghubungkan fungsi pencarian di `public/lacak.html` secara langsung ke fungsi API `UntanSupabase.getPengajuan(query)`. Banner data contoh statis otomatis disembunyikan saat data riil ditemukan, penanganan umpan balik saat data tidak ditemukan, serta inisialisasi bilah foto profil pengguna (`initHeaderNav`).<br>4. **Kualitas & Stabilitas Sistem:** Penambahan rangkaian pengujian `tests/phase1_alignment.spec.js` (4 skenario lulus 100%). Seluruh suite regresi (32 skenario pengujian Playwright) terverifikasi lulus hijau tanpa cela. |
 | **3.4** | 1 Nov 2026 | **Refaktorisasi Tata Letak Navigasi ke Arsitektur Mega Menu & Pengoptimalan Responsif:**<br>1. **Arsitektur Mega Menu Terstruktur:** Mengganti susunan 7 tautan horizontal padat di bilah desktop dengan menu teratur: Beranda, Layanan Ijazah, Panduan & Bantuan, dan Portal Akun.<br>2. **Modul Pengendali Interaksi Mandiri (`public/js/megaMenu.js`):** Mengelola hover dan click/touch toggle, atribut aksesibilitas ARIA (`aria-expanded`), auto-close saat click-outside dan tombol Escape, serta pencegahan konflik double-event pada drawer ponsel.<br>3. **Drawer Navigasi Ponsel Berkelompok:** Membagi drawer menu seluler (`#mobile-menu-drawer`) ke dalam kategori bersih: "Navigasi Utama" dan "Alat & Bantuan Cepat" serta kontainer profil pengguna.<br>4. **Pengoptimalan Responsif Ponsel Kecil:** Mencegah horizontal overflow dan pergeseran tombol menu hamburger ke luar layar pada viewport 320px–375px.<br>5. **Suite Pengujian Otomatis Terpadu:** Penambahan pengujian `tests/mega_menu.spec.js` (5 skenario). Seluruh 37 skenario pengujian Playwright terverifikasi lulus hijau. |
 | **3.5** | 1 Nov 2026 | **Integrasi Mega Menu Portal Akun, Tombol Mandiri PixelCrop WASM, & Pembersihan Header:**<br>1. **Portal Akun Masuk ke dalam Mega Menu:** Menu Portal Akun kini terintegrasi penuh sebagai dropdown Mega Menu (`#megaMenuAkun`) dengan 2 kelompok terstruktur: *Akses Akun* (Dasbor Pemohon `user/index.html` dan Masuk Akun `user/login.html`) serta *Keamanan & MFA* (Pengaturan Akun & 2FA `user/index.html#pengaturan-keamanan` dan Lupa Kata Sandi `user/forgot-password.html`), dilengkapi indikator proteksi Simalum MFA Aktif.<br>2. **Pemisahan PixelCrop sebagai Tombol Mandiri:** Aplikasi pemotong pas foto 4×6 WebAssembly (`/crop/`) dikeluarkan dari dropdown Mega Menu Layanan Ijazah dan kini tampil secara mandiri di bilah navigasi atas desktop (`<nav>`) sebagai tombol aksi kontras beraksen hijau emerald lengkap dengan lencana `WASM`.<br>3. **Penyelarasan Kolom 2 Layanan Ijazah:** Slot yang ditinggalkan PixelCrop diisi oleh menu *Legalitas & Pengambilan* (Validasi PIN PDDikti, Sertifikasi TTE BSrE, dan Loket Pengambilan BAK UNTAN) sehingga struktur 3 kolom tetap simetris dan informatif.<br>4. **Penghapusan Tombol HelpDesk BAK di Header Kanan:** Menghilangkan tautan WhatsApp mengambang di baris header desktop untuk memberikan ruang visual yang lebih bersih dan rapi bagi avatar pengguna dan kontrol navigasi. Dukungan HelpDesk resmi tetap terhubung melalui dropdown Panduan & Bantuan, kartu Loket BAK, dan mobile drawer.<br>5. **Pengujian Mutu Terpadu:** Penambahan skenario uji pada `tests/mega_menu.spec.js` untuk memvalidasi seluruh Mega Menu (Layanan, Panduan, Akun), tombol mandiri PixelCrop, ketiadaan tombol HelpDesk BAK desktop, serta status aktif kategori Portal Akun. Total 38 dari 38 skenario uji Playwright lulus 100%. |
+| **3.6** | 9 Nov 2026 | **Penyelarasan Frontend-Backend Fase 2 (GAP-04, GAP-05, GAP-06, GAP-07) & Penguncian Akun Brute-Force:**<br>1. **Input & Unggah Berkas KTP serta Berkas Pendukung (GAP-04):** Antarmuka `pengajuan.html` kini mengaktifkan input berkas interaktif untuk Scan e-KTP asli (`#berkasKtp`) dan Berkas Pendukung (`#berkasPendukung`) dengan batas berkas 5 MB, indikator nama berkas, serta pengunggahan otomatis ke folder `berkas-ktp` dan `berkas-pendukung` pada bucket Supabase Storage `dokumen-ijazah`. Menyimpan URL publik hasil unggah ke `berkas_ktp_url` dan `berkas_pendukung_url` di tabel `public.pengajuan_ijazah`.<br>2. **Sinkronisasi Kata Sandi Lama dari Database Supabase (GAP-05):** Fungsi `changePassword(userId, oldPassword, newPassword)` di `public/user/userAuth.js` melakukan penarikan data pengguna terpusat dari tabel `public.users` di Supabase sebelum memvalidasi keabsahan kata sandi lama, mencegah ketidaksinkronan akun lintas peramban.<br>3. **Verifikasi Token Reset Kata Sandi Lintas Sesi (GAP-06):** Fungsi `verifyResetToken(tokenOrOtp)` diubah menjadi asinkron (`async/await`) dengan fallback kueri ke tabel `public.password_reset_requests` di Supabase bila token tidak ditemukan pada penyimpanan lokal.<br>4. **Sistem Proteksi Keamanan Account Lockout Anti-Brute-Force (GAP-07):** Mengimplementasikan counter `failed_login_attempts` saat percobaan login gagal. Jika mencapai batas 5 kali berturut-turut, akun dikunci otomatis selama 15 menit (`locked_until`), menolak login lanjutan dengan pesan sisa durasi penguncian, serta mereset counter saat login atau reset kata sandi berhasil.<br>5. **Suite Pengujian Mutu Terpadu:** Penambahan skenario uji baru `tests/phase2_alignment.spec.js` (4 skenario). Seluruh 42 skenario pengujian Playwright (100%) terverifikasi lulus sempurna. |
+| **3.7** | 9 Nov 2026 | **Penyelarasan Frontend-Backend Fase 3 (GAP-08 s/d GAP-14): Validasi IPK, Refaktorisasi Header Nav, Validasi Layanan & Audit MFA:**<br>1. **Validasi Wajib IPK untuk Penerbitan Baru (GAP-08):** Penambahan helper `validateIpk()` di `public/js/supabaseClient.js` dan penegakan validasi pada formulir `pengajuan.html` untuk memverifikasi bahwa IPK terisi dan bernilai numerik valid (0.00 - 4.00) sebelum permohonan penerbitan ijazah baru dapat dikirim.<br>2. **Refaktorisasi Navigasi Header Terpadu di Dasbor Pengguna (GAP-09):** Mengganti markup navbar statis di `public/user/index.html` dengan inisialisasi modul standar `UntanUserAuth.initHeaderNav('userProfileHeader', 'mobileUserProfileDrawer')`, menyatukan perilaku tampilan profil, avatar dinamis, dropdown, dan alur keluar akun (*logout*) di seluruh portal.<br>3. **Standarisasi Tipe Layanan & Constraint Database (GAP-10):** Kamus `SERVICE_TYPES` resmi (`penerbitan_baru`, `perbaikan_data`, `penerbitan_ulang`, `pencetakan_ulang`) dan fungsi validasi `isValidServiceType()`, serta penambahan constraint `CHECK` di skema pangkalan data Supabase.<br>4. **Pembaruan Status Verifikasi MFA & Pencatatan Log Gagal (GAP-11 & GAP-12):** Fungsi `verifyMfa()` otomatis meng-update `mfa_verifications` dengan `is_verified: true` dan timestamp `verified_at`. Fungsi `login()` mencatat setiap kegagalan otentikasi (kata sandi salah maupun akun tidak ditemukan) ke tabel `public.user_login_logs` lengkap dengan `user_agent` dan `failure_reason`.<br>5. **Sanitasi Upsert Pengaturan MFA (GAP-13):** Memastikan `updateMfaSettings()` mengeksekusi upsert dengan `{ onConflict: 'user_id' }` serta membersihkan identitas ID non-UUID guna mencegah galat tipe data di PostgreSQL.<br>6. **Resolusi Otomatis Master Layanan & Penetapan Prioritas (GAP-14):** Fungsi `submitPengajuan()` melakukan resolusi otomatis kolom `layanan_id` dari tabel `public.layanan` berdasarkan `service_type` dan menetapkan tingkat `prioritas` default `'normal'` ke tabel `public.pengajuan_ijazah`.<br>7. **Suite Pengujian Terpadu & Verifikasi Penuh:** Penambahan berkas uji `tests/phase3_alignment.spec.js` (5 skenario lulus 100%). Total seluruh 47 skenario pengujian Playwright portal terverifikasi lulus sempurna tanpa regresi. |
+| **3.8** | 9 Nov 2026 | **Penyelarasan Frontend-Backend Fase 4 (GAP-15, GAP-18, GAP-19, GAP-20): Pengaturan Avatar Supabase Storage, Pembersihan Kode Usang, Hardening RLS Produksi, & Pengujian Regresi Lengkap:**<br>1. **Manajemen Avatar Pengguna & Integrasi Supabase Storage (GAP-15):** Penambahan fungsi `UntanUserAuth.updateAvatarUrl()` dan `UntanUserAuth.uploadAvatar()` yang mengunggah foto profil pengguna ke folder `avatars/` pada bucket Supabase Storage `dokumen-ijazah`, memperbarui kolom `avatar_url` pada tabel `public.users`, serta menyinkronkan profil sesi pengguna aktif.<br>2. **Pembersihan Referensi Usang Dokumen Persyaratan (GAP-18):** Audit dan pembersihan menyeluruh terhadap referensi `berkas_syarat_urls` (JSONB) pada dokumentasi dan muatan payload formulir, digantikan secara terstruktur oleh kolom relasional resmi `berkas_ktp_url` dan `berkas_pendukung_url`.<br>3. **Penyusunan Skrip Migrasi Pengerasan RLS Produksi (GAP-19):** Penyediaan skrip migrasi SQL `supabase/migrations/20261109_production_rls_hardening.sql` dengan kebijakan Row Level Security berbasis `auth.uid()` untuk tabel-tabel pengguna (`users`, `user_mfa_settings`, `password_reset_requests`, `mfa_verifications`, `password_history`, `user_login_logs`) serta indeks komposit performa tinggi `idx_pengajuan_user_id_created` dan `idx_pengajuan_nim_created` untuk optimalisasi kueri dasbor.<br>4. **Pembaruan Linimasa Pratinjau Pelacakan Real-Time (GAP-20):** Penyempurnaan banner pelacakan di `public/lacak.html` ("Contoh tampilan (demo) / Pratinjau Format Linimasa") dan memastikan kotak pratinjau otomatis disembunyikan saat data pengajuan mahasiswa riil ditemukan dari pangkalan data Supabase.<br>5. **Verifikasi Kualitas Menyeluruh (Full Regression Test):** Penambahan berkas uji `tests/phase4_alignment.spec.js` (4 skenario lulus 100%). Seluruh rangkaian pengujian end-to-end (51 dari 51 skenario Playwright) dinyatakan lulus 100% tanpa adanya regresi sistem. |
+| **3.9** | 11 Nov 2026 | **Gerbang Akses Terproteksi Formulir Pengajuan, Otomatisasi Data Pemohon Login, & Adaptasi Reaktif Layanan:**<br>1. **Gerbang Akses Login Ketat (`Gate Otentikasi`):** Halaman `public/pengajuan.html` hanya dapat diakses oleh pemohon yang telah login secara sah. Permintaan akses tanpa sesi aktif langsung dialihkan (*auto-redirect*) ke `user/login.html?redirect=pengajuan.html` dengan banner informasi akses layanan terproteksi (`#redirectNotice`), serta dikembalikan otomatis ke formulir pengajuan setelah login/MFA berhasil.<br>2. **Otomatisasi Populasi Data Profil Mahasiswa:** Seluruh kolom identitas pada formulir (`nim`, `nik`, `nama_lengkap`, `tempat_lahir`, `tanggal_lahir`, `fakultas`, `prodi`, `periode_yudisium`, `ipk`, `whatsapp`, `email`) otomatis terisi secara akurat sesuai profil akun pengguna yang sedang aktif, mencegah manipulasi identitas pemohon.<br>3. **Adaptasi Reaktif Persyaratan & Biaya Layanan:** Panduan berkas pendukung, rincian biaya pada sidebar ringkasan (misalnya Rp 200.000 untuk Penerbitan Ulang vs Gratis untuk Penerbitan Baru), serta aturan validasi wajib IPK beradaptasi secara dinamis dan reaktif berdasarkan jenis layanan yang dipilih.<br>4. **Verifikasi Regresi Mutu 100%:** Seluruh 52 skenario automated test Playwright berhasil terverifikasi lulus 100% (52 passed). |
+| **3.10** | 11 Nov 2026 | **Proteksi Akses Pelacakan Ijazah (lacak.html), Pengosongan Data Awal (Empty State Linimasa & Ringkasan Berkas), Otorisasi Privasi NIM, Perbaikan Header Navbar, & Penyelarasan Alur Pengalihan MFA:**<br>1. **Proteksi Akses Pelacakan Real-Time:** Pada laman `public/lacak.html`, ketika pengguna memasukkan nomor tiket atau NIM dan melakukan pencarian status, sistem secara ketat memverifikasi sesi login pemohon (`UntanUserAuth.getCurrentUser()`). Jika belum login, sistem memblokir akses dan mengalihkan pemohon ke halaman login (`user/login.html?redirect=lacak.html?q=...`) dengan pesan khusus proteksi kerahasiaan data kelulusan.<br>2. **Otorisasi Privasi Data & Penolakan Kepemilikan Beda NIM:** Sistem secara ketat memvalidasi kepemilikan data akademik. Jika permohonan yang ditemukan terdaftar atas nama NIM mahasiswa/alumni lain, sistem menolak menampilkan data tersebut (`Akses Ditolak`), mengosongkan seluruh kolom tampilan (`resetTrackingDataToEmpty()`), serta memunculkan banner peringatan merah dan dialog alert perlindungan privasi data akademik Universitas Tanjungpura.<br>3. **Pengosongan Data Awal (Empty State) Linimasa & Ringkasan Berkas:** Seluruh data contoh/demo pada formulir identitas permohonan, linimasa tahapan berkas, serta kartu *Ringkasan & Aksi Berkas* (estimasi selesai, sisa hari kerja, biaya layanan, catatan resmi verifikator) dikosongkan secara default (`-` dan placeholder kosong). Area ini kini murni hanya terisi apabila hasil pencarian nomor tiket/NIM yang sah berhasil dilakukan dari pangkalan data Supabase.<br>4. **Alur Pengalihan Login & MFA Otomatis:** Menyesuaikan `resolveRedirectUrl()` pada `public/user/login.html` dan `public/user/mfa.html` agar mengenali rute `lacak.html` (beserta parameter kueri pencarian `?q=...`), sehingga setelah pengguna login atau memverifikasi OTP MFA, sistem langsung mengembalikan pengguna ke halaman pelacakan dan otomatis merender data pengajuan yang bersesuaian.<br>5. **Pemberian Data Default Otomatis bagi Pengguna Login:** Ketika mahasiswa/alumni yang telah login membuka laman `lacak.html`, sistem secara cerdas mengisi kolom pencarian dengan NIM pemohon dan otomatis melacak status ijazahnya tanpa perlu input manual.<br>6. **Perbaikan Tata Letak Header Navbar lacak.html:** Mengoreksi duplikasi tag penutup dan elemen teks stray pada navbar `public/lacak.html`, mengembalikan tinggi header menjadi 81px simetris dan konsisten dengan seluruh halaman portal.<br>7. **Alur Logout Langsung ke Beranda:** Seluruh tombol keluar akun (*logout*) pada desktop header, mobile drawer, dan dasbor pemohon langsung mengarahkan pengguna kembali ke Beranda (`index.html`).<br>8. **Verifikasi Mutu & Kepatuhan Pengujian:** Penambahan 2 skenario pengujian baru pada `tests/user_auth.spec.js`. Seluruh 54 skenario automated test Playwright berhasil terverifikasi lulus 100% (54 passed). |

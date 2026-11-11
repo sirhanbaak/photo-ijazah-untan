@@ -13,6 +13,7 @@ module.exports = defineConfig({
   use: {
     baseURL: 'http://localhost:8080',
     trace: 'on-first-retry',
+    storageState: 'tests/auth_state.json',
   },
   projects: [
     {

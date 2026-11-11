@@ -82,6 +82,15 @@
       <!-- Form Card Content -->
       <div class="p-6 sm:p-8 flex flex-col gap-5">
         
+        <!-- Banner Akses Terproteksi (Jika Dialihkan dari Pengajuan atau Lacak) -->
+        <div id="redirectNotice" class="hidden p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-950 text-xs flex items-start gap-2.5">
+          <span class="material-symbols-outlined text-amber-600 text-[20px] shrink-0 mt-0.5">lock</span>
+          <div>
+            <strong class="font-bold block mb-0.5">Akses Layanan Terproteksi:</strong>
+            <span id="redirectNoticeText">Laman formulir pengajuan hanya dapat dibuka oleh pemohon yang telah masuk ke akun resmi. Silakan masuk akun terlebih dahulu.</span>
+          </div>
+        </div>
+
         <!-- Alert Notifikasi -->
         <div id="loginAlert" class="hidden p-3 rounded-xl text-xs font-medium flex items-start gap-2.5 transition-all"></div>
 
@@ -191,14 +200,39 @@
         });
       }
 
+      // Ambil parameter redirect dari URL jika ada
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectParam = urlParams.get('redirect');
+      const redirectNotice = document.getElementById('redirectNotice');
+
+      if (redirectParam && redirectNotice) {
+        redirectNotice.classList.remove('hidden');
+        const noticeText = document.getElementById('redirectNoticeText');
+        if (noticeText && redirectParam.includes('lacak.html')) {
+          noticeText.textContent = 'Layanan pelacakan status permohonan ijazah terproteksi. Silakan masuk akun terlebih dahulu untuk melihat data permohonan Anda.';
+        }
+      }
+
+      function resolveRedirectUrl(param) {
+        if (!param) return 'index.html';
+        const clean = decodeURIComponent(param).trim();
+        // Cegah open redirect ke domain luar
+        if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('//')) {
+          return 'index.html';
+        }
+        if (clean.includes('pengajuan.html') || clean.includes('lacak.html')) {
+          return clean.startsWith('../') ? clean : ('../' + clean.replace(/^\/+/, ''));
+        }
+        return clean;
+      }
+
       // Cek apakah sudah login sebelumnya
       if (window.UntanUserAuth) {
         const currentUser = window.UntanUserAuth.getCurrentUser();
         if (currentUser) {
-          // Arahkan ke dashboard jika sudah login
-          const params = new URLSearchParams(window.location.search);
-          if (!params.get('relogin')) {
-            window.location.href = 'index.html';
+          // Arahkan ke target redirect atau dashboard jika sudah login
+          if (!urlParams.get('relogin')) {
+            window.location.href = resolveRedirectUrl(redirectParam);
             return;
           } else {
             window.UntanUserAuth.logout();
@@ -237,19 +271,21 @@
                   <span>Kredensial cocok! Mengarahkan ke Verifikasi Multi-Faktor (${res.method === 'email' ? 'Email OTP' : 'Smartphone'})...</span>
                 `;
                 setTimeout(() => {
-                  window.location.href = `mfa.html?token=${encodeURIComponent(res.sessionToken)}`;
+                  const mfaUrl = `mfa.html?token=${encodeURIComponent(res.sessionToken)}${redirectParam ? '&redirect=' + encodeURIComponent(redirectParam) : ''}`;
+                  window.location.href = mfaUrl;
                 }, 200);
                 return;
               }
 
               // KASUS 2: Login Berhasil Langsung (Tanpa MFA)
+              const targetLabel = redirectParam ? (redirectParam.includes('lacak') ? 'halaman pelacakan' : 'halaman pengajuan') : 'dashboard';
               alertBox.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs flex items-center gap-2';
               alertBox.innerHTML = `
                 <span class="material-symbols-outlined text-emerald-600 text-[20px]">check_circle</span>
-                <span>${res.message} Mengalihkan ke dashboard...</span>
+                <span>${res.message} Mengalihkan ke ${targetLabel}...</span>
               `;
               setTimeout(() => {
-                window.location.href = 'index.html';
+                window.location.href = resolveRedirectUrl(redirectParam);
               }, 200);
 
             } else {

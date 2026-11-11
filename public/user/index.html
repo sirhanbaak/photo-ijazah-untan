@@ -344,85 +344,13 @@
         </a>
       </nav>
 
-      <!-- Auth Action Header -->
-      <div id="headerAuthActions" class="flex items-center gap-2">
-        <a href="login.html" id="headerLoginBtn" class="px-4 py-2 rounded-lg bg-primary hover:bg-primary-container text-white text-xs font-bold border border-white/20 shadow-sm flex items-center gap-1.5 transition-all">
-          <span class="material-symbols-outlined text-[16px]">login</span>
-          <span>Masuk Akun</span>
-        </a>
-        <div id="headerUserPill" class="hidden items-center gap-2">
-          <!-- Hidden span for backward compatibility with existing tests -->
-          <span class="hidden sm:inline text-xs text-slate-300 font-mono" id="headerUserEmail">user@untan.ac.id</span>
+      <!-- Right Side User Profile / Auth Action Container -->
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <!-- User Profile Nav Container (Avatar & Submenu or Login Button via initHeaderNav - GAP-09) -->
+        <div id="userProfileHeader" class="relative"></div>
+        <span class="hidden" id="headerUserEmail">user@untan.ac.id</span>
 
-          <div class="relative inline-block text-left" id="userProfileDropdownContainer">
-            <button id="userProfileDropdownBtn" type="button" class="flex items-center gap-2 p-1 pl-1.5 pr-2 sm:pr-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all focus:outline-none focus:ring-2 focus:ring-secondary cursor-pointer" aria-expanded="false" aria-haspopup="true" title="Profil Akun">
-              <div class="relative w-8 h-8 rounded-full overflow-hidden ring-2 ring-secondary bg-gradient-to-tr from-[#00173b] to-[#0f2c59] flex items-center justify-center font-bold text-xs shrink-0 shadow">
-                <img id="navUserAvatarImg" src="" alt="Foto Profil" class="w-full h-full object-cover">
-                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-[#07132b]"></span>
-              </div>
-              <div class="hidden xl:flex flex-col text-left leading-tight max-w-[120px]">
-                <span id="navShortName" class="text-xs font-bold text-white truncate">Nama</span>
-                <span id="navRoleLabel" class="text-[10px] text-slate-300 font-medium truncate">Mahasiswa</span>
-              </div>
-              <span class="material-symbols-outlined text-sm text-slate-300 transition-transform duration-200" id="userProfileChevron">expand_more</span>
-            </button>
-
-            <!-- Floating Submenu Dropdown -->
-            <div id="userProfileDropdownMenu" class="hidden absolute right-0 mt-2 w-72 bg-[#07132b]/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-2xl z-50 text-white p-3 space-y-2 animate-in fade-in zoom-in-95 duration-150">
-              
-              <!-- Header Info Akun -->
-              <div class="flex items-center gap-3 p-2.5 bg-white/5 rounded-xl border border-white/10">
-                <div class="w-11 h-11 rounded-full overflow-hidden ring-2 ring-secondary bg-gradient-to-tr from-[#00173b] to-[#0f2c59] flex items-center justify-center font-bold text-sm shrink-0 shadow">
-                  <img id="dropdownUserAvatarImg" src="" alt="Foto Profil" class="w-full h-full object-cover">
-                </div>
-                <div class="flex flex-col min-w-0 flex-1">
-                  <span id="dropdownUserName" class="text-xs font-bold text-white truncate">Nama Lengkap</span>
-                  <span id="dropdownUserIdentifier" class="text-[11px] text-slate-300 font-mono truncate">NIM: -</span>
-                  <span id="dropdownUserRoleBadge" class="mt-1 w-fit text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Mahasiswa</span>
-                </div>
-              </div>
-
-              <div class="border-t border-white/10 my-1"></div>
-
-              <!-- Submenu Items -->
-              <div class="space-y-1">
-                <a href="index.html" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-all group">
-                  <span class="material-symbols-outlined text-[18px] text-blue-400 group-hover:scale-110 transition-transform">dashboard</span>
-                  <div class="flex flex-col">
-                    <span class="font-semibold text-white">Dasbor &amp; Status Ijazah</span>
-                    <span class="text-[10px] text-slate-400">Pantau proses &amp; dokumen kelulusan</span>
-                  </div>
-                </a>
-
-                <a href="#pengaturan-keamanan" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-all group">
-                  <span class="material-symbols-outlined text-[18px] text-amber-400 group-hover:scale-110 transition-transform">manage_accounts</span>
-                  <div class="flex flex-col">
-                    <span class="font-semibold text-white">Pengaturan Akun &amp; MFA</span>
-                    <span class="text-[10px] text-slate-400">Ubah password &amp; proteksi 2FA</span>
-                  </div>
-                </a>
-
-                <a href="../pengajuan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-all group">
-                  <span class="material-symbols-outlined text-[18px] text-emerald-400 group-hover:scale-110 transition-transform">post_add</span>
-                  <div class="flex flex-col">
-                    <span class="font-semibold text-white">Ajukan Permohonan Ijazah</span>
-                    <span class="text-[10px] text-slate-400">Penerbitan baru, perbaikan, ulang</span>
-                  </div>
-                </a>
-              </div>
-
-              <div class="border-t border-white/10 my-1"></div>
-
-              <!-- Logout Submenu -->
-              <button type="button" onclick="handleLogout()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-300 hover:bg-red-500/20 hover:text-red-100 transition-all cursor-pointer">
-                <span class="material-symbols-outlined text-[18px] text-red-400">logout</span>
-                <span>Keluar (Logout)</span>
-              </button>
-
-            </div>
-          </div>
-        </div>
-              <!-- Mobile Hamburger Button -->
+        <!-- Mobile Hamburger Button -->
         <button id="mobile-menu-toggle" type="button" class="lg:hidden p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 border border-white/15 transition-colors focus:outline-none" aria-label="Buka Menu">
           <span id="menu-icon" class="material-symbols-outlined text-2xl">menu</span>
         </button>
@@ -432,6 +360,7 @@
 
     <!-- Mobile Collapsible Menu Drawer -->
     <div id="mobile-menu-drawer" class="hidden lg:hidden bg-[#07132b] border-b border-white/10 px-4 py-3 space-y-2 shadow-2xl transition-all max-h-[85vh] overflow-y-auto">
+      <div id="mobileUserProfileDrawer" class="pb-2 mb-2 border-b border-white/10"></div>
       <div class="space-y-1">
         <div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Navigasi Utama</div>
         <a href="../index.html" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container">
@@ -835,8 +764,10 @@
     function handleLogout() {
       if (window.UntanUserAuth) {
         window.UntanUserAuth.logout();
+        window.location.href = window.UntanUserAuth.getBerandaUrl ? window.UntanUserAuth.getBerandaUrl() : '../index.html';
+      } else {
+        window.location.href = '../index.html';
       }
-      window.location.reload();
     }
 
     function switchDashboardTab(tabId) {
@@ -866,83 +797,36 @@
     document.addEventListener('DOMContentLoaded', async function () {
       const guestView = document.getElementById('guestView');
       const authDashboardView = document.getElementById('authDashboardView');
-      const headerLoginBtn = document.getElementById('headerLoginBtn');
-      const headerUserPill = document.getElementById('headerUserPill');
 
       if (!window.UntanUserAuth) return;
+
+      // Inisialisasi Nav Header Pengguna Terpadu (GAP-09)
+      if (typeof window.UntanUserAuth.initHeaderNav === 'function') {
+        window.UntanUserAuth.initHeaderNav('userProfileHeader', 'mobileUserProfileDrawer');
+      }
 
       activeUser = window.UntanUserAuth.getCurrentUser();
 
       // JIKA BELUM LOGIN:
       if (!activeUser) {
-        guestView.classList.remove('hidden');
-        guestView.classList.add('flex');
-        authDashboardView.classList.add('hidden');
-        headerLoginBtn.classList.remove('hidden');
-        headerUserPill.classList.add('hidden');
+        if (guestView) {
+          guestView.classList.remove('hidden');
+          guestView.classList.add('flex');
+        }
+        if (authDashboardView) authDashboardView.classList.add('hidden');
         return;
       }
 
       // JIKA SUDAH LOGIN:
-      guestView.classList.add('hidden');
-      authDashboardView.classList.remove('hidden');
-      authDashboardView.classList.add('flex');
-      headerLoginBtn.classList.add('hidden');
-      headerUserPill.classList.remove('hidden');
-      headerUserPill.classList.add('flex');
-
-      // Populate Header & Profile
-      document.getElementById('headerUserEmail').textContent = activeUser.email;
-      
-      // Update User Avatar and Dropdown Submenu
-      const avatarSrc = window.UntanUserAuth ? window.UntanUserAuth.getAvatarUrl(activeUser) : '';
-      const navAvatar = document.getElementById('navUserAvatarImg');
-      const dropAvatar = document.getElementById('dropdownUserAvatarImg');
-      if (navAvatar && avatarSrc) navAvatar.src = avatarSrc;
-      if (dropAvatar && avatarSrc) dropAvatar.src = avatarSrc;
-
-      const navShortName = document.getElementById('navShortName');
-      if (navShortName) navShortName.textContent = (activeUser.nama_lengkap || 'Pengguna').split(' ')[0];
-
-      const navRoleLabel = document.getElementById('navRoleLabel');
-      if (navRoleLabel) navRoleLabel.textContent = (activeUser.role || 'Mahasiswa');
-
-      const dropUserName = document.getElementById('dropdownUserName');
-      if (dropUserName) dropUserName.textContent = activeUser.nama_lengkap;
-
-      const dropUserIdentifier = document.getElementById('dropdownUserIdentifier');
-      if (dropUserIdentifier) dropUserIdentifier.textContent = activeUser.nim ? 'NIM: ' + activeUser.nim : activeUser.email;
-
-      const dropUserRoleBadge = document.getElementById('dropdownUserRoleBadge');
-      if (dropUserRoleBadge) dropUserRoleBadge.textContent = (activeUser.role || 'Mahasiswa').toUpperCase();
-
-      // Dropdown toggle listener
-      const btnToggle = document.getElementById('userProfileDropdownBtn');
-      const dropMenu = document.getElementById('userProfileDropdownMenu');
-      const chevron = document.getElementById('userProfileChevron');
-      if (btnToggle && dropMenu) {
-        btnToggle.onclick = function(e) {
-          e.stopPropagation();
-          const isHidden = dropMenu.classList.contains('hidden');
-          if (isHidden) {
-            dropMenu.classList.remove('hidden');
-            btnToggle.setAttribute('aria-expanded', 'true');
-            if (chevron) chevron.style.transform = 'rotate(180deg)';
-          } else {
-            dropMenu.classList.add('hidden');
-            btnToggle.setAttribute('aria-expanded', 'false');
-            if (chevron) chevron.style.transform = 'rotate(0deg)';
-          }
-        };
-        document.addEventListener('click', function(e) {
-          const container = document.getElementById('userProfileDropdownContainer');
-          if (container && !container.contains(e.target)) {
-            dropMenu.classList.add('hidden');
-            btnToggle.setAttribute('aria-expanded', 'false');
-            if (chevron) chevron.style.transform = 'rotate(0deg)';
-          }
-        });
+      if (guestView) guestView.classList.add('hidden');
+      if (authDashboardView) {
+        authDashboardView.classList.remove('hidden');
+        authDashboardView.classList.add('flex');
       }
+
+      const elEmail = document.getElementById('headerUserEmail');
+      if (elEmail) elEmail.textContent = activeUser.email;
+
       document.getElementById('userNameTitle').textContent = activeUser.nama_lengkap;
       document.getElementById('userRoleBadge').textContent = (activeUser.role || 'Mahasiswa').toUpperCase();
       document.getElementById('userNimDisplay').textContent = activeUser.nim || 'NIM: -';

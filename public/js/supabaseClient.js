@@ -113,7 +113,36 @@ window.UntanSupabase = {
     return allowed.includes(String(status).trim());
   },
 
-  // 5b. Validasi Dimensi dan Rasio Pas Foto Hasil Crop (Standar 4x6 Untan)
+  // 5b. Nilai Resmi dan Helper Tipe Layanan (Service Type - GAP-10)
+  SERVICE_TYPES: {
+    PENERBITAN_BARU: 'penerbitan_baru',
+    PERBAIKAN_DATA: 'perbaikan_data',
+    PENERBITAN_ULANG: 'penerbitan_ulang',
+    PENCETAKAN_ULANG: 'pencetakan_ulang'
+  },
+
+  isValidServiceType(serviceType) {
+    if (!serviceType) return false;
+    const allowed = ['penerbitan_baru', 'perbaikan_data', 'penerbitan_ulang', 'pencetakan_ulang'];
+    return allowed.includes(String(serviceType).trim().toLowerCase());
+  },
+
+  // 5c. Validasi Indeks Prestasi Kumulatif (IPK - GAP-08)
+  validateIpk(ipk, serviceType = 'penerbitan_baru') {
+    const str = String(ipk || '').trim();
+    if (serviceType === 'penerbitan_baru' && !str) {
+      return { valid: false, message: 'Indeks Prestasi Kumulatif (IPK) wajib diisi untuk layanan Penerbitan Ijazah Baru.' };
+    }
+    if (str) {
+      const num = parseFloat(str);
+      if (isNaN(num) || num < 0 || num > 4.0) {
+        return { valid: false, message: 'Nilai IPK tidak valid. Masukkan angka antara 0.00 hingga 4.00.' };
+      }
+    }
+    return { valid: true };
+  },
+
+  // 5d. Validasi Dimensi dan Rasio Pas Foto Hasil Crop (Standar 4x6 Untan)
   async validateCropDimensions(file) {
     return new Promise((resolve) => {
       if (!file || !(file instanceof Blob)) {
@@ -348,12 +377,32 @@ window.UntanSupabase = {
       const ticketNumber = formData.nomor_tiket || this.generateTicketNumber();
       let fotoUrl = null;
 
+      // Validasi tipe layanan resmi (GAP-10)
+      const serviceType = formData.service_type || 'penerbitan_baru';
+      if (!this.isValidServiceType(serviceType)) {
+        return {
+          success: false,
+          error: new Error(`Tipe layanan "${formData.service_type}" tidak valid. Pilihan yang sah: penerbitan_baru, perbaikan_data, penerbitan_ulang, pencetakan_ulang.`)
+        };
+      }
+
+      // Validasi format IPK jika disertakan (GAP-08)
+      if (formData.ipk !== undefined && formData.ipk !== null && String(formData.ipk).trim() !== '') {
+        const ipkCheck = this.validateIpk(formData.ipk, serviceType);
+        if (!ipkCheck.valid) {
+          return {
+            success: false,
+            error: new Error(ipkCheck.message)
+          };
+        }
+      }
+
       // Cek apakah permohonan dengan NIM atau Nomor Tiket ini sudah ada di database
       let existingRecord = null;
       if (formData.nomor_tiket) {
         const { data: recByTicket } = await client
           .from('pengajuan_ijazah')
-          .select('id, nomor_tiket, nim, status_ijazah, service_type, foto_url, berkas_ktp_url, berkas_pendukung_url')
+          .select('id, nomor_tiket, nim, status_ijazah, service_type, layanan_id, prioritas, foto_url, berkas_ktp_url, berkas_pendukung_url')
           .eq('nomor_tiket', formData.nomor_tiket)
           .limit(1);
         if (recByTicket && recByTicket.length > 0) existingRecord = recByTicket[0];
@@ -361,7 +410,7 @@ window.UntanSupabase = {
       if (!existingRecord && formData.nim) {
         const { data: recByNim } = await client
           .from('pengajuan_ijazah')
-          .select('id, nomor_tiket, nim, status_ijazah, service_type, foto_url, berkas_ktp_url, berkas_pendukung_url')
+          .select('id, nomor_tiket, nim, status_ijazah, service_type, layanan_id, prioritas, foto_url, berkas_ktp_url, berkas_pendukung_url')
           .eq('nim', (formData.nim || '').trim().toUpperCase())
           .order('created_at', { ascending: false })
           .limit(1);
@@ -404,16 +453,57 @@ window.UntanSupabase = {
         }
       }
 
+      // Unggah berkas e-KTP jika disertakan (GAP-04)
+      let berkasKtpUrl = formData.berkas_ktp_url || (existingRecord ? existingRecord.berkas_ktp_url : null);
+      if (files && files.berkas_ktp && (files.berkas_ktp instanceof File || files.berkas_ktp instanceof Blob)) {
+        const uploadKtp = await this.uploadFile(files.berkas_ktp, 'berkas-ktp', {
+          statusIjazah: existingRecord ? existingRecord.status_ijazah : 'Pengajuan'
+        });
+        if (uploadKtp.url) {
+          berkasKtpUrl = uploadKtp.url;
+        }
+      }
+
+      // Unggah berkas pendukung jika disertakan (GAP-04)
+      let berkasPendukungUrl = formData.berkas_pendukung_url || (existingRecord ? existingRecord.berkas_pendukung_url : null);
+      if (files && files.berkas_pendukung && (files.berkas_pendukung instanceof File || files.berkas_pendukung instanceof Blob)) {
+        const uploadPendukung = await this.uploadFile(files.berkas_pendukung, 'berkas-pendukung', {
+          statusIjazah: existingRecord ? existingRecord.status_ijazah : 'Pengajuan'
+        });
+        if (uploadPendukung.url) {
+          berkasPendukungUrl = uploadPendukung.url;
+        }
+      }
+
       // Tentukan lokasi pengambilan fisik sesuai fakultas & tipe layanan
       let loketPengambilan = 'Loket 03 (Sub-bagian Ijazah & Legalisir) BAK Gedung Rektorat Untan';
-      if (formData.service_type === 'penerbitan_baru') {
+      if (serviceType === 'penerbitan_baru') {
         loketPengambilan = `Subbagian Pendidikan & Akademik Fakultas (${formData.fakultas || 'Fakultas Asal'}) Untan`;
       }
+
+      // Resolusi layanan_id dari tabel layanan berdasarkan service_type (GAP-14)
+      let layananId = formData.layanan_id || (existingRecord ? existingRecord.layanan_id : null);
+      if (!layananId && client && serviceType) {
+        try {
+          const { data: layananData } = await client
+            .from('layanan')
+            .select('id')
+            .eq('kode', serviceType)
+            .limit(1);
+          if (layananData && layananData.length > 0) {
+            layananId = layananData[0].id;
+          }
+        } catch (_) {}
+      }
+
+      const prioritas = formData.prioritas || (existingRecord ? existingRecord.prioritas : 'normal');
 
       const payload = {
         nomor_tiket: ticketNumber,
         user_id: formData.user_id || null,
-        service_type: formData.service_type || 'penerbitan_baru',
+        layanan_id: layananId || null,
+        prioritas: prioritas,
+        service_type: serviceType,
         nim: (formData.nim || '').trim().toUpperCase(),
         nik: (formData.nik || '').trim(),
         nama_lengkap: (formData.nama_lengkap || '').trim().toUpperCase(),
@@ -426,8 +516,8 @@ window.UntanSupabase = {
         whatsapp: (formData.whatsapp || '').trim(),
         email: (formData.email || '').trim().toLowerCase(),
         foto_url: fotoUrl,
-        berkas_ktp_url: formData.berkas_ktp_url || null,
-        berkas_pendukung_url: formData.berkas_pendukung_url || null,
+        berkas_ktp_url: berkasKtpUrl,
+        berkas_pendukung_url: berkasPendukungUrl,
         status: 'menunggu_verifikasi',
         status_label: 'Tahap 1: Pengajuan Diterima & Verifikasi Berkas Awal',
         status_ijazah: 'Pengajuan',
@@ -451,12 +541,17 @@ window.UntanSupabase = {
           fakultas: payload.fakultas,
           prodi: payload.prodi,
           periode_yudisium: payload.periode_yudisium,
+          ipk: payload.ipk,
           whatsapp: payload.whatsapp,
           email: payload.email,
           updated_at: new Date().toISOString()
         };
         if (fotoUrl) updatePayload.foto_url = fotoUrl;
+        if (berkasKtpUrl) updatePayload.berkas_ktp_url = berkasKtpUrl;
+        if (berkasPendukungUrl) updatePayload.berkas_pendukung_url = berkasPendukungUrl;
         if (formData.user_id) updatePayload.user_id = formData.user_id;
+        if (layananId) updatePayload.layanan_id = layananId;
+        if (prioritas) updatePayload.prioritas = prioritas;
 
         let { data: updatedData, error: updateErr } = await client
           .from('pengajuan_ijazah')
@@ -510,12 +605,15 @@ window.UntanSupabase = {
         .select()
         .single();
 
-      // Toleransi jika remote database belum menambahkan kolom status_ijazah
-      if (insertError && insertError.code === '42703' && payload.status_ijazah) {
-        delete payload.status_ijazah;
+      // Toleransi jika remote database belum menambahkan kolom status_ijazah, layanan_id, atau prioritas
+      if (insertError && insertError.code === '42703') {
+        const fallbackPayload = { ...payload };
+        delete fallbackPayload.layanan_id;
+        delete fallbackPayload.prioritas;
+        delete fallbackPayload.status_ijazah;
         const retryRes = await client
           .from('pengajuan_ijazah')
-          .insert([payload])
+          .insert([fallbackPayload])
           .select()
           .single();
         insertedData = retryRes.data;

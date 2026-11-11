@@ -1,5 +1,8 @@
 const { test, expect } = require('@playwright/test');
 
+// Pastikan suite autentikasi user selalu dijalankan dalam konteks awal bersih (unauthenticated/guest)
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe('Portal Pengguna & Sistem Autentikasi MFA', () => {
   test('routing /user/ dan modul userAuth terpasang dengan benar', async ({ page }) => {
     await page.goto('/user/');
@@ -26,6 +29,23 @@ test.describe('Portal Pengguna & Sistem Autentikasi MFA', () => {
     const alert = page.locator('#loginAlert');
     await expect(alert).toBeVisible();
     await expect(alert).toContainText('salah');
+
+    // Reset counter gagal login pada user uji agar tidak mengunci akun untuk pengujian berikutnya
+    await page.evaluate(async () => {
+      try {
+        const users = JSON.parse(localStorage.getItem('UNTAN_LOCAL_USERS_DB') || '[]');
+        const u = users.find(x => x.nim === 'F1081191042');
+        if (u) {
+          u.failed_login_attempts = 0;
+          u.locked_until = null;
+          localStorage.setItem('UNTAN_LOCAL_USERS_DB', JSON.stringify(users));
+        }
+        const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+        if (client) {
+          await client.from('users').update({ failed_login_attempts: 0, locked_until: null }).eq('nim', 'F1081191042');
+        }
+      } catch (_) {}
+    });
   });
 
   test('alur login dengan akun MFA Email -> Verifikasi OTP -> Masuk ke Dashboard', async ({ page }) => {
@@ -210,30 +230,25 @@ test.describe('Portal Pengguna & Sistem Autentikasi MFA', () => {
   });
 
 
-  test('pengunjung belum login dibatasi: banner login tampil dan tombol kirim disabled di pengajuan.html', async ({ page }) => {
-    // Pastikan tidak ada sesi aktif
-    await page.goto('/pengajuan.html');
+  test('pengunjung belum login dibatasi: otomatis dialihkan ke form login terlebih dahulu saat membuka pengajuan.html', async ({ page }) => {
+    // 1. Pastikan tidak ada sesi aktif dengan logout
+    await page.goto('/user/login.html');
     await page.evaluate(() => {
       if (window.UntanUserAuth) window.UntanUserAuth.logout();
     });
-    await page.reload();
 
-    // Verifikasi banner peringatan wajib login tampil
-    const authRequiredCard = page.locator('#authRequiredCard');
-    await expect(authRequiredCard).toBeVisible();
-    await expect(authRequiredCard).toContainText('Akses Dibatasi');
-    await expect(authRequiredCard).toContainText('Masuk Akun');
+    // 2. Buka laman /pengajuan.html tanpa sesi login
+    await page.goto('/pengajuan.html');
 
-    // Verifikasi banner terotentikasi tersembunyi
-    await expect(page.locator('#authActiveCard')).toBeHidden();
+    // 3. Verifikasi otomatis dialihkan ke /user/login.html dengan parameter redirect
+    await page.waitForURL(/\/user\/login\.html(\?redirect=.*)?/);
+    expect(page.url()).toContain('user/login.html');
+    expect(page.url()).toContain('redirect=pengajuan.html');
 
-    // Verifikasi tombol submit permohonan disabled
-    const btnKirim = page.locator('#btnKirimPermohonan');
-    await expect(btnKirim).toBeDisabled();
-
-    // Verifikasi tombol login di header tersedia
-    const loginBtn = page.locator('#headerLoginBtn');
-    await expect(loginBtn).toBeVisible();
+    // 4. Verifikasi banner pemberitahuan akses terproteksi tampil di laman login
+    const redirectNotice = page.locator('#redirectNotice');
+    await expect(redirectNotice).toBeVisible();
+    await expect(redirectNotice).toContainText('Akses Layanan Terproteksi');
   });
 
   test('pengguna berhasil login dapat mengakses form pengajuan dengan data terisi otomatis dan foto profil aktif', async ({ page }) => {
@@ -252,32 +267,74 @@ test.describe('Portal Pengguna & Sistem Autentikasi MFA', () => {
     await expect(page.locator('#authActiveCard')).toContainText('Siti Aminah');
     await expect(page.locator('#authRequiredCard')).toBeHidden();
 
-    // 4. Verifikasi tombol submit aktif
+    // 4. Verifikasi data default form terisi otomatis dari akun Siti Aminah
+    const nimVal = await page.locator('#nim').inputValue();
+    const namaVal = await page.locator('#nama_lengkap').inputValue();
+    const emailVal = await page.locator('#email').inputValue();
+    const ipkVal = await page.locator('#ipk').inputValue();
+    expect(nimVal).toBe('F1081191002');
+    expect(namaVal).toContain('Siti Aminah');
+    expect(emailVal).toBe('siti.aminah@student.untan.ac.id');
+    expect(ipkVal).toContain('3.91');
+
+    // 5. Verifikasi tombol submit aktif
     const btnKirim = page.locator('#btnKirimPermohonan');
     await expect(btnKirim).toBeEnabled();
 
-    // 5. Verifikasi photo profile user muncul di menu kanan atas
+    // 6. Verifikasi photo profile user muncul di menu kanan atas
     const profileBtn = page.locator('#userProfileDropdownBtn');
     await expect(profileBtn).toBeVisible();
 
-    // 6. Klik photo profile untuk membuka submenu dropdown
+    // 7. Klik photo profile untuk membuka submenu dropdown
     await profileBtn.click();
     const dropdownMenu = page.locator('#userProfileDropdownMenu');
     await expect(dropdownMenu).toBeVisible();
 
-    // 7. Verifikasi isi submenu dropdown: Info user, Setting Akun, dan Logout
+    // 8. Verifikasi isi submenu dropdown: Info user, Setting Akun, dan Logout
     await expect(dropdownMenu).toContainText('Siti Aminah');
     await expect(dropdownMenu.locator('#menuItemDashboard')).toBeVisible();
     await expect(dropdownMenu.locator('#menuItemSettings')).toBeVisible();
     await expect(dropdownMenu.locator('#headerBtnLogout')).toBeVisible();
 
-    // 8. Klik menu logout dan verifikasi sesi terhapus
+    // 9. Klik menu logout dan verifikasi otomatis dialihkan langsung ke beranda
     await dropdownMenu.locator('#headerBtnLogout').click();
-    
-    // Setelah logout, menu kembali menampilkan tombol Masuk Akun
-    await expect(page.locator('#headerLoginBtn')).toBeVisible();
-    await expect(page.locator('#authRequiredCard')).toBeVisible();
-    await expect(page.locator('#btnKirimPermohonan')).toBeDisabled();
+    await page.waitForURL(/\/index\.html/);
+    expect(page.url()).toContain('index.html');
+  });
+
+  test('data default pada laman pengajuan menyesuaikan otomatis saat jenis layanan diubah', async ({ page }) => {
+    // 1. Login terlebih dahulu menggunakan akun Siti Aminah
+    await page.goto('/user/login.html');
+    await page.fill('#identifier', 'F1081191002');
+    await page.fill('#password', 'PasswordUntan123!');
+    await page.click('#btnSubmitLogin');
+    await page.waitForURL(/\/user\/(index\.html)?$/);
+
+    // 2. Buka form pengajuan dalam keadaan telah login
+    await page.goto('/pengajuan.html');
+
+    // 3. Default: Penerbitan Baru
+    await expect(page.locator('#sidebarServiceTitle')).toContainText('Penerbitan Ijazah Baru');
+    await expect(page.locator('#sidebarBiayaAdmin')).toContainText('Gratis');
+    await expect(page.locator('#berkasPendukungBadge')).toContainText('Opsional');
+
+    // 4. Ubah jenis layanan ke Penerbitan Ulang
+    await page.locator('label:has(input[value="penerbitan_ulang"])').click();
+    await expect(page.locator('#sidebarServiceTitle')).toContainText('Penerbitan Ulang');
+    await expect(page.locator('#sidebarBiayaAdmin')).toContainText('200.000');
+    await expect(page.locator('#berkasPendukungBadge')).toContainText('Wajib');
+    await expect(page.locator('#berkasPendukungTitle')).toContainText('Surat Kehilangan');
+
+    // 5. Ubah jenis layanan ke Perbaikan Data
+    await page.locator('label:has(input[value="perbaikan_data"])').click();
+    await expect(page.locator('#sidebarServiceTitle')).toContainText('Perbaikan Data');
+    await expect(page.locator('#berkasPendukungBadge')).toContainText('Wajib');
+    await expect(page.locator('#berkasPendukungTitle')).toContainText('Scan Fisik Ijazah Asli Lama');
+
+    // 6. Kembalikan ke Penerbitan Baru
+    await page.locator('label:has(input[value="penerbitan_baru"])').click();
+    await expect(page.locator('#sidebarServiceTitle')).toContainText('Penerbitan Ijazah Baru');
+    await expect(page.locator('#berkasPendukungBadge')).toContainText('Opsional');
   });
 
   test('photo profile user dan submenu dropdown aktif di beranda index.html saat login', async ({ page }) => {
@@ -304,5 +361,106 @@ test.describe('Portal Pengguna & Sistem Autentikasi MFA', () => {
     // Klik di luar untuk menutup
     await page.click('body', { position: { x: 10, y: 10 } });
     await expect(page.locator('#userProfileDropdownMenu')).toBeHidden();
+  });
+
+  test('pelacakan status di lacak.html memproteksi akses guest dan mengarahkan ke login dengan redirect q', async ({ page, context }) => {
+    await context.clearCookies();
+    await page.goto('/lacak.html');
+    await page.evaluate(() => {
+      localStorage.removeItem('UNTAN_USER_AUTH_SESSION');
+    });
+    await page.reload();
+
+    // 1. Guest buka lacak.html
+    await expect(page.locator('#searchQuery')).toBeVisible();
+
+    // Verifikasi data default awal dikosongkan (empty state) sebelum pencarian
+    await expect(page.locator('#displayNomorTiket')).toHaveText('-');
+    await expect(page.locator('#displayNamaPemohon')).toHaveText('-');
+    await expect(page.locator('#displayNim')).toHaveText('NIM: -');
+    await expect(page.locator('#displayEstimasiSelesai')).toHaveText('-');
+    await expect(page.locator('#displaySisaHari')).toHaveText('-');
+    await expect(page.locator('#displayBiayaLayanan')).toHaveText('-');
+    await expect(page.locator('#timelineEmptyState')).toBeVisible();
+
+    // 2. Guest mengisi nomor tiket dan klik Cari Status Permohonan
+    await page.fill('#searchQuery', 'UNTAN-IJZ-2025-0842');
+
+    // Tangkap dialog alert akses terproteksi
+    let dialogMessage = '';
+    page.once('dialog', async dialog => {
+      dialogMessage = dialog.message();
+      await dialog.accept();
+    });
+
+    await page.click('#searchBtn');
+
+    // 3. Harus dialihkan ke login.html dengan parameter redirect lacak.html?q=UNTAN-IJZ-2025-0842
+    await page.waitForURL(/\/user\/login\.html/);
+    expect(page.url()).toContain('redirect=');
+    expect(page.url()).toContain('lacak.html');
+    expect(decodeURIComponent(page.url())).toContain('UNTAN-IJZ-2025-0842');
+    expect(dialogMessage).toContain('Akses Pelacakan Terproteksi');
+
+    // 4. Banner notifikasi akses terproteksi di login.html harus menampilkan pesan khusus pelacakan
+    const notice = page.locator('#redirectNotice');
+    await expect(notice).toBeVisible();
+    await expect(notice).toContainText('Layanan pelacakan status permohonan ijazah terproteksi');
+
+    // 5. Login menggunakan akun Rian Adiputra (D101181042 - PasswordUntan123!)
+    await page.fill('#identifier', 'D101181042');
+    await page.fill('#password', 'PasswordUntan123!');
+    await page.click('#btnSubmitLogin');
+
+    // Akun Rian Adiputra memiliki proteksi MFA: selesaikan verifikasi OTP
+    await page.waitForURL(/\/user\/mfa\.html/);
+    expect(page.url()).toContain('redirect=');
+    await page.click('#btnAutoFillOtp');
+    await page.click('#btnVerifyMfa');
+
+    // 6. Pengguna otomatis dialihkan kembali ke lacak.html?q=UNTAN-IJZ-2025-0842 dan data tampil
+    await page.waitForURL(/\/lacak\.html/);
+    expect(page.url()).toContain('lacak.html');
+    
+    // Verifikasi data riil Rian Adiputra dimuat setelah pencarian berhasil
+    await expect(page.locator('#displayNomorTiket')).toHaveText('UNTAN-IJZ-2025-0842');
+    await expect(page.locator('#displayNamaPemohon')).toContainText('Rian Adiputra');
+    await expect(page.locator('#displayNim')).toContainText('D101181042');
+    await expect(page.locator('#displayEstimasiSelesai')).not.toHaveText('-');
+    await expect(page.locator('#displaySisaHari')).not.toHaveText('-');
+    await expect(page.locator('#displayBiayaLayanan')).not.toHaveText('-');
+    await expect(page.locator('#timelineContainer')).toContainText('Tahap 1');
+    await expect(page.locator('#trackingNoticeBox')).toBeHidden();
+  });
+
+  test('pelacakan status di lacak.html menolak menampilkan data permohonan milik NIM lain', async ({ page }) => {
+    // 1. Login menggunakan akun Siti Aminah (F1081191002 - tanpa tantangan MFA)
+    await page.goto('/user/login.html');
+    await page.fill('#identifier', 'F1081191002');
+    await page.fill('#password', 'PasswordUntan123!');
+    await page.click('#btnSubmitLogin');
+    await page.waitForURL(/\/user\/(index\.html)?$/);
+
+    // 2. Buka halaman lacak.html
+    await page.goto('/lacak.html');
+    await expect(page.locator('#searchQuery')).toBeVisible();
+
+    // 3. Coba cari tiket milik Rian Adiputra (UNTAN-IJZ-2025-0842 - NIM D101181042)
+    await page.fill('#searchQuery', 'UNTAN-IJZ-2025-0842');
+
+    const dialogPromise = page.waitForEvent('dialog');
+    await page.click('#searchBtn');
+    const dialog = await dialogPromise;
+
+    // 4. Akses harus ditolak karena NIM tidak sesuai dengan akun yang login
+    expect(dialog.message()).toContain('Akses Ditolak');
+    expect(dialog.message()).toContain('F1081191002');
+    await dialog.accept();
+
+    // 5. Verifikasi bahwa data Rian Adiputra TIDAK ditampilkan (tetap dikosongkan)
+    await expect(page.locator('#displayNomorTiket')).toHaveText('-');
+    await expect(page.locator('#displayNamaPemohon')).toHaveText('-');
+    await expect(page.locator('#trackingNoticeBox')).toBeVisible();
+    await expect(page.locator('#trackingNoticeBox')).toContainText('Akses Ditolak');
   });
 });

@@ -1,0 +1,15 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:8080",
+      "localStorage": [
+        {
+          "name": "UNTAN_USER_AUTH_SESSION",
+          "value": "{\"id\":\"c1d2e3f4-a5b6-7890-cdef-333333333331\",\"nim\":\"F1081191042\",\"nik\":\"6171031508990003\",\"email\":\"fauzi.pratama@student.untan.ac.id\",\"nama_lengkap\":\"MUHAMMAD FAUZI PRATAMA, S.Pd.\",\"tempat_lahir\":\"Pontianak\",\"tanggal_lahir\":\"1999-08-15\",\"fakultas\":\"FKIP\",\"prodi\":\"Pendidikan Matematika\",\"periode_yudisium\":\"Wisuda Periode III TA 2024/2025 (28 Januari 2025)\",\"ipk\":\"3.84\",\"phone_number\":\"081256789012\",\"role\":\"mahasiswa\",\"status\":\"active\",\"session_token\":\"untan_sess_playwright_test\"}"
+        }
+      ]
+    }
+  ]
+}
+

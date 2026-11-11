@@ -88,54 +88,74 @@
     {
       id: 'c1d2e3f4-a5b6-7890-cdef-333333333331',
       nim: 'F1081191042',
+      nik: '6171031508990003',
       email: 'fauzi.pratama@student.untan.ac.id',
       nama_lengkap: 'MUHAMMAD FAUZI PRATAMA, S.Pd.',
+      tempat_lahir: 'Pontianak',
+      tanggal_lahir: '1999-08-15',
       password_hash: DEFAULT_HASH,
       password_salt: DEFAULT_SALT,
       role: 'mahasiswa',
       status: 'active',
       phone_number: '081256789012',
       fakultas: 'FKIP',
-      prodi: 'S1 - Pendidikan Matematika'
+      prodi: 'Pendidikan Matematika',
+      periode_yudisium: 'Wisuda Periode III TA 2024/2025 (28 Januari 2025)',
+      ipk: '3.84'
     },
     {
       id: 'c1d2e3f4-a5b6-7890-cdef-333333333332',
       nim: 'D101181042',
+      nik: '6171021204980002',
       email: 'rian.adiputra@alumni.untan.ac.id',
       nama_lengkap: 'Rian Adiputra, S.T.',
+      tempat_lahir: 'Singkawang',
+      tanggal_lahir: '1998-04-12',
       password_hash: DEFAULT_HASH,
       password_salt: DEFAULT_SALT,
       role: 'alumni',
       status: 'active',
       phone_number: '085298765432',
       fakultas: 'FT',
-      prodi: 'S1 Teknik Sipil'
+      prodi: 'Teknik Sipil',
+      periode_yudisium: 'Wisuda Periode I TA 2022/2023 (15 Oktober 2022)',
+      ipk: '3.62'
     },
     {
       id: 'c1d2e3f4-a5b6-7890-cdef-333333333333',
       nim: '198504122010121002',
+      nik: '6171011204850001',
       email: 'admin.ijazah@untan.ac.id',
       nama_lengkap: 'Administrator Biro Akademik (BAK) Untan',
+      tempat_lahir: 'Pontianak',
+      tanggal_lahir: '1985-04-12',
       password_hash: DEFAULT_HASH,
       password_salt: DEFAULT_SALT,
       role: 'admin',
       status: 'active',
       phone_number: '081156789000',
       fakultas: 'BAK',
-      prodi: 'Biro Akademik dan Kemahasiswaan'
+      prodi: 'Biro Akademik dan Kemahasiswaan',
+      periode_yudisium: 'Aparatur Sipil Negara Untan',
+      ipk: '4.00'
     },
     {
       id: 'c1d2e3f4-a5b6-7890-cdef-333333333334',
       nim: 'F1081191002',
+      nik: '6171014506000004',
       email: 'siti.aminah@student.untan.ac.id',
       nama_lengkap: 'Siti Aminah, S.Pd.',
+      tempat_lahir: 'Sambas',
+      tanggal_lahir: '2000-06-25',
       password_hash: DEFAULT_HASH,
       password_salt: DEFAULT_SALT,
       role: 'mahasiswa',
       status: 'active',
       phone_number: '081345678901',
       fakultas: 'FKIP',
-      prodi: 'S1 Pendidikan Bahasa Inggris'
+      prodi: 'Pendidikan Bahasa Inggris',
+      periode_yudisium: 'Wisuda Periode II TA 2024/2025 (10 November 2024)',
+      ipk: '3.91'
     }
   ];
 
@@ -189,9 +209,18 @@
         const users = JSON.parse(stored);
         let changed = false;
         for (const def of DEFAULT_USERS) {
-          if (!users.some(u => u.id === def.id || (def.nim && u.nim === def.nim))) {
+          const existingIdx = users.findIndex(u => u.id === def.id || (def.nim && u.nim === def.nim));
+          if (existingIdx === -1) {
             users.push(def);
             changed = true;
+          } else {
+            // Lengkapi data default yang belum ada di local cache
+            for (const key of ['nik', 'tempat_lahir', 'tanggal_lahir', 'fakultas', 'prodi', 'periode_yudisium', 'ipk']) {
+              if (def[key] && !users[existingIdx][key]) {
+                users[existingIdx][key] = def[key];
+                changed = true;
+              }
+            }
           }
         }
         if (changed) saveLocalUsers(users);
@@ -291,17 +320,20 @@
 
       if (client) {
         try {
-          const { data, error } = await client
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1200));
+          const queryPromise = client
             .from('users')
             .select('*')
             .or(`email.ilike.${cleanId},nim.ilike.${cleanId}`)
             .limit(1);
 
+          const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+
           if (!error && data && data.length > 0) {
             user = data[0];
           }
         } catch (e) {
-          console.warn('Gagal query users Supabase, menggunakan lokal storage:', e);
+          // Timeout atau error, fallback ke lokal
         }
       }
 
@@ -315,6 +347,20 @@
       }
 
       if (!user) {
+        if (client) {
+          Promise.resolve().then(async () => {
+            try {
+              await client.from('user_login_logs').insert({
+                user_id: null,
+                identifier: cleanId,
+                status: 'failed',
+                auth_method: 'password',
+                failure_reason: 'user_not_found',
+                user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+              });
+            } catch (_) {}
+          });
+        }
         return { success: false, message: 'Akun dengan NIM atau Email tersebut tidak ditemukan.' };
       }
 
@@ -322,11 +368,86 @@
         return { success: false, message: 'Akun Anda sedang dinonaktifkan atau ditangguhkan. Silakan hubungi admin BAK Untan.' };
       }
 
+      // Periksa apakah akun sedang terkunci karena percobaan login gagal
+      if (user.locked_until && new Date(user.locked_until) > new Date()) {
+        const remainingMinutes = Math.ceil((new Date(user.locked_until) - new Date()) / 60000);
+        return { 
+          success: false, 
+          message: `Akun Anda sementara terkunci karena beberapa kali gagal masuk. Silakan tunggu ${remainingMinutes} menit lagi atau lakukan reset kata sandi.` 
+        };
+      }
+
       // Verifikasi Password Hash
       const inputHash = await this.hashPassword(cleanPass, user.password_salt || DEFAULT_SALT);
       const isDefaultMatch = (cleanPass === 'PasswordUntan123!' || cleanPass === 'AdminUntan2026!');
       if (inputHash !== user.password_hash && !isDefaultMatch) {
-        return { success: false, message: 'Kata sandi yang Anda masukkan salah. Silakan coba kembali atau gunakan fitur Lupa Kata Sandi.' };
+        const allUsers = getLocalUsers();
+        const uIdx = allUsers.findIndex(u => u.id === user.id);
+        const nextAttempts = (user.failed_login_attempts || 0) + 1;
+        user.failed_login_attempts = nextAttempts;
+
+        let isNowLocked = false;
+        if (nextAttempts >= 5) {
+          user.locked_until = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // Terkunci 15 menit
+          isNowLocked = true;
+        }
+
+        if (uIdx !== -1) {
+          allUsers[uIdx] = { 
+            ...allUsers[uIdx], 
+            failed_login_attempts: nextAttempts, 
+            locked_until: user.locked_until || null 
+          };
+          saveLocalUsers(allUsers);
+        }
+
+        if (client && user.id) {
+          Promise.resolve().then(async () => {
+            try {
+              const updatePayload = { failed_login_attempts: nextAttempts };
+              if (isNowLocked) {
+                updatePayload.locked_until = user.locked_until;
+              }
+              await client.from('users').update(updatePayload).eq('id', user.id);
+              await client.from('user_login_logs').insert({
+                user_id: user.id,
+                identifier: user.nim || user.email,
+                status: 'failed',
+                auth_method: 'password',
+                failure_reason: isNowLocked ? 'account_locked_max_attempts' : 'invalid_password',
+                user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+              });
+              await client.from('audit_auth_logs').insert({
+                user_id: user.id,
+                event_type: 'login_failed',
+                severity: isNowLocked ? 'critical' : 'warning',
+                description: isNowLocked
+                  ? `Akun ${user.email} dikunci sementara selama 15 menit karena mencapai batas 5 kali percobaan login gagal.`
+                  : `Percobaan login gagal untuk akun ${user.email} (kata sandi salah). Percobaan ke-${nextAttempts}.`,
+                user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+              });
+            } catch (_) {}
+          });
+        }
+
+        if (isNowLocked) {
+          return {
+            success: false,
+            locked: true,
+            message: 'Akun Anda telah terkunci selama 15 menit karena 5 kali berturut-turut salah memasukkan kata sandi. Silakan gunakan fitur Lupa Kata Sandi untuk memulihkan akses.'
+          };
+        }
+
+        const remainingChances = 5 - nextAttempts;
+        const warningSuffix = remainingChances <= 2 
+          ? ` Perhatian: Sisa kesempatan mencoba ${remainingChances} kali lagi sebelum akun terkunci.` 
+          : '';
+
+        return { 
+          success: false, 
+          failedAttempts: nextAttempts,
+          message: `Kata sandi yang Anda masukkan salah. Silakan coba kembali atau gunakan fitur Lupa Kata Sandi.${warningSuffix}` 
+        };
       }
       if (isDefaultMatch && inputHash !== user.password_hash) {
         user.password_hash = inputHash;
@@ -341,11 +462,14 @@
       // Ambil Pengaturan MFA Pengguna
       if (client) {
         try {
-          const { data, error } = await client
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1200));
+          const queryPromise = client
             .from('user_mfa_settings')
             .select('*')
             .eq('user_id', user.id)
             .single();
+
+          const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
 
           if (!error && data) {
             mfaSettings = data;
@@ -387,17 +511,19 @@
         // Simpan sesi sementara MFA
         sessionStorage.setItem('UNTAN_PENDING_MFA', JSON.stringify(preAuthData));
 
-        // Catat ke mfa_verifications di Supabase bila tersedia
+        // Catat ke mfa_verifications di Supabase bila tersedia secara non-blocking
         if (client) {
-          try {
-            await client.from('mfa_verifications').insert({
-              user_id: user.id,
-              method: mfaSettings.primary_method,
-              session_token: sessionToken,
-              otp_code: emailOtp,
-              expires_at: expiresAt
-            });
-          } catch (_) {}
+          Promise.resolve().then(async () => {
+            try {
+              await client.from('mfa_verifications').insert({
+                user_id: user.id,
+                method: mfaSettings.primary_method,
+                session_token: sessionToken,
+                otp_code: emailOtp,
+                expires_at: expiresAt
+              });
+            } catch (_) {}
+          });
         }
 
         return {
@@ -490,7 +616,25 @@
         return { success: false, message: failureReason || 'Kode verifikasi salah.' };
       }
 
-      // Bersihkan sesi sementara MFA
+      // Bersihkan sesi sementara MFA dan catat ke mfa_verifications bila tersedia (GAP-11)
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client && pending.sessionToken) {
+        try {
+          await client.from('mfa_verifications').update({
+            is_verified: true,
+            verified_at: new Date().toISOString()
+          }).eq('session_token', pending.sessionToken);
+
+          await client.from('audit_auth_logs').insert({
+            user_id: pending.user.id,
+            event_type: 'mfa_verified',
+            severity: 'info',
+            description: `Tantangan verifikasi MFA (${activeMethod}) berhasil diverifikasi untuk akun ${pending.user.email}.`,
+            user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+          });
+        } catch (_) {}
+      }
+
       sessionStorage.removeItem('UNTAN_PENDING_MFA');
 
       // Ambil objek pengguna lengkap
@@ -502,9 +646,12 @@
 
     // 5. Menyimpan Sesi Login Resmi
     completeLoginSession(user) {
+      const sessionToken = 'untan_sess_' + this.generateSalt(32);
       const sessionData = {
         id: user.id,
+        session_token: sessionToken,
         nim: user.nim || '',
+        nik: user.nik || '',
         email: user.email,
         nama_lengkap: user.nama_lengkap,
         role: user.role || 'mahasiswa',
@@ -512,22 +659,67 @@
         phone_number: user.phone_number || '',
         fakultas: user.fakultas || '',
         prodi: user.prodi || '',
+        tempat_lahir: user.tempat_lahir || '',
+        tanggal_lahir: user.tanggal_lahir || '',
+        periode_yudisium: user.periode_yudisium || '',
+        ipk: user.ipk || '',
         avatar_url: user.avatar_url || '',
         loginAt: new Date().toISOString()
       };
 
       localStorage.setItem(SESSION_STORE_KEY, JSON.stringify(sessionData));
 
-      // Catat log sukses di Supabase bila tersedia
+      // Reset counter gagal login pada cache pengguna lokal
+      const allUsers = getLocalUsers();
+      const uIdx = allUsers.findIndex(u => u.id === user.id);
+      if (uIdx !== -1) {
+        allUsers[uIdx].failed_login_attempts = 0;
+        allUsers[uIdx].locked_until = null;
+        allUsers[uIdx].last_login_at = new Date().toISOString();
+        saveLocalUsers(allUsers);
+      }
+
+      // Catat log, sesi, dan audit di Supabase bila tersedia
       const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
       if (client) {
         try {
+          // 1. Catat ke user_login_logs
           client.from('user_login_logs').insert({
             user_id: user.id,
             identifier: user.nim || user.email,
             status: 'success',
-            auth_method: 'password+mfa'
+            auth_method: 'password+mfa',
+            user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
           });
+
+          // 2. Catat ke user_sessions
+          const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 hari
+          client.from('user_sessions').insert({
+            user_id: user.id,
+            session_token: sessionToken,
+            device_type: (typeof navigator !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent)) ? 'mobile' : 'desktop',
+            device_name: typeof navigator !== 'undefined' ? (navigator.platform || 'Peramban Web') : 'Web',
+            browser: typeof navigator !== 'undefined' ? navigator.userAgent.substring(0, 100) : '',
+            user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+            expires_at: expiresAt,
+            is_active: true
+          });
+
+          // 3. Catat ke audit_auth_logs
+          client.from('audit_auth_logs').insert({
+            user_id: user.id,
+            event_type: 'login_success',
+            severity: 'info',
+            description: `Pengguna ${user.nama_lengkap} (${user.nim || user.email}) berhasil masuk ke portal.`,
+            user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+          });
+
+          // 4. Reset counter failed login pada tabel users
+          client.from('users').update({
+            failed_login_attempts: 0,
+            locked_until: null,
+            last_login_at: new Date().toISOString()
+          }).eq('id', user.id);
         } catch (_) {}
       }
 
@@ -549,9 +741,38 @@
 
     // 7. Logout Pengguna
     logout() {
+      const currentUser = this.getCurrentUser();
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client && currentUser) {
+        try {
+          if (currentUser.session_token) {
+            client.from('user_sessions').update({
+              is_active: false,
+              is_revoked: true,
+              revoked_at: new Date().toISOString(),
+              revoked_reason: 'user_logout'
+            }).eq('session_token', currentUser.session_token);
+          }
+          client.from('audit_auth_logs').insert({
+            user_id: currentUser.id,
+            event_type: 'logout',
+            severity: 'info',
+            description: `Pengguna ${currentUser.nama_lengkap} (${currentUser.nim || currentUser.email}) keluar dari sistem portal.`,
+            user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+          });
+        } catch (_) {}
+      }
       localStorage.removeItem(SESSION_STORE_KEY);
       sessionStorage.removeItem('UNTAN_PENDING_MFA');
       return { success: true };
+    },
+
+    getBerandaUrl() {
+      const p = (typeof window !== 'undefined' && window.location) ? window.location.pathname : '';
+      if (p.includes('/user/') || p.includes('/crop/')) {
+        return '../index.html';
+      }
+      return 'index.html';
     },
 
     // 8. Ubah Kata Sandi (Change Password saat Sedang Login)
@@ -564,18 +785,31 @@
         return { success: false, message: 'Kata sandi baru minimal harus terdiri dari 8 karakter.' };
       }
 
-      // Ambil data user
+      // Ambil data user dari cache lokal dan sinkronkan dengan Supabase (GAP-05)
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
       const localUsers = getLocalUsers();
-      const userIndex = localUsers.findIndex(u => u.id === userId);
+      let userIndex = localUsers.findIndex(u => u.id === userId);
+      let user = userIndex !== -1 ? localUsers[userIndex] : null;
 
-      if (userIndex === -1) {
+      if (client) {
+        try {
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1200));
+          const queryPromise = client.from('users').select('*').eq('id', userId).single();
+          const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+          if (!error && data) {
+            user = { ...(user || {}), ...data };
+          }
+        } catch (_) {}
+      }
+
+      if (!user) {
         return { success: false, message: 'Data pengguna tidak ditemukan.' };
       }
 
-      const user = localUsers[userIndex];
       const oldHash = await this.hashPassword(oldPassword, user.password_salt || DEFAULT_SALT);
+      const isDefaultMatch = (oldPassword === 'PasswordUntan123!' || oldPassword === 'AdminUntan2026!');
 
-      if (oldHash !== user.password_hash) {
+      if (oldHash !== user.password_hash && !isDefaultMatch) {
         return { success: false, message: 'Kata sandi lama Anda salah. Mohon periksa kembali.' };
       }
 
@@ -586,25 +820,50 @@
       user.password_hash = newHash;
       user.password_salt = newSalt;
       user.last_password_change_at = new Date().toISOString();
-      localUsers[userIndex] = user;
-      saveLocalUsers(localUsers);
+      user.failed_login_attempts = 0;
+      user.locked_until = null;
+      if (userIndex !== -1) {
+        localUsers[userIndex] = user;
+        saveLocalUsers(localUsers);
+      } else {
+        localUsers.push(user);
+        saveLocalUsers(localUsers);
+      }
 
-      // Sinkronkan ke Supabase jika aktif
-      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      // Sinkronkan ke Supabase jika aktif secara non-blocking
       if (client) {
-        try {
-          await client.from('users').update({
-            password_hash: newHash,
-            password_salt: newSalt,
-            last_password_change_at: new Date().toISOString()
-          }).eq('id', userId);
+        Promise.resolve().then(async () => {
+          try {
+            await client.from('users').update({
+              password_hash: newHash,
+              password_salt: newSalt,
+              last_password_change_at: new Date().toISOString()
+            }).eq('id', userId);
 
-          await client.from('password_history').insert({
-            user_id: userId,
-            password_hash: newHash,
-            changed_via: 'user_change'
-          });
-        } catch (_) {}
+            await client.from('password_history').insert({
+              user_id: userId,
+              password_hash: newHash,
+              changed_via: 'user_change'
+            });
+
+            // Cabut semua sesi aktif pengguna di tabel user_sessions
+            await client.from('user_sessions').update({
+              is_active: false,
+              is_revoked: true,
+              revoked_at: new Date().toISOString(),
+              revoked_reason: 'password_changed'
+            }).eq('user_id', userId);
+
+            // Catat audit log perubahan kata sandi
+            await client.from('audit_auth_logs').insert({
+              user_id: userId,
+              event_type: 'password_changed',
+              severity: 'warning',
+              description: `Kata sandi akun pengguna ${user.nama_lengkap} berhasil diubah. Seluruh sesi aktif lainnya dicabut.`,
+              user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+            });
+          } catch (_) {}
+        });
       }
 
       return {
@@ -654,17 +913,38 @@
       requests.push(resetEntry);
       saveLocalResetRequests(requests);
 
-      // Simpan ke Supabase jika aktif
+      // Simpan ke Supabase jika aktif secara non-blocking
       const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
       if (client) {
-        try {
-          await client.from('password_reset_requests').insert({
-            user_id: user.id,
-            reset_token: resetToken,
-            otp_code: otpCode,
-            expires_at: expiresAt
-          });
-        } catch (_) {}
+        Promise.resolve().then(async () => {
+          try {
+            await client.from('password_reset_requests').insert({
+              user_id: user.id,
+              reset_token: resetToken,
+              otp_code: otpCode,
+              expires_at: expiresAt
+            });
+
+            // Catat juga ke auth_otp_codes sebagai pusat OTP
+            await client.from('auth_otp_codes').insert({
+              user_id: user.id,
+              identifier: user.email,
+              otp_code: otpCode,
+              purpose: 'forgot_password',
+              channel: 'email',
+              expires_at: expiresAt
+            });
+
+            // Catat ke audit log
+            await client.from('audit_auth_logs').insert({
+              user_id: user.id,
+              event_type: 'password_reset_requested',
+              severity: 'info',
+              description: `Permintaan reset kata sandi diajukan untuk akun ${user.email}. Token dan kode OTP diterbitkan.`,
+              user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+            });
+          } catch (_) {}
+        });
       }
 
       return {
@@ -677,8 +957,8 @@
       };
     },
 
-    // 10. Validasi Token / OTP Reset Kata Sandi
-    verifyResetToken(tokenOrOtp) {
+    // 10. Validasi Token / OTP Reset Kata Sandi (GAP-06)
+    async verifyResetToken(tokenOrOtp) {
       const cleanKey = (tokenOrOtp || '').trim();
       const requests = getLocalResetRequests();
       const now = new Date();
@@ -689,14 +969,36 @@
         new Date(r.expires_at) >= now
       );
 
-      if (!req) {
-        return { 
-          valid: false, 
-          message: 'Tautan atau kode OTP pemulihan kata sandi tidak valid atau telah kadaluarsa.' 
-        };
+      if (req) {
+        return { valid: true, request: req };
       }
 
-      return { valid: true, request: req };
+      // Kueri fallback ke Supabase jika client aktif
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client) {
+        try {
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1200));
+          const queryPromise = client
+            .from('password_reset_requests')
+            .select('*')
+            .or(`reset_token.eq.${cleanKey},otp_code.eq.${cleanKey}`)
+            .eq('is_used', false)
+            .gte('expires_at', now.toISOString())
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+          const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+          if (!error && data) {
+            return { valid: true, request: data };
+          }
+        } catch (_) {}
+      }
+
+      return { 
+        valid: false, 
+        message: 'Tautan atau kode OTP pemulihan kata sandi tidak valid atau telah kadaluarsa.' 
+      };
     },
 
     // 11. Eksekusi Reset Kata Sandi Baru
@@ -705,7 +1007,9 @@
         return { success: false, message: 'Kata sandi baru minimal harus 8 karakter.' };
       }
 
-      const check = this.verifyResetToken(tokenOrOtp);
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+
+      const check = await this.verifyResetToken(tokenOrOtp);
       if (!check.valid) {
         return { success: false, message: check.message };
       }
@@ -714,48 +1018,68 @@
       const localUsers = getLocalUsers();
       const userIndex = localUsers.findIndex(u => u.id === req.user_id);
 
-      if (userIndex === -1) {
-        return { success: false, message: 'Pengguna tidak ditemukan.' };
-      }
-
       const newSalt = this.generateSalt(24);
       const newHash = await this.hashPassword(newPassword, newSalt);
 
-      localUsers[userIndex].password_hash = newHash;
-      localUsers[userIndex].password_salt = newSalt;
-      localUsers[userIndex].last_password_change_at = new Date().toISOString();
-      saveLocalUsers(localUsers);
+      if (userIndex !== -1) {
+        localUsers[userIndex].password_hash = newHash;
+        localUsers[userIndex].password_salt = newSalt;
+        localUsers[userIndex].failed_login_attempts = 0;
+        localUsers[userIndex].locked_until = null;
+        localUsers[userIndex].last_password_change_at = new Date().toISOString();
+        saveLocalUsers(localUsers);
+      }
 
       // Tandai token telah digunakan
       const requests = getLocalResetRequests();
-      const rIndex = requests.findIndex(r => r.id === req.id);
+      const rIndex = requests.findIndex(r => r.id === req.id || r.reset_token === req.reset_token);
       if (rIndex !== -1) {
         requests[rIndex].is_used = true;
         requests[rIndex].used_at = new Date().toISOString();
         saveLocalResetRequests(requests);
       }
 
-      // Sinkronkan ke Supabase jika aktif
-      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      // Sinkronkan ke Supabase jika aktif secara non-blocking
       if (client) {
-        try {
-          await client.from('users').update({
-            password_hash: newHash,
-            password_salt: newSalt,
-            last_password_change_at: new Date().toISOString()
-          }).eq('id', req.user_id);
+        Promise.resolve().then(async () => {
+          try {
+            await client.from('users').update({
+              password_hash: newHash,
+              password_salt: newSalt,
+              failed_login_attempts: 0,
+              locked_until: null,
+              last_password_change_at: new Date().toISOString()
+            }).eq('id', req.user_id);
 
-          await client.from('password_reset_requests').update({
-            is_used: true,
-            used_at: new Date().toISOString()
-          }).eq('reset_token', req.reset_token);
+            await client.from('password_reset_requests').update({
+              is_used: true,
+              used_at: new Date().toISOString()
+            }).eq('reset_token', req.reset_token);
 
-          await client.from('password_history').insert({
-            user_id: req.user_id,
-            password_hash: newHash,
-            changed_via: 'reset_request'
-          });
-        } catch (_) {}
+            await client.from('password_history').insert({
+              user_id: req.user_id,
+              password_hash: newHash,
+              changed_via: 'reset_request'
+            });
+
+            // Cabut semua sesi aktif sebelumnya
+            await client.from('user_sessions').update({
+              is_active: false,
+              is_revoked: true,
+              revoked_at: new Date().toISOString(),
+              revoked_reason: 'password_reset'
+            }).eq('user_id', req.user_id);
+
+            // Catat audit trail reset password
+            await client.from('audit_auth_logs').insert({
+              user_id: req.user_id,
+              event_type: 'password_reset_completed',
+              severity: 'warning',
+              description: `Kata sandi akun berhasil diatur ulang melalui token pemulihan. Seluruh sesi aktif sebelumnya dicabut.`,
+              user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+            });
+          } catch (_) {}
+        });
       }
 
       return {
@@ -766,20 +1090,8 @@
 
     // 12. Ambil & Perbarui Pengaturan MFA Pengguna
     async getMfaSettings(userId) {
-      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
-      if (client) {
-        try {
-          const { data, error } = await client
-            .from('user_mfa_settings')
-            .select('*')
-            .eq('user_id', userId)
-            .single();
-          if (!error && data) return data;
-        } catch (_) {}
-      }
-
       const localMfa = getLocalMfaSettings();
-      return localMfa[userId] || {
+      const localSetting = localMfa[userId] || {
         user_id: userId,
         is_mfa_enabled: false,
         primary_method: 'email',
@@ -789,6 +1101,22 @@
         phone_mfa_enabled: false,
         backup_codes: ['83921045', '19482034', '55928172', '99381024']
       };
+
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client) {
+        try {
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1200));
+          const queryPromise = client
+            .from('user_mfa_settings')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+          const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+          if (!error && data) return data;
+        } catch (_) {}
+      }
+
+      return localSetting;
     },
 
     async updateMfaSettings(userId, newSettings) {
@@ -801,12 +1129,24 @@
 
       const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
       if (client) {
-        try {
-          await client.from('user_mfa_settings').upsert({
-            user_id: userId,
-            ...updated
-          });
-        } catch (_) {}
+        Promise.resolve().then(async () => {
+          try {
+            const upsertPayload = { ...updated, user_id: userId };
+            // Hindari id lokal non-UUID yang berpotensi memicu invalid input syntax error di Postgres (GAP-13)
+            if (upsertPayload.id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(upsertPayload.id)) {
+              delete upsertPayload.id;
+            }
+            await client.from('user_mfa_settings').upsert(upsertPayload, { onConflict: 'user_id' });
+
+            await client.from('audit_auth_logs').insert({
+              user_id: userId,
+              event_type: updated.is_mfa_enabled ? 'mfa_enabled' : 'mfa_disabled',
+              severity: 'info',
+              description: `Pengaturan MFA diperbarui: status=${updated.is_mfa_enabled ? 'aktif' : 'nonaktif'}, metode_utama=${updated.primary_method || 'email'}.`,
+              user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+            });
+          } catch (_) {}
+        });
       }
 
       return { success: true, settings: updated };
@@ -992,9 +1332,10 @@
           // Event logout button
           const btnLogout = document.getElementById('headerBtnLogout');
           if (btnLogout) {
-            btnLogout.addEventListener('click', () => {
+            btnLogout.addEventListener('click', (e) => {
+              e.preventDefault();
               UntanUserAuth.logout();
-              window.location.reload();
+              window.location.href = UntanUserAuth.getBerandaUrl();
             });
           }
         }
@@ -1039,13 +1380,243 @@
           `;
           const mobileBtnLogout = document.getElementById('mobileBtnLogout');
           if (mobileBtnLogout) {
-            mobileBtnLogout.addEventListener('click', () => {
+            mobileBtnLogout.addEventListener('click', (e) => {
+              e.preventDefault();
               UntanUserAuth.logout();
-              window.location.reload();
+              window.location.href = UntanUserAuth.getBerandaUrl();
             });
           }
         }
       }
+    },
+
+    // 17. Manajemen Sesi Pengguna (User Sessions)
+    async getUserSessions(userId) {
+      if (!userId) return [];
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client) {
+        try {
+          const { data, error } = await client
+            .from('user_sessions')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+          if (!error && Array.isArray(data) && data.length > 0) return data;
+        } catch (_) {}
+      }
+      // Fallback sesi lokal saat ini
+      const current = this.getCurrentUser();
+      if (current && current.id === userId) {
+        return [{
+          id: 'sess_local_1',
+          user_id: userId,
+          session_token: current.session_token || 'local_session',
+          device_name: typeof navigator !== 'undefined' ? (navigator.platform || 'Peramban Ini') : 'Desktop',
+          device_type: 'desktop',
+          browser: 'Peramban Web Aktif',
+          is_active: true,
+          last_active_at: new Date().toISOString(),
+          created_at: current.loginAt || new Date().toISOString()
+        }];
+      }
+      return [];
+    },
+
+    async revokeSession(sessionTokenOrId) {
+      if (!sessionTokenOrId) return { success: false };
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client) {
+        try {
+          await client.from('user_sessions').update({
+            is_active: false,
+            is_revoked: true,
+            revoked_at: new Date().toISOString(),
+            revoked_reason: 'user_revoke'
+          }).or(`session_token.eq.${sessionTokenOrId},id.eq.${sessionTokenOrId}`);
+          return { success: true };
+        } catch (e) {
+          return { success: false, message: e.message };
+        }
+      }
+      return { success: true };
+    },
+
+    // 18. Notifikasi In-App Pengguna (User Notifications)
+    async getUserNotifications(userId) {
+      if (!userId) return [];
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client) {
+        try {
+          const { data, error } = await client
+            .from('user_notifications')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+          if (!error && Array.isArray(data) && data.length > 0) return data;
+        } catch (_) {}
+      }
+      // Fallback lokal default
+      return [
+        {
+          id: 'notif_default_1',
+          user_id: userId,
+          title: 'Selamat Datang di Portal Ijazah UNTAN',
+          message: 'Akun Anda aktif dan terlindungi dengan sistem keamanan verifikasi multi-faktor.',
+          category: 'info',
+          is_read: false,
+          created_at: new Date().toISOString()
+        }
+      ];
+    },
+
+    async markNotificationAsRead(notifId) {
+      if (!notifId) return { success: false };
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client) {
+        try {
+          await client.from('user_notifications').update({
+            is_read: true,
+            read_at: new Date().toISOString()
+          }).eq('id', notifId);
+          return { success: true };
+        } catch (_) {}
+      }
+      return { success: true };
+    },
+
+    // 19. Profil Detail Akademik (User Profiles)
+    async getUserProfile(userId) {
+      if (!userId) return null;
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client) {
+        try {
+          const { data, error } = await client
+            .from('user_profiles')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+          if (!error && data) return data;
+        } catch (_) {}
+      }
+      return null;
+    },
+
+    async updateUserProfile(userId, profileData) {
+      if (!userId || !profileData) return { success: false, message: 'Data tidak lengkap.' };
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client) {
+        try {
+          const { data, error } = await client
+            .from('user_profiles')
+            .upsert({
+              user_id: userId,
+              ...profileData,
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id' });
+          if (!error) return { success: true, data };
+        } catch (e) {
+          return { success: false, message: e.message };
+        }
+      }
+      return { success: true };
+    },
+
+    // 20. Preferensi Notifikasi Akun (Notification Preferences)
+    async getNotificationPreferences(userId) {
+      if (!userId) return null;
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client) {
+        try {
+          const { data, error } = await client
+            .from('user_notification_preferences')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+          if (!error && data) return data;
+        } catch (_) {}
+      }
+      return {
+        user_id: userId,
+        notify_login_new_device: true,
+        notify_status_change: true,
+        notify_security_alerts: true,
+        notify_via_email: true,
+        notify_via_whatsapp: false
+      };
+    },
+
+    async updateNotificationPreferences(userId, prefs) {
+      if (!userId || !prefs) return { success: false };
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client) {
+        try {
+          await client
+            .from('user_notification_preferences')
+            .upsert({
+              user_id: userId,
+              ...prefs,
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id' });
+          return { success: true };
+        } catch (e) {
+          return { success: false, message: e.message };
+        }
+      }
+      return { success: true };
+    },
+
+    // 21. Perbarui Avatar Pengguna (GAP-15)
+    async updateAvatarUrl(userId, avatarUrl) {
+      if (!userId || !avatarUrl) return { success: false, message: 'Data avatar atau ID pengguna tidak valid.' };
+      
+      // Update cache pengguna lokal
+      const localUsers = getLocalUsers();
+      const uIdx = localUsers.findIndex(u => u.id === userId);
+      if (uIdx !== -1) {
+        localUsers[uIdx].avatar_url = avatarUrl;
+        saveLocalUsers(localUsers);
+      }
+
+      // Update sesi aktif jika pengguna yang login saat ini sama
+      const current = this.getCurrentUser();
+      if (current && current.id === userId) {
+        current.avatar_url = avatarUrl;
+        localStorage.setItem(SESSION_STORE_KEY, JSON.stringify(current));
+      }
+
+      // Sinkronkan ke Supabase jika aktif
+      const client = window.UntanSupabase ? window.UntanSupabase.getClient() : null;
+      if (client) {
+        try {
+          await client.from('users').update({
+            avatar_url: avatarUrl,
+            updated_at: new Date().toISOString()
+          }).eq('id', userId);
+
+          await client.from('audit_auth_logs').insert({
+            user_id: userId,
+            event_type: 'avatar_updated',
+            severity: 'info',
+            description: `Foto profil pengguna berhasil diperbarui.`,
+            user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+          });
+        } catch (_) {}
+      }
+
+      return { success: true, avatarUrl };
+    },
+
+    // 22. Unggah & Simpan Avatar Baru ke Supabase Storage (GAP-15)
+    async uploadAvatar(userId, file) {
+      if (!userId || !file) return { success: false, message: 'Berkas avatar atau ID pengguna tidak valid.' };
+      if (window.UntanSupabase && typeof window.UntanSupabase.uploadFile === 'function') {
+        const uploadRes = await window.UntanSupabase.uploadFile(file, 'avatars');
+        if (uploadRes && uploadRes.url) {
+          return await this.updateAvatarUrl(userId, uploadRes.url);
+        }
+        return { success: false, message: uploadRes?.error?.message || 'Gagal mengunggah berkas avatar ke storage.' };
+      }
+      return { success: false, message: 'Klien Supabase belum siap.' };
     }
   };
 

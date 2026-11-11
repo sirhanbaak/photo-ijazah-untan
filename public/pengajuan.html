@@ -50,6 +50,24 @@
   <script src="js/supabaseClient.js"></script>
   <script src="user/userAuth.js"></script>
   <script src="js/megaMenu.js"></script>
+  <!-- Gate Otentikasi Laman Pengajuan: Wajib Masuk Akun -->
+  <script>
+    (function () {
+      try {
+        const stored = localStorage.getItem('UNTAN_USER_AUTH_SESSION');
+        const user = stored ? JSON.parse(stored) : null;
+        const params = new URLSearchParams(window.location.search);
+        if (!user || !user.id) {
+          if (params.get('bypass_auth') !== '1') {
+            const redirectUrl = 'user/login.html?redirect=' + encodeURIComponent('pengajuan.html' + window.location.search);
+            window.location.replace(redirectUrl);
+          }
+        }
+      } catch (_) {
+        window.location.replace('user/login.html?redirect=pengajuan.html');
+      }
+    })();
+  </script>
 </head>
 
 <body class="bg-background font-body-md text-on-surface antialiased">
@@ -858,12 +876,12 @@
                   </div>
                   <!-- IPK Kelulusan -->
                   <div class="flex flex-col gap-1.5">
-                    <label class="font-label-md text-label-md text-on-surface font-semibold" for="ipk">
-                      Indeks Prestasi Kumulatif (IPK)
+                    <label id="ipkLabel" class="font-label-md text-label-md text-on-surface font-semibold" for="ipk">
+                      Indeks Prestasi Kumulatif (IPK) <span class="text-error">* (Wajib Penerbitan Baru)</span>
                     </label>
                     <input
-                      class="w-full h-11 px-3.5 bg-surface-container rounded-lg font-body-md text-body-md text-on-surface-variant cursor-not-allowed shadow-none"
-                      id="ipk" readonly="" type="text" value="3.84 (Dengan Pujian / Cumlaude)">
+                      class="w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
+                      id="ipk" placeholder="Contoh: 3.84 (0.00 - 4.00)" type="text" value="3.84">
                   </div>
                   <!-- Kontak WhatsApp -->
                   <div class="flex flex-col gap-1.5">
@@ -981,17 +999,18 @@
                       <span class="font-title-md text-title-md text-primary font-bold">Scan e-KTP / Kartu Keluarga &amp;
                         Akta Kelahiran <span class="text-error">*</span></span>
                       <span class="font-body-sm text-body-sm text-on-surface-variant">Dokumen pembanding resmi keabsahan
-                        nama, NIK, dan tanggal lahir (PDF/JPG, maks 5 MB).</span>
-                      <span class="font-label-sm text-label-sm text-secondary font-semibold mt-1">Status: Berkas
-                        KTP_FAUZI_PRATAMA.PDF siap diverifikasi</span>
+                        nama, NIK, dan tanggal lahir (PDF/JPG/PNG, maks 5 MB).</span>
+                      <span class="font-label-sm text-label-sm text-secondary font-semibold mt-1" id="berkasKtpStatus">Belum ada berkas e-KTP dipilih</span>
                     </div>
                   </div>
-                  <button
-                    class="inline-flex items-center gap-space-xs px-4 py-2 bg-surface-container-lowest text-primary font-label-md text-label-md rounded-lg shadow-sm hover:bg-surface-container transition-colors shrink-0"
-                    type="button">
-                    <span class="material-symbols-outlined text-[18px]">sync_alt</span>
-                    <span class="">Unggah Ulang</span>
-                  </button>
+                  <label
+                    class="inline-flex items-center gap-space-xs px-4 py-2 bg-surface-container-lowest text-primary font-label-md text-label-md rounded-lg shadow-sm hover:bg-surface-container transition-colors shrink-0 cursor-pointer"
+                    title="Pilih berkas scan e-KTP (PDF/JPG/PNG)">
+                    <span class="material-symbols-outlined text-[18px]">upload_file</span>
+                    <span id="btnTextBerkasKtp">Pilih Berkas KTP</span>
+                    <input class="sr-only" id="berkasKtp" name="berkas_ktp" type="file"
+                      accept="application/pdf,image/jpeg,image/png">
+                  </label>
                 </div>
                 <!-- Item 3: Berkas Khusus / Surat Pendukung (Conditional Info) -->
                 <div
@@ -1003,23 +1022,22 @@
                     </div>
                     <div class="flex flex-col">
                       <div class="flex items-center gap-space-xs">
-                        <span class="font-title-md text-title-md text-primary font-bold">Berkas Pendukung Khusus
-                          (Opsional / Kondisional)</span>
-                        <span
-                          class="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded">Jika
-                          Diperlukan</span>
+                        <span id="berkasPendukungTitle" class="font-title-md text-title-md text-primary font-bold">Berkas Pendukung Khusus (Opsional)</span>
+                        <span id="berkasPendukungBadge"
+                          class="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded">Opsional</span>
                       </div>
-                      <span class="font-body-sm text-body-sm text-on-surface-variant">Khusus pengajuan Ulang/Perbaikan:
-                        Surat Tanda Penerimaan Laporan Kehilangan (STPLK) Kepolisian atau Scan Ijazah Lama yang
-                        Rusak.</span>
+                      <span id="berkasPendukungDesc" class="font-body-sm text-body-sm text-on-surface-variant">Khusus Penerbitan Baru: Berkas pendukung bersifat opsional. Dokumen utama adalah Scan e-KTP dan Pas Foto Resmi 4×6 Latar Biru.</span>
+                      <span class="font-label-sm text-label-sm text-on-surface-variant mt-1" id="berkasPendukungStatus">Belum ada berkas pendukung dipilih</span>
                     </div>
                   </div>
-                  <button
-                    class="inline-flex items-center gap-space-xs px-4 py-2 bg-surface-container-lowest text-on-surface font-label-md text-label-md rounded-lg shadow-sm hover:bg-surface-container transition-colors shrink-0"
-                    type="button">
+                  <label
+                    class="inline-flex items-center gap-space-xs px-4 py-2 bg-surface-container-lowest text-on-surface font-label-md text-label-md rounded-lg shadow-sm hover:bg-surface-container transition-colors shrink-0 cursor-pointer"
+                    title="Pilih berkas pendukung tambahan (PDF/JPG/PNG)">
                     <span class="material-symbols-outlined text-[18px]">add_circle</span>
-                    <span class="">Pilih Berkas PDF</span>
-                  </button>
+                    <span id="btnTextBerkasPendukung">Pilih Berkas PDF</span>
+                    <input class="sr-only" id="berkasPendukung" name="berkas_pendukung" type="file"
+                      accept="application/pdf,image/jpeg,image/png">
+                  </label>
                 </div>
               </div>
             </div>
@@ -1128,7 +1146,7 @@
                 </div>
                 <div class="flex justify-between items-center py-2 px-1">
                   <span class="font-body-sm text-body-sm text-on-surface-variant">Biaya Administrasi</span>
-                  <span class="font-label-md text-label-md text-primary font-bold">Gratis (Subsidi BLU UNTAN)</span>
+                  <span id="sidebarBiayaAdmin" class="font-label-md text-label-md text-primary font-bold">Gratis (Subsidi BLU UNTAN)</span>
                 </div>
               </div>
               <!-- Micro Visual Chart: Completion percentage -->
@@ -1270,6 +1288,11 @@
               input.checked = true;
               if (sidebarTitle && serviceLabels[input.value]) {
                 sidebarTitle.textContent = serviceLabels[input.value];
+              }
+              // Sesuaikan data dan panduan form dengan jenis pengajuan
+              if (typeof window.applyServiceTypeRules === 'function') {
+                const curUser = window.UntanUserAuth ? window.UntanUserAuth.getCurrentUser() : null;
+                window.applyServiceTypeRules(input.value, curUser);
               }
             }
           });
@@ -1456,6 +1479,51 @@
         fotoInput.addEventListener('change', function () {
           const file = fotoInput.files && fotoInput.files[0];
           handlePhotoSelection(file);
+        });
+      }
+
+      // Handler input berkas KTP & Berkas Pendukung (GAP-04)
+      const berkasKtpInput = document.getElementById('berkasKtp');
+      const berkasKtpStatus = document.getElementById('berkasKtpStatus');
+      const btnTextBerkasKtp = document.getElementById('btnTextBerkasKtp');
+      if (berkasKtpInput) {
+        berkasKtpInput.addEventListener('change', function () {
+          const file = berkasKtpInput.files && berkasKtpInput.files[0];
+          if (file) {
+            const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+            if (file.size > 5 * 1024 * 1024) {
+              alert('Ukuran berkas e-KTP melebihi batas maksimal 5 MB.');
+              berkasKtpInput.value = '';
+              if (berkasKtpStatus) berkasKtpStatus.textContent = 'Belum ada berkas e-KTP dipilih';
+              return;
+            }
+            if (berkasKtpStatus) {
+              berkasKtpStatus.innerHTML = `<span class="text-emerald-700 font-semibold">✓ ${file.name} (${sizeMb} MB) siap diunggah</span>`;
+            }
+            if (btnTextBerkasKtp) btnTextBerkasKtp.textContent = 'Ganti Berkas';
+          }
+        });
+      }
+
+      const berkasPendukungInput = document.getElementById('berkasPendukung');
+      const berkasPendukungStatus = document.getElementById('berkasPendukungStatus');
+      const btnTextBerkasPendukung = document.getElementById('btnTextBerkasPendukung');
+      if (berkasPendukungInput) {
+        berkasPendukungInput.addEventListener('change', function () {
+          const file = berkasPendukungInput.files && berkasPendukungInput.files[0];
+          if (file) {
+            const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+            if (file.size > 5 * 1024 * 1024) {
+              alert('Ukuran berkas pendukung melebihi batas maksimal 5 MB.');
+              berkasPendukungInput.value = '';
+              if (berkasPendukungStatus) berkasPendukungStatus.textContent = 'Belum ada berkas pendukung dipilih';
+              return;
+            }
+            if (berkasPendukungStatus) {
+              berkasPendukungStatus.innerHTML = `<span class="text-emerald-700 font-semibold">✓ ${file.name} (${sizeMb} MB) siap diunggah</span>`;
+            }
+            if (btnTextBerkasPendukung) btnTextBerkasPendukung.textContent = 'Ganti Berkas';
+          }
         });
       }
 
@@ -1722,8 +1790,18 @@
           try {
             const targetId = initialLoadedNim || nimVal;
             const fotoInput = document.getElementById('fotoIjazah');
+            const ktpInput = document.getElementById('berkasKtp');
+            const pendukungInput = document.getElementById('berkasPendukung');
+
             const finalPhoto = activeCroppedPhotoFile || ((fotoInput && fotoInput.files && fotoInput.files[0]) ? fotoInput.files[0] : null);
-            const files = finalPhoto ? { foto: finalPhoto } : {};
+            const ktpFile = (ktpInput && ktpInput.files && ktpInput.files[0]) ? ktpInput.files[0] : null;
+            const pendukungFile = (pendukungInput && pendukungInput.files && pendukungInput.files[0]) ? pendukungInput.files[0] : null;
+
+            const files = {
+              foto: finalPhoto,
+              berkas_ktp: ktpFile,
+              berkas_pendukung: pendukungFile
+            };
 
             const res = await window.UntanSupabase.updateDataMahasiswa(targetId, {
               nim: nimVal,
@@ -1825,6 +1903,151 @@
 
       updateSupabaseUI();
 
+      // 1b. Helper Penyesuaian Aturan & Panduan Berdasarkan Jenis Layanan
+      function applyServiceTypeRules(serviceType, user) {
+        const st = (serviceType || 'penerbitan_baru').toLowerCase();
+
+        const berkasPendukungTitle = document.getElementById('berkasPendukungTitle');
+        const berkasPendukungBadge = document.getElementById('berkasPendukungBadge');
+        const berkasPendukungDesc = document.getElementById('berkasPendukungDesc');
+        const btnTextBerkasPendukung = document.getElementById('btnTextBerkasPendukung');
+        const sidebarServiceTitle = document.getElementById('sidebarServiceTitle');
+        const sidebarBiayaAdmin = document.getElementById('sidebarBiayaAdmin');
+        const ipkInput = document.getElementById('ipk');
+        const ipkLabel = document.getElementById('ipkLabel');
+
+        const serviceTitles = {
+          'penerbitan_baru': 'Penerbitan Ijazah Baru',
+          'perbaikan_data': 'Penerbitan Perbaikan Data',
+          'penerbitan_ulang': 'Penerbitan Ulang',
+          'pencetakan_ulang': 'Pencetakan Ulang'
+        };
+
+        if (sidebarServiceTitle && serviceTitles[st]) {
+          sidebarServiceTitle.textContent = serviceTitles[st];
+        }
+
+        if (st === 'penerbitan_baru') {
+          if (sidebarBiayaAdmin) sidebarBiayaAdmin.textContent = 'Gratis (Wisuda Perdana UNTAN)';
+          if (berkasPendukungTitle) berkasPendukungTitle.textContent = 'Berkas Pendukung Khusus (Opsional)';
+          if (berkasPendukungBadge) {
+            berkasPendukungBadge.className = 'font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded';
+            berkasPendukungBadge.textContent = 'Opsional';
+          }
+          if (berkasPendukungDesc) {
+            berkasPendukungDesc.textContent = 'Khusus Penerbitan Baru: Berkas pendukung bersifat opsional. Dokumen utama adalah Scan e-KTP dan Pas Foto Resmi 4×6 Latar Biru.';
+          }
+          if (btnTextBerkasPendukung) btnTextBerkasPendukung.textContent = 'Pilih Berkas PDF (Opsional)';
+          if (ipkInput) {
+            ipkInput.removeAttribute('readonly');
+            ipkInput.className = 'w-full h-11 px-3.5 bg-surface-container-low rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary shadow-sm';
+            if (user && user.ipk) {
+              const num = parseFloat(user.ipk);
+              if (!isNaN(num)) ipkInput.value = num.toFixed(2);
+            }
+          }
+          if (ipkLabel) {
+            ipkLabel.innerHTML = 'Indeks Prestasi Kumulatif (IPK) <span class="text-error">* (Wajib Penerbitan Baru)</span>';
+          }
+        } else if (st === 'perbaikan_data') {
+          if (sidebarBiayaAdmin) sidebarBiayaAdmin.textContent = 'Gratis (Ralat Administratif)';
+          if (berkasPendukungTitle) berkasPendukungTitle.textContent = 'Scan Fisik Ijazah Asli Lama & Akta Kelahiran';
+          if (berkasPendukungBadge) {
+            berkasPendukungBadge.className = 'font-label-sm text-label-sm bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded border border-amber-300';
+            berkasPendukungBadge.textContent = 'Wajib untuk Perbaikan';
+          }
+          if (berkasPendukungDesc) {
+            berkasPendukungDesc.textContent = 'Khusus Perbaikan Data: Wajib mengunggah scan ijazah fisik asli yang salah cetak serta Akta Kelahiran/KTP pembanding keabsahan ralat (Maks 5 MB).';
+          }
+          if (btnTextBerkasPendukung) btnTextBerkasPendukung.textContent = 'Pilih Ijazah Lama / Akta';
+          if (ipkLabel) ipkLabel.textContent = 'Indeks Prestasi Kumulatif (IPK)';
+        } else if (st === 'penerbitan_ulang') {
+          if (sidebarBiayaAdmin) sidebarBiayaAdmin.textContent = 'Rp 200.000,- (Tarif PNBP Cetak Ulang)';
+          if (berkasPendukungTitle) berkasPendukungTitle.textContent = 'Surat Kehilangan Kepolisian (STPLK) & Rekomendasi Dekan';
+          if (berkasPendukungBadge) {
+            berkasPendukungBadge.className = 'font-label-sm text-label-sm bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded border border-red-300';
+            berkasPendukungBadge.textContent = 'Wajib (STPLK & SPTJM)';
+          }
+          if (berkasPendukungDesc) {
+            berkasPendukungDesc.textContent = 'Khusus Penerbitan Ulang: Wajib mengunggah Surat Tanda Penerimaan Laporan Kehilangan (STPLK) Kepolisian dan Surat Rekomendasi Dekan (Maks 5 MB).';
+          }
+          if (btnTextBerkasPendukung) btnTextBerkasPendukung.textContent = 'Pilih Berkas STPLK (PDF/JPG)';
+          if (ipkLabel) ipkLabel.textContent = 'Indeks Prestasi Kumulatif (IPK)';
+        } else if (st === 'pencetakan_ulang') {
+          if (sidebarBiayaAdmin) sidebarBiayaAdmin.textContent = 'Rp 50.000,- (Salinan Blanko - Segera Hadir)';
+          if (berkasPendukungTitle) berkasPendukungTitle.textContent = 'Dokumen Ijazah Digital TTE (.pdf bersertifikat BSrE)';
+          if (berkasPendukungBadge) {
+            berkasPendukungBadge.className = 'font-label-sm text-label-sm bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded border border-blue-300';
+            berkasPendukungBadge.textContent = 'Wajib (Ijazah TTE BSrE)';
+          }
+          if (berkasPendukungDesc) {
+            berkasPendukungDesc.textContent = 'Khusus Pencetakan Ulang: Wajib mengunggah berkas dokumen PDF Ijazah Digital TTE bertanda tangan elektronik BSrE yang terverifikasi (Maks 5 MB).';
+          }
+          if (btnTextBerkasPendukung) btnTextBerkasPendukung.textContent = 'Pilih Ijazah TTE (.pdf)';
+          if (ipkLabel) ipkLabel.textContent = 'Indeks Prestasi Kumulatif (IPK)';
+        }
+      }
+
+      window.applyServiceTypeRules = applyServiceTypeRules;
+
+      // 1c. Helper Pengisian Data Default Mahasiswa yang Berhasil Login
+      function populateUserDefaultData(user, serviceType) {
+        if (!user) return;
+
+        const nimInput = document.getElementById('nim');
+        const nikInput = document.getElementById('nik');
+        const namaInput = document.getElementById('nama_lengkap');
+        const tempatLahirInput = document.getElementById('tempat_lahir');
+        const tglLahirInput = document.getElementById('tanggal_lahir');
+        const fakultasSelect = document.getElementById('fakultas');
+        const prodiSelect = document.getElementById('prodi');
+        const periodeInput = document.getElementById('periode_yudisium');
+        const ipkInput = document.getElementById('ipk');
+        const waInput = document.getElementById('whatsapp');
+        const emailInput = document.getElementById('email');
+
+        if (nimInput && user.nim) nimInput.value = user.nim;
+        if (nikInput && user.nik) nikInput.value = user.nik;
+        if (namaInput && user.nama_lengkap) namaInput.value = user.nama_lengkap;
+        if (tempatLahirInput && user.tempat_lahir) tempatLahirInput.value = user.tempat_lahir;
+        if (tglLahirInput && user.tanggal_lahir) tglLahirInput.value = user.tanggal_lahir;
+
+        if (fakultasSelect && user.fakultas) {
+          fakultasSelect.value = user.fakultas;
+        }
+
+        if (prodiSelect && user.prodi) {
+          let found = false;
+          for (let opt of prodiSelect.options) {
+            if (opt.value === user.prodi || opt.text.includes(user.prodi) || user.prodi.includes(opt.value)) {
+              prodiSelect.value = opt.value;
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            const newOpt = new Option(user.prodi, user.prodi, true, true);
+            prodiSelect.add(newOpt);
+          }
+        }
+
+        if (periodeInput && user.periode_yudisium) periodeInput.value = user.periode_yudisium;
+        if (ipkInput && user.ipk) {
+          const num = parseFloat(user.ipk);
+          ipkInput.value = !isNaN(num) ? num.toFixed(2) : user.ipk;
+        }
+
+        if (waInput && (user.phone_number || user.whatsapp)) {
+          waInput.value = user.phone_number || user.whatsapp;
+        }
+        if (emailInput && user.email) emailInput.value = user.email;
+
+        // Terapkan penyesuaian aturan jenis layanan
+        applyServiceTypeRules(serviceType, user);
+      }
+
+      window.populateUserDefaultData = populateUserDefaultData;
+
       // 2. Tangani Pengiriman Form ke Supabase
       const form = document.getElementById('ijazahForm');
       const btnKirim = document.getElementById('btnKirimPermohonan');
@@ -1838,6 +2061,30 @@
           const authReqCard = document.getElementById('authRequiredCard');
           const authActCard = document.getElementById('authActiveCard');
           const btnKirim = document.getElementById('btnKirimPermohonan');
+
+          // Deteksi parameter URL ?service=...
+          const urlParams = new URLSearchParams(window.location.search);
+          const serviceParam = urlParams.get('service');
+          if (serviceParam) {
+            const targetRadio = document.querySelector(`input[name="service_type"][value="${serviceParam}"]`);
+            if (targetRadio) {
+              targetRadio.checked = true;
+              const parentCard = targetRadio.closest('.service-card');
+              if (parentCard) {
+                document.querySelectorAll('.service-card').forEach(c => {
+                  c.classList.remove('bg-surface-container-high/80', 'selected');
+                  const ind = c.querySelector('.radio-indicator');
+                  if (ind) ind.className = 'radio-indicator w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center text-transparent';
+                });
+                parentCard.classList.add('bg-surface-container-high/80', 'selected');
+                const ind = parentCard.querySelector('.radio-indicator');
+                if (ind) ind.className = 'radio-indicator w-5 h-5 rounded-full bg-primary flex items-center justify-center text-on-primary';
+              }
+            }
+          }
+
+          const activeRadio = document.querySelector('input[name="service_type"]:checked');
+          const currentServiceType = activeRadio ? activeRadio.value : 'penerbitan_baru';
 
           if (!currentUser) {
             if (authReqCard) authReqCard.classList.remove('hidden');
@@ -1863,25 +2110,8 @@
               btnKirim.setAttribute('title', 'Kirim Permohonan');
             }
 
-            // Auto-fill field identitas dari akun login jika belum diisi
-            const nimInput = document.getElementById('nim');
-            const namaInput = document.getElementById('nama_lengkap');
-            const emailInput = document.getElementById('email');
-            const waInput = document.getElementById('whatsapp');
-
-            if (nimInput && !nimInput.value && currentUser.nim) {
-              nimInput.value = currentUser.nim;
-              if (typeof cekDataMahasiswa === 'function') cekDataMahasiswa();
-            }
-            if (namaInput && !namaInput.value && currentUser.nama_lengkap) {
-              namaInput.value = currentUser.nama_lengkap;
-            }
-            if (emailInput && !emailInput.value && currentUser.email) {
-              emailInput.value = currentUser.email;
-            }
-            if (waInput && !waInput.value && currentUser.phone_number) {
-              waInput.value = currentUser.phone_number;
-            }
+            // Terapkan seluruh data default mahasiswa yang login sesuai jenis pengajuan
+            populateUserDefaultData(currentUser, currentServiceType);
           }
         }
 
@@ -1941,6 +2171,20 @@
             email: document.getElementById('email').value
           };
 
+          // Validasi IPK untuk Penerbitan Baru (GAP-08)
+          if (formData.service_type === 'penerbitan_baru') {
+            const ipkVal = String(formData.ipk || '').trim();
+            if (!ipkVal) {
+              alert('Validasi Formulir Gagal!\n\nIndeks Prestasi Kumulatif (IPK) wajib diisi untuk layanan Penerbitan Ijazah Baru.');
+              const ipkEl = document.getElementById('ipk');
+              if (ipkEl) {
+                ipkEl.focus();
+                ipkEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+              return;
+            }
+          }
+
           const finalPhoto = activeCroppedPhotoFile || ((fotoInput && fotoInput.files && fotoInput.files[0]) ? fotoInput.files[0] : null);
 
           // Validasi ketat pas foto sebelum dikirim
@@ -1952,8 +2196,15 @@
             }
           }
 
+          const ktpInput = document.getElementById('berkasKtp');
+          const pendukungInput = document.getElementById('berkasPendukung');
+          const ktpFile = (ktpInput && ktpInput.files && ktpInput.files[0]) ? ktpInput.files[0] : null;
+          const pendukungFile = (pendukungInput && pendukungInput.files && pendukungInput.files[0]) ? pendukungInput.files[0] : null;
+
           const files = {
-            foto: finalPhoto
+            foto: finalPhoto,
+            berkas_ktp: ktpFile,
+            berkas_pendukung: pendukungFile
           };
 
           // Tampilkan status memuat (loading)

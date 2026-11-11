@@ -185,7 +185,7 @@ test.describe('Mega Menu Navigasi Portal Ijazah UNTAN', () => {
     await expect(drawer.locator('a[href="lacak.html"]')).toBeVisible();
     await expect(drawer.locator('a[href="panduan.html"]')).toBeVisible();
     await expect(drawer.locator('a[href="/crop/"]')).toBeVisible();
-    await expect(drawer.locator('a[href="user/index.html"]')).toBeVisible();
+    await expect(drawer.locator('a[href="user/index.html"]').first()).toBeVisible();
 
     // Klik link di drawer otomatis menutup drawer
     await drawer.locator('a[href="#faq-dan-kontak"]').click();
