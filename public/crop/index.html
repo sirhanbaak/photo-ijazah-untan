@@ -81,6 +81,11 @@
       }
     };
   </script>
+
+  <!-- Supabase JS & Modul Autentikasi Pengguna -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabaseClient.js"></script>
+  <script src="/user/userAuth.js"></script>
 </head>
 
 <body class="bg-surface text-on-surface font-sans antialiased selection:bg-primary-container selection:text-on-primary-container h-screen overflow-hidden flex flex-col select-none">
@@ -530,6 +535,17 @@
               <span class="material-symbols-outlined text-base">send</span>
               <span>Gunakan Hasil Crop di Formulir Pengajuan</span>
             </button>
+
+            <!-- Notifikasi Penguncian Pas Foto Tahap 4 (Pencetakan Blangko Ijazah) -->
+            <div id="crop-stage-lock-notice" class="hidden p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex-col gap-1.5 shadow-sm text-left animate-in fade-in duration-200">
+              <div class="flex items-center gap-1.5 font-bold text-amber-300">
+                <span class="material-symbols-outlined text-[18px]">lock</span>
+                <span>Pas Foto Terkunci (Tahap 4)</span>
+              </div>
+              <p class="text-[11px] leading-relaxed text-slate-300">
+                Linimasa progres tahapan berkas telah mencapai <strong class="text-amber-200">Tahap 4: Pencetakan Blangko Ijazah</strong>. Berkas fisik sedang dalam proses pencetakan sekuritas resmi sehingga tombol <em>Gunakan</em> dinonaktifkan dan pas foto tidak dapat diubah lagi. Anda tetap dapat mengunduh foto untuk arsip pribadi.
+              </p>
+            </div>
           </div>
 
         </aside>
@@ -658,6 +674,14 @@
               <span class="material-symbols-outlined text-base">send</span>
               <span>Gunakan Hasil Crop di Formulir Pengajuan Ijazah</span>
             </button>
+
+            <!-- Notifikasi Penguncian Pas Foto Tahap 4 di Modal Hasil Crop -->
+            <div id="crop-modal-stage-lock-notice" class="hidden p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs items-start gap-2 shadow-sm text-left animate-in fade-in duration-200">
+              <span class="material-symbols-outlined text-[18px] text-amber-300 shrink-0 mt-0.5">lock</span>
+              <span class="text-[11px] leading-snug text-slate-300">
+                Tombol <em>Gunakan</em> tidak tersedia karena permohonan telah mencapai <strong>Tahap 4: Pencetakan Blangko Ijazah</strong>. Anda dapat mengunduh foto di atas untuk arsip dokumen pribadi.
+              </span>
+            </div>
           </div>
 
         </div>

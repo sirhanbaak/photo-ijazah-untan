@@ -156,6 +156,24 @@
       prodi: 'Pendidikan Bahasa Inggris',
       periode_yudisium: 'Wisuda Periode II TA 2024/2025 (10 November 2024)',
       ipk: '3.91'
+    },
+    {
+      id: 'c1d2e3f4-a5b6-7890-cdef-333333333335',
+      nim: 'F1081171015',
+      nik: '6171011504960002',
+      email: 'bambang.triatmojo@alumni.untan.ac.id',
+      nama_lengkap: 'Bambang Triatmojo, S.Pd.',
+      tempat_lahir: 'Pontianak',
+      tanggal_lahir: '1996-04-15',
+      password_hash: DEFAULT_HASH,
+      password_salt: DEFAULT_SALT,
+      role: 'alumni',
+      status: 'active',
+      phone_number: '081256789012',
+      fakultas: 'FKIP',
+      prodi: 'Pendidikan Matematika',
+      periode_yudisium: 'Wisuda Periode II TA 2020/2021 (28 April 2021)',
+      ipk: '3.82'
     }
   ];
 

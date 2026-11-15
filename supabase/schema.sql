@@ -271,6 +271,29 @@ INSERT INTO public.pengajuan_ijazah (
     6,
     'Subbagian Pendidikan & Akademik FKIP Untan',
     'Berkas permohonan baru diterima dalam sistem. Menunggu pemeriksaan verifikator loket daring.'
+),
+(
+    'c3d4e5f6-a7b8-9012-cdef-333333333333',
+    'UNTAN-IJZ-2026-0843',
+    'penerbitan_ulang',
+    'F1081171015',
+    '6171011504960002',
+    'Bambang Triatmojo, S.Pd.',
+    'Pontianak',
+    '1996-04-15',
+    'FKIP',
+    'S1 - Pendidikan Matematika',
+    'Wisuda Periode II TA 2020/2021 (28 April 2021)',
+    '3.82',
+    '081256789012',
+    'bambang.triatmojo@alumni.untan.ac.id',
+    'proses_cetak',
+    'Tahap 4: Pencetakan Blangko Ijazah & Verifikasi Fisik Pas Foto',
+    'Proses Cetak',
+    4,
+    6,
+    'Loket 03 (Sub-bagian Ijazah & Legalisir) BAK Gedung Rektorat Untan',
+    'Permohonan penerbitan ulang ijazah hilang telah diverifikasi lengkap. Nomor PISN 10201202100843 telah disahkan Kemdiktisaintek. Berkas saat ini sedang dalam proses pencetakan fisik pada lembar Blangko Ijazah Pengganti kertas sekuritas resmi Untan dan penempelan pas foto fisik.'
 )
 ON CONFLICT (nomor_tiket) DO NOTHING;
 
@@ -307,6 +330,47 @@ VALUES
     'Pengajuan permohonan ijazah baru telah diterima secara elektronik oleh sistem portal Untan.',
     'Sistem Registrasi Online',
     'completed',
+    TIMEZONE('asia/jakarta', NOW())
+)
+ON CONFLICT DO NOTHING;
+
+-- Riwayat linimasa untuk Tiket 3 (UNTAN-IJZ-2026-0843 - Penerbitan Ulang Tahap 4)
+INSERT INTO public.riwayat_status (pengajuan_id, step_number, title, description, actor, status, waktu)
+VALUES
+(
+    'c3d4e5f6-a7b8-9012-cdef-333333333333',
+    1,
+    'Tahap 1: Pengajuan Diterima & Verifikasi Berkas Awal',
+    'Berkas digital permohonan penerbitan ulang (Surat Keterangan Kehilangan Polisi No. SKTLK/112/SPKT/POLRES-PTK/2026, SPTJM bermaterai, dan KTP) telah diterima dan dinyatakan lengkap tanpa kekurangan dokumen formal.',
+    'M. Ramdani (NIP. 198504122010121002) - Loket Daring BAK',
+    'completed',
+    TIMEZONE('asia/jakarta', NOW()) - INTERVAL '8 days'
+),
+(
+    'c3d4e5f6-a7b8-9012-cdef-333333333333',
+    2,
+    'Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAAK',
+    'Sub-bagian Akademik BAAK Untan telah melakukan pencocokan arsip fisik buku induk mahasiswa kelulusan TA 2020/2021 dengan pangkalan data PDDikti Kemendikbudristek dan menyatakan data kelulusan sah.',
+    'Tim Validasi PDDikti & Akademik BAAK Untan',
+    'completed',
+    TIMEZONE('asia/jakarta', NOW()) - INTERVAL '6 days'
+),
+(
+    'c3d4e5f6-a7b8-9012-cdef-333333333333',
+    3,
+    'Tahap 3: Penerbitan & Registrasi PISN Kemdiktisaintek',
+    'SK Rektor tentang Penerbitan Pengganti Ijazah Hilang/Rusak telah diterbitkan dan nomor Penomoran Ijazah Nasional (PISN: 10201202100843) berhasil disahkan di portal Kemdiktisaintek RI.',
+    'Admin PISN Pusat Kemdiktisaintek RI',
+    'completed',
+    TIMEZONE('asia/jakarta', NOW()) - INTERVAL '3 days'
+),
+(
+    'c3d4e5f6-a7b8-9012-cdef-333333333333',
+    4,
+    'Tahap 4: Pencetakan Blangko Ijazah & Verifikasi Fisik Pas Foto',
+    'Proses pencetakan fisik pada lembar Blangko Ijazah Pengganti resmi dengan kertas sekuritas berpengaman watermark Untan, serat mikroteks anti-fotokopi, dan penempelan pas foto fisik resmi.',
+    'Subbagian Percetakan Dokumen Negara BAK Untan',
+    'in_progress',
     TIMEZONE('asia/jakarta', NOW())
 )
 ON CONFLICT DO NOTHING;

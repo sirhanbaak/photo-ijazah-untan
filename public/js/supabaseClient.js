@@ -826,8 +826,123 @@ window.UntanSupabase = {
     }
   },
 
+  // 7b. Data Dummy Resmi Pengajuan Penerbitan Ulang yang Sudah Sampai pada Tahap 4
+  DUMMY_PENERBITAN_ULANG_TAHAP_4: {
+    data: {
+      id: 'c3d4e5f6-a7b8-9012-cdef-333333333333',
+      nomor_tiket: 'UNTAN-IJZ-2026-0843',
+      service_type: 'penerbitan_ulang',
+      layanan_id: 'layanan-03',
+      prioritas: 'reguler',
+      nim: 'F1081171015',
+      nik: '6171011504960002',
+      nama_lengkap: 'Bambang Triatmojo, S.Pd.',
+      tempat_lahir: 'Pontianak',
+      tanggal_lahir: '1996-04-15',
+      fakultas: 'FKIP',
+      prodi: 'S1 - Pendidikan Matematika',
+      periode_yudisium: 'Wisuda Periode II TA 2020/2021 (28 April 2021)',
+      ipk: '3.82',
+      whatsapp: '081256789012',
+      email: 'bambang.triatmojo@alumni.untan.ac.id',
+      status: 'proses_cetak',
+      status_label: 'Tahap 4: Pencetakan Blangko Ijazah & Verifikasi Fisik Pas Foto',
+      status_ijazah: 'Proses Cetak',
+      current_step: 4,
+      total_steps: 6,
+      loket_pengambilan: 'Loket 03 (Sub-bagian Ijazah & Legalisir Lantai 1) BAK Gedung Rektorat Untan',
+      catatan_petugas: 'Permohonan penerbitan ulang ijazah hilang telah diverifikasi lengkap. Nomor PISN 10201202100843 telah disahkan Kemdiktisaintek. Berkas saat ini sedang dalam proses pencetakan fisik pada lembar Blangko Ijazah Pengganti kertas sekuritas resmi Untan dan penempelan pas foto fisik.',
+      nomor_ijazah_nasional: '10201202100843',
+      nomor_sk_kehilangan: 'SKTLK/112/SPKT/POLRES-PTK/2026',
+      foto_url: 'https://example.untan.ac.id/storage/dokumen-ijazah/foto_bambang_4x6.jpg',
+      berkas_ktp_url: 'https://example.untan.ac.id/storage/dokumen-ijazah/ktp_bambang.pdf',
+      berkas_pendukung_url: 'https://example.untan.ac.id/storage/dokumen-ijazah/sktlk_polres_bambang.pdf',
+      created_at: '2026-10-25T08:30:00.000Z',
+      updated_at: '2026-11-02T10:15:00.000Z'
+    },
+    riwayat: [
+      {
+        step_number: 1,
+        title: 'Tahap 1: Pengajuan Diterima & Verifikasi Berkas Awal',
+        description: 'Berkas digital permohonan penerbitan ulang (Surat Keterangan Kehilangan Polisi No. SKTLK/112/SPKT/POLRES-PTK/2026, SPTJM bermaterai, dan KTP) telah diterima dan dinyatakan lengkap tanpa kekurangan dokumen formal.',
+        actor: 'M. Ramdani (NIP. 198504122010121002) - Loket Daring BAK',
+        status: 'completed',
+        waktu: '2026-10-25T09:15:00.000Z'
+      },
+      {
+        step_number: 2,
+        title: 'Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAAK',
+        description: 'Sub-bagian Akademik BAAK Untan telah melakukan pencocokan arsip fisik buku induk mahasiswa kelulusan TA 2020/2021 dengan pangkalan data PDDikti Kemendikbudristek dan menyatakan data kelulusan sah.',
+        actor: 'Tim Validasi PDDikti & Akademik BAAK Untan',
+        status: 'completed',
+        waktu: '2026-10-27T14:00:00.000Z'
+      },
+      {
+        step_number: 3,
+        title: 'Tahap 3: Penerbitan & Registrasi PISN Kemdiktisaintek',
+        description: 'SK Rektor tentang Penerbitan Pengganti Ijazah Hilang/Rusak telah diterbitkan dan nomor Penomoran Ijazah Nasional (PISN: 10201202100843) berhasil disahkan di portal Kemdiktisaintek RI.',
+        actor: 'Admin PISN Pusat Kemdiktisaintek RI',
+        status: 'completed',
+        waktu: '2026-10-30T11:30:00.000Z'
+      },
+      {
+        step_number: 4,
+        title: 'Tahap 4: Pencetakan Blangko Ijazah & Verifikasi Fisik Pas Foto',
+        description: 'Proses pencetakan fisik pada lembar Blangko Ijazah Pengganti resmi dengan kertas sekuritas berpengaman watermark Untan, serat mikroteks anti-fotokopi, dan penempelan pas foto fisik resmi.',
+        actor: 'Subbagian Percetakan Dokumen Negara BAK Untan',
+        status: 'in_progress',
+        waktu: '2026-11-02T08:00:00.000Z'
+      },
+      {
+        step_number: 5,
+        title: 'Tahap 5: Penandatanganan Rektor / Dekan Fakultas',
+        description: 'Penandatanganan basah oleh Dekan FKIP dan Rektor Universitas Tanjungpura serta pencatatan pada buku register universitas.',
+        actor: 'Pimpinan Universitas & Fakultas',
+        status: 'pending',
+        waktu: null
+      },
+      {
+        step_number: 6,
+        title: 'Tahap 6: Dokumen Siap Diambil di Loket BAK Untan',
+        description: 'Ijazah pengganti siap diambil di Loket 03 Subbagian Ijazah & Legalisir BAK Gedung Rektorat Untan Lantai 1 dengan menunjukkan KTP asli dan bukti pelaporan kehilangan.',
+        actor: 'Petugas Loket Pengambilan',
+        status: 'pending',
+        waktu: null
+      }
+    ]
+  },
+
   // 8. Lacak Status Pengajuan Berdasarkan Nomor Tiket atau NIM (dengan Otorisasi Privasi NIM Pengguna)
   async getPengajuan(query, userNim = null) {
+    const cleanQuery = (query || '').trim();
+    if (!cleanQuery) {
+      return { success: false, error: new Error('Nomor tiket atau NIM tidak boleh kosong.') };
+    }
+
+    // Penanganan Cepat untuk Tiket Dummy Penerbitan Ulang Tahap 4
+    const isDummyTiket0843 = cleanQuery.toUpperCase().includes('0843') || cleanQuery.toUpperCase() === 'F1081171015';
+    if (isDummyTiket0843) {
+      const dummy = this.DUMMY_PENERBITAN_ULANG_TAHAP_4;
+      if (userNim) {
+        const cleanExpected = String(userNim).trim().toUpperCase();
+        const recordNim = String(dummy.data.nim || '').trim().toUpperCase();
+        if (recordNim && cleanExpected && recordNim !== cleanExpected) {
+          return {
+            success: false,
+            accessDenied: true,
+            targetNim: recordNim,
+            userNim: cleanExpected,
+            message: `Akses Ditolak! Nomor Tiket Registrasi "${cleanQuery}" terdaftar atas nama pemohon lain (NIM: ${recordNim}). Anda hanya dapat melacak data permohonan dimana NIM Anda (${cleanExpected}) terdaftar.`
+          };
+        }
+      }
+      return {
+        success: true,
+        data: dummy.data,
+        riwayat: dummy.riwayat
+      };
+    }
+
     const client = this.getClient();
     if (!client) {
       return {
