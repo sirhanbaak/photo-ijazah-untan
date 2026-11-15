@@ -490,4 +490,35 @@ test.describe('Portal Pengguna & Sistem Autentikasi MFA', () => {
     await expect(page.locator('#userNimDisplay')).toContainText('F1081171015');
     await expect(page.locator('#userNameTitle')).toContainText('Bambang Triatmojo');
   });
+
+  test('kode OTP verifikasi login (123456) muncul untuk masing-masing akun demo pada form login', async ({ page }) => {
+    await page.goto('/user/login.html');
+
+    // 1. Verifikasi ketiga tombol akun demo memiliki info kode OTP
+    const btnPenerbitanBaru = page.locator('button:has-text("Penerbitan Baru")');
+    const btnPerbaikanData = page.locator('button:has-text("Perbaikan Data")');
+    const btnPenerbitanUlang = page.locator('button:has-text("Penerbitan Ulang")');
+
+    await expect(btnPenerbitanBaru).toBeVisible();
+    await expect(btnPenerbitanBaru).toContainText('Kode OTP:');
+    await expect(btnPenerbitanBaru).toContainText('123456');
+
+    await expect(btnPerbaikanData).toBeVisible();
+    await expect(btnPerbaikanData).toContainText('Kode OTP:');
+    await expect(btnPerbaikanData).toContainText('123456');
+
+    await expect(btnPenerbitanUlang).toBeVisible();
+    await expect(btnPenerbitanUlang).toContainText('Kode OTP:');
+    await expect(btnPenerbitanUlang).toContainText('123456');
+
+    // 2. Banner petunjuk OTP pengujian juga terlihat di form login
+    await expect(page.locator('text=Kode OTP Verifikasi Login (MFA):')).toBeVisible();
+
+    // 3. Klik salah satu tombol demo memunculkan feedback kesiapan akun dan kode OTP
+    await btnPenerbitanBaru.click({ force: true });
+    const alertBox = page.locator('#loginAlert');
+    await expect(alertBox).toBeVisible();
+    await expect(alertBox).toContainText('Kode OTP:');
+    await expect(alertBox).toContainText('123456');
+  });
 });
