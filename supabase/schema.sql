@@ -293,7 +293,7 @@ INSERT INTO public.pengajuan_ijazah (
     4,
     6,
     'Loket 03 (Sub-bagian Ijazah & Legalisir) BAK Gedung Rektorat Untan',
-    'Permohonan penerbitan ulang ijazah hilang telah diverifikasi lengkap. Nomor PISN 10201202100843 telah disahkan Kemdiktisaintek. Berkas saat ini sedang dalam proses pencetakan fisik pada lembar Blangko Ijazah Pengganti kertas sekuritas resmi Untan dan penempelan pas foto fisik.'
+    'Permohonan penerbitan ulang ijazah hilang telah diverifikasi lengkap. Nomor PISN 10201202100843 telah tercatat sah (tahap registrasi PISN baru dilewati/dianggap selesai). Berkas saat ini sedang dalam proses pencetakan fisik pada lembar Blangko Ijazah Pengganti kertas sekuritas resmi Untan dan penempelan pas foto fisik.'
 )
 ON CONFLICT (nomor_tiket) DO NOTHING;
 
@@ -358,9 +358,9 @@ VALUES
 (
     'c3d4e5f6-a7b8-9012-cdef-333333333333',
     3,
-    'Tahap 3: Penerbitan & Registrasi PISN Kemdiktisaintek',
-    'SK Rektor tentang Penerbitan Pengganti Ijazah Hilang/Rusak telah diterbitkan dan nomor Penomoran Ijazah Nasional (PISN: 10201202100843) berhasil disahkan di portal Kemdiktisaintek RI.',
-    'Admin PISN Pusat Kemdiktisaintek RI',
+    'Tahap 3: Penerbitan & Registrasi PISN Kemdiktisaintek (Dilewati / Tidak Diperlukan)',
+    'Penerbitan nomor registrasi PISN baru tidak diperlukan karena pemohon telah memiliki Nomor PISN sah (10201202100843) sejak kelulusan awal. Tahap ini otomatis dilewati dan dianggap selesai.',
+    'Sistem Terintegrasi PISN Kemdiktisaintek (Otomatis Selesai)',
     'completed',
     TIMEZONE('asia/jakarta', NOW()) - INTERVAL '3 days'
 ),

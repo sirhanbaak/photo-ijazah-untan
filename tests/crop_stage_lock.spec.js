@@ -104,6 +104,27 @@ test.describe('Fitur Penguncian Tombol Gunakan di Aplikasi Crop Berdasarkan Taha
     // Verifikasi teks tahap 4 pada linimasa riwayat
     const step4Title = page.locator('#timelineContainer').locator('text=Tahap 4: Pencetakan Blangko Ijazah & Verifikasi Fisik Pas Foto');
     await expect(step4Title).toBeVisible();
+
+    // Verifikasi aturan khusus Penerbitan Ulang: Tahap 3 (PISN) dilewati dan dianggap selesai
+    const step3Container = page.locator('#timelineContainer');
+    await expect(step3Container).toContainText('Tahap 3: Penerbitan & Registrasi PISN Kemdiktisaintek (Dilewati / Tidak Diperlukan)');
+    await expect(step3Container).toContainText('Dilewati (Selesai)');
+    await expect(step3Container).toContainText('Penerbitan nomor registrasi PISN baru tidak diperlukan karena alumni telah memiliki Nomor PISN sah');
+  });
+
+  test('Kondisi 5: Khusus kasus penerbitan ulang, Tahap 3 tidak diperlukan/dilewati dan otomatis dianggap selesai', async ({ page }) => {
+    // Buka lacak tiket penerbitan ulang
+    await page.goto('/lacak.html?q=UNTAN-IJZ-2026-0843&bypass_auth=1');
+
+    const timeline = page.locator('#timelineContainer');
+    await expect(timeline).toBeVisible();
+
+    // Pastikan badge "Dilewati (Selesai)" tampil untuk tahap 3
+    const step3Badge = timeline.locator('text=Dilewati (Selesai)');
+    await expect(step3Badge).toBeVisible();
+
+    // Pastikan ikon fast_forward atau pemeriksa otomatis tampil
+    await expect(timeline).toContainText('Sistem Terintegrasi PISN Kemdiktisaintek (Otomatis Selesai)');
   });
 
 });

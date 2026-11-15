@@ -851,7 +851,7 @@ window.UntanSupabase = {
       current_step: 4,
       total_steps: 6,
       loket_pengambilan: 'Loket 03 (Sub-bagian Ijazah & Legalisir Lantai 1) BAK Gedung Rektorat Untan',
-      catatan_petugas: 'Permohonan penerbitan ulang ijazah hilang telah diverifikasi lengkap. Nomor PISN 10201202100843 telah disahkan Kemdiktisaintek. Berkas saat ini sedang dalam proses pencetakan fisik pada lembar Blangko Ijazah Pengganti kertas sekuritas resmi Untan dan penempelan pas foto fisik.',
+      catatan_petugas: 'Permohonan penerbitan ulang ijazah hilang telah diverifikasi lengkap. Nomor PISN 10201202100843 telah tercatat sah (tahap registrasi PISN baru dilewati/dianggap selesai). Berkas saat ini sedang dalam proses pencetakan fisik pada lembar Blangko Ijazah Pengganti kertas sekuritas resmi Untan dan penempelan pas foto fisik.',
       nomor_ijazah_nasional: '10201202100843',
       nomor_sk_kehilangan: 'SKTLK/112/SPKT/POLRES-PTK/2026',
       foto_url: 'https://example.untan.ac.id/storage/dokumen-ijazah/foto_bambang_4x6.jpg',
@@ -879,11 +879,11 @@ window.UntanSupabase = {
       },
       {
         step_number: 3,
-        title: 'Tahap 3: Penerbitan & Registrasi PISN Kemdiktisaintek',
-        description: 'SK Rektor tentang Penerbitan Pengganti Ijazah Hilang/Rusak telah diterbitkan dan nomor Penomoran Ijazah Nasional (PISN: 10201202100843) berhasil disahkan di portal Kemdiktisaintek RI.',
-        actor: 'Admin PISN Pusat Kemdiktisaintek RI',
+        title: 'Tahap 3: Penerbitan & Registrasi PISN Kemdiktisaintek (Dilewati / Tidak Diperlukan)',
+        description: 'Penerbitan nomor registrasi PISN baru tidak diperlukan karena alumni telah memiliki Nomor PISN sah (10201202100843) sejak kelulusan awal. Tahap ini otomatis dilewati dan dianggap selesai.',
+        actor: 'Sistem Terintegrasi PISN Kemdiktisaintek (Otomatis Selesai)',
         status: 'completed',
-        waktu: '2026-10-30T11:30:00.000Z'
+        waktu: '2026-10-27T15:00:00.000Z'
       },
       {
         step_number: 4,

@@ -849,8 +849,13 @@
         elTanggal.innerHTML = `Diajukan pada: <strong>${formatDateIndo(data.created_at)}</strong>`;
       }
 
-      const currentStep = parseInt(data.current_step, 10) || 1;
+      let currentStep = parseInt(data.current_step, 10) || 1;
       const totalSteps = parseInt(data.total_steps, 10) || 6;
+
+      // Khusus penerbitan ulang: tahap 3 (PISN) tidak diperlukan/dilewati dan dianggap selesai
+      if (data.service_type === 'penerbitan_ulang' && currentStep === 3) {
+        currentStep = 4;
+      }
 
       if (elStepBadge) {
         elStepBadge.textContent = `Tahap ${currentStep} dari ${totalSteps}`;
@@ -985,7 +990,12 @@
         if (currentStep >= totalSteps) {
           elSisaHari.textContent = '0 Hari Kerja (Selesai)';
         } else {
-          const sisa = Math.max(1, (totalSteps - currentStep) * 2);
+          // Khusus penerbitan ulang tahap 3 dilewati, kurangi durasi estimasi 1 tahap (2 hari kerja)
+          let stepsLeft = Math.max(1, totalSteps - currentStep);
+          if (data.service_type === 'penerbitan_ulang' && currentStep < 3) {
+            stepsLeft = Math.max(1, stepsLeft - 1);
+          }
+          const sisa = stepsLeft * 2;
           elSisaHari.textContent = `${sisa} Hari Kerja`;
         }
       }
@@ -1124,7 +1134,55 @@
           }
         }
 
-        if (stepNum < currentStep) {
+        // Khusus penerbitan ulang: tahap 3 tidak diperlukan/dilewati dan dianggap selesai
+        const isPenerbitanUlang = (serviceType === 'penerbitan_ulang');
+        const isStep3Skipped = (stepNum === 3 && isPenerbitanUlang);
+
+        if (isStep3Skipped) {
+          if (!custom.title || !custom.title.includes('Dilewati')) {
+            title = "Tahap 3: Penerbitan & Registrasi PISN Kemdiktisaintek (Dilewati / Tidak Diperlukan)";
+          }
+          if (!custom.description || custom.description === st.desc) {
+            desc = "Penerbitan nomor registrasi PISN baru tidak diperlukan karena alumni telah memiliki Nomor PISN sah yang terdaftar sejak kelulusan awal. Tahap ini otomatis dilewati dan dianggap selesai.";
+          }
+          if (!custom.actor || custom.actor === st.defaultActor) {
+            actor = "Sistem Terintegrasi PISN Kemdiktisaintek (Otomatis Selesai)";
+          }
+        }
+
+        if (isStep3Skipped) {
+          // KHUSUS PENERBITAN ULANG: TAHAP 3 DILEWATI DAN DIANGGAP SELESAI
+          const isPassed = (currentStep >= 3);
+          const badgeText = isPassed ? "Dilewati (Selesai)" : "Dilewati / Tidak Diperlukan";
+          const badgeClass = isPassed
+            ? "px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-label-sm text-[10px] font-bold uppercase"
+            : "px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-label-sm text-[10px] font-bold uppercase";
+          const iconCircleClass = isPassed
+            ? "bg-emerald-600 text-on-primary shadow-md"
+            : "bg-surface-container-highest text-emerald-700";
+
+          html += `
+          <div class="relative group ${isPassed ? '' : 'opacity-85'}">
+            <div class="absolute -left-6 sm:-left-8 top-0.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full ${iconCircleClass} flex items-center justify-center">
+              <span class="material-symbols-outlined text-[18px]">fast_forward</span>
+            </div>
+            <div class="bg-surface-container-low rounded-lg p-space-md ml-2 transition-all hover:bg-surface-container border border-emerald-200/60">
+              <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+                <div class="flex items-center gap-2">
+                  <span class="font-label-md text-label-md ${isPassed ? 'text-primary font-bold' : 'text-on-surface font-semibold'}">${title}</span>
+                  <span class="${badgeClass}">${badgeText}</span>
+                </div>
+                ${waktu ? `<span class="font-label-sm text-label-sm text-on-surface-variant">${waktu}</span>` : ''}
+              </div>
+              <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">${desc}</p>
+              ${actor ? `
+              <div class="mt-2.5 flex items-center gap-2 font-label-sm text-label-sm text-emerald-800">
+                <span class="material-symbols-outlined text-[16px] text-emerald-600">verified</span>
+                <span>Pemeriksa: <strong>${actor}</strong></span>
+              </div>` : ''}
+            </div>
+          </div>`;
+        } else if (stepNum < currentStep) {
           // SELESAI (COMPLETED)
           html += `
           <div class="relative group">
