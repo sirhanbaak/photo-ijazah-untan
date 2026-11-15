@@ -826,8 +826,8 @@ window.UntanSupabase = {
     }
   },
 
-  // 8. Lacak Status Pengajuan Berdasarkan Nomor Tiket atau NIM
-  async getPengajuan(query) {
+  // 8. Lacak Status Pengajuan Berdasarkan Nomor Tiket atau NIM (dengan Otorisasi Privasi NIM Pengguna)
+  async getPengajuan(query, userNim = null) {
     const client = this.getClient();
     if (!client) {
       return {
@@ -864,6 +864,22 @@ window.UntanSupabase = {
       }
 
       const pengajuan = data[0];
+
+      // Otorisasi Kepemilikan Data:
+      // Jika userNim diberikan, pastikan pengajuan.nim cocok persis dengan userNim
+      if (userNim) {
+        const cleanExpected = String(userNim).trim().toUpperCase();
+        const recordNim = String(pengajuan.nim || '').trim().toUpperCase();
+        if (recordNim && cleanExpected && recordNim !== cleanExpected) {
+          return {
+            success: false,
+            accessDenied: true,
+            targetNim: recordNim,
+            userNim: cleanExpected,
+            message: `Akses Ditolak! Nomor Tiket Registrasi "${cleanQuery}" terdaftar atas nama pemohon lain (NIM: ${recordNim}). Anda hanya dapat melacak data permohonan dimana NIM Anda (${cleanExpected}) terdaftar.`
+          };
+        }
+      }
 
       // Ambil linimasa riwayat status
       const { data: riwayatData, error: riwayatError } = await client

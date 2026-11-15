@@ -403,7 +403,7 @@
 <div class="relative flex items-center">
 <span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant pointer-events-none text-[22px]">search</span>
 <input class="w-full h-12 pl-11 pr-32 rounded-lg bg-surface text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:bg-surface-container-lowest focus:shadow-md transition-all" id="searchQuery" placeholder="Contoh: UNTAN-IJZ-2025-0891 atau F1081191024" type="text" value="">
-<button class="absolute right-3 font-label-sm text-label-sm text-secondary hover:text-on-secondary-container bg-secondary-fixed/50 px-2.5 py-1 rounded transition-colors hidden sm:block" onclick="document.getElementById('searchQuery').value='UNTAN-IJZ-2025-0842'" type="button">
+<button class="absolute right-3 font-label-sm text-label-sm text-secondary hover:text-on-secondary-container bg-secondary-fixed/50 px-2.5 py-1 rounded transition-colors hidden sm:block" onclick="fillExampleQuery()" type="button">
                 Isi Contoh
               </button>
 </div>
@@ -659,7 +659,7 @@
 <span class="material-symbols-outlined text-secondary text-[22px]">assignment_turned_in</span>
 <h3 class="font-title-lg text-title-lg text-primary font-bold">Syarat Pengambilan di Loket</h3>
 </div>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Jika status telah berubah menjadi <strong class="">Tahap 6 (Siap Diambil)</strong>, silakan bawa persyaratan berikut ke loket BAK Rektorat:</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Jika status telah berubah menjadi <strong class="">Tahap 6 (Siap Diambil)</strong>, silakan bawa persyaratan berikut ke loket pengambilan (Subbagian Akademik Fakultas untuk Penerbitan Baru, atau Loket BAK Rektorat untuk Perbaikan/Penggantian):</p>
 <ul class="space-y-space-xs font-body-sm text-body-sm text-on-surface">
 <li class="flex items-start gap-2">
 <span class="material-symbols-outlined text-[16px] text-primary shrink-0 mt-0.5">check</span>
@@ -1019,7 +1019,7 @@
       }
 
       // 3. Render Linimasa / Stepper 6 Langkah
-      renderTimeline(currentStep, riwayat || []);
+      renderTimeline(currentStep, riwayat || [], data.service_type);
     }
 
     function resetTrackingDataToEmpty() {
@@ -1090,7 +1090,7 @@
       }
     }
 
-    function renderTimeline(currentStep, riwayat) {
+    function renderTimeline(currentStep, riwayat, serviceType = '') {
       const container = document.getElementById('timelineContainer');
       if (!container) return;
 
@@ -1108,10 +1108,21 @@
       DEFAULT_STEPS.forEach(st => {
         const custom = riwayatMap[st.step] || {};
         const stepNum = st.step;
-        const title = custom.title || st.title;
-        const desc = custom.description || st.desc;
-        const actor = custom.actor || st.defaultActor;
+        let title = custom.title || st.title;
+        let desc = custom.description || st.desc;
+        let actor = custom.actor || st.defaultActor;
         const waktu = custom.waktu ? formatDateIndo(custom.waktu) : '';
+
+        // Khusus penerbitan baru: tahap ke-6 Dokumen Siap Diambil di Fakultas
+        if (stepNum === 6 && serviceType === 'penerbitan_baru') {
+          title = "Tahap 6: Dokumen Siap Diambil di Fakultas";
+          if (!custom.description || custom.description === st.desc) {
+            desc = "Ijazah fisik siap diambil langsung di Subbagian Akademik Fakultas dengan membawa e-KTP asli atau Kartu Mahasiswa.";
+          }
+          if (!custom.actor || custom.actor === st.defaultActor) {
+            actor = "Petugas Subbagian Akademik Fakultas";
+          }
+        }
 
         if (stepNum < currentStep) {
           // SELESAI (COMPLETED)
@@ -1180,6 +1191,24 @@
       container.innerHTML = html;
     }
 
+    function fillExampleQuery() {
+      const input = document.getElementById('searchQuery');
+      if (!input) return;
+      const currentUser = window.UntanUserAuth ? window.UntanUserAuth.getCurrentUser() : null;
+      if (currentUser && currentUser.nim) {
+        const uNim = currentUser.nim.trim().toUpperCase();
+        if (uNim === 'F1081191042') {
+          input.value = 'UNTAN-IJZ-2025-0841';
+        } else if (uNim === 'D101181042') {
+          input.value = 'UNTAN-IJZ-2025-0842';
+        } else {
+          input.value = currentUser.nim;
+        }
+      } else {
+        input.value = 'UNTAN-IJZ-2025-0841';
+      }
+    }
+
     async function triggerSearchVisual(overrideQuery, silentOnNotFound = false) {
       const btn = document.getElementById('searchBtn');
       const input = (overrideQuery || (document.getElementById('searchQuery') ? document.getElementById('searchQuery').value : '')).trim();
@@ -1203,6 +1232,8 @@
         window.location.href = 'user/login.html?redirect=' + encodeURIComponent(redirectTarget);
         return;
       }
+
+      const userNim = currentUser ? (currentUser.nim || '').trim().toUpperCase() : '';
       
       const originalHTML = btn ? btn.innerHTML : '';
       if (btn) {
@@ -1212,18 +1243,36 @@
 
       try {
         if (window.UntanSupabase) {
-          const res = await window.UntanSupabase.getPengajuan(input);
+          const res = await window.UntanSupabase.getPengajuan(input, isBypass ? null : userNim);
           const noticeBox = document.getElementById('trackingNoticeBox');
+
+          // Penanganan Akses Ditolak (Nomor Tiket atau NIM terdaftar atas nama pemohon lain)
+          if (res.accessDenied) {
+            resetTrackingDataToEmpty();
+            if (noticeBox) {
+              noticeBox.classList.remove('hidden');
+              noticeBox.className = 'mb-space-md flex items-start gap-space-xs p-space-sm rounded-lg bg-red-100 text-red-900 border border-red-200 font-body-sm text-body-sm shadow-sm';
+              noticeBox.innerHTML = `
+                <span class="material-symbols-outlined text-[20px] text-red-700 shrink-0 mt-0.5">gpp_bad</span>
+                <div>
+                  <strong class="font-bold block mb-0.5">Akses Ditolak — Perlindungan Privasi Data Akademik:</strong>
+                  <span>Nomor Tiket Registrasi "<strong>${input}</strong>" terdaftar atas nama pemohon lain. Sesuai regulasi privasi data Universitas Tanjungpura, Anda hanya dapat melacak permohonan dimana NIM Anda (<strong>${userNim || '-'}</strong>) terdaftar pada Nomor Tiket tersebut.</span>
+                </div>
+              `;
+            }
+            if (!silentOnNotFound) {
+              alert(res.message || `Akses Ditolak!\n\nNomor Tiket Registrasi "${input}" terdaftar atas nama pemohon lain. Anda hanya dapat melacak permohonan dimana NIM Anda (${userNim}) terdaftar.`);
+            }
+            return;
+          }
+
           if (res.success && res.data) {
             // Validasi Otorisasi Kepemilikan Data:
             // Mahasiswa/Alumni hanya boleh melihat data permohonan miliknya sendiri (NIM cocok)
-            const userRole = currentUser ? (currentUser.role || '').toLowerCase() : '';
-            const userNim = currentUser ? (currentUser.nim || '').trim().toUpperCase() : '';
             const targetNim = (res.data.nim || '').trim().toUpperCase();
             const isOwner = Boolean(userNim && targetNim && userNim === targetNim);
-            const isPrivileged = userRole === 'admin' || userRole === 'staff';
 
-            if (!isOwner && !isPrivileged && !isBypass) {
+            if (!isOwner && !isBypass) {
               resetTrackingDataToEmpty();
               if (noticeBox) {
                 noticeBox.classList.remove('hidden');
@@ -1232,11 +1281,13 @@
                   <span class="material-symbols-outlined text-[20px] text-red-700 shrink-0 mt-0.5">gpp_bad</span>
                   <div>
                     <strong class="font-bold block mb-0.5">Akses Ditolak — Perlindungan Privasi Data Akademik:</strong>
-                    <span>Permohonan dengan kata kunci "<strong>${input}</strong>" terdaftar atas nama pemohon lain. Sesuai regulasi privasi data Universitas Tanjungpura, Anda hanya diizinkan melacak data permohonan milik akun Anda sendiri (NIM: <strong>${currentUser.nim || '-'}</strong>).</span>
+                    <span>Nomor Tiket Registrasi "<strong>${input}</strong>" terdaftar atas nama pemohon lain. Sesuai regulasi privasi data Universitas Tanjungpura, Anda hanya dapat melacak permohonan dimana NIM Anda (<strong>${userNim || '-'}</strong>) terdaftar pada Nomor Tiket tersebut.</span>
                   </div>
                 `;
               }
-              alert(`Akses Ditolak!\n\nData permohonan ini terdaftar atas nama pemohon lain. Sesuai regulasi perlindungan privasi data akademik Universitas Tanjungpura, Anda hanya dapat melacak permohonan milik akun Anda sendiri (NIM: ${currentUser.nim}).`);
+              if (!silentOnNotFound) {
+                alert(`Akses Ditolak!\n\nNomor Tiket Registrasi ini terdaftar atas nama pemohon lain. Sesuai regulasi perlindungan privasi data akademik Universitas Tanjungpura, Anda hanya dapat melacak permohonan milik akun Anda sendiri (NIM: ${userNim}).`);
+              }
               return;
             }
 

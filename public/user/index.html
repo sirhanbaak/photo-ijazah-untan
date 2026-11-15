@@ -470,10 +470,62 @@
         </div>
       </div>
 
+      <!-- Section Pengaturan Keamanan Akun & 2FA untuk Pengunjung (Guest) -->
+      <div id="guestPengaturanKeamanan" class="scroll-mt-28 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-outline-variant/40 flex flex-col gap-5">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center shrink-0 shadow-xs">
+              <span class="material-symbols-outlined text-[28px]">shield</span>
+            </div>
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold uppercase tracking-wider mb-1">
+                <span>Area Terproteksi</span>
+              </div>
+              <h2 class="font-display font-bold text-lg text-primary">Pengaturan Keamanan Akun &amp; 2FA (MFA)</h2>
+              <p class="text-xs text-on-surface-variant">Konfigurasi kata sandi akun, kode OTP Email, dan verifikasi TOTP Smartphone Authenticator.</p>
+            </div>
+          </div>
+          <a href="login.html?redirect=index.html%23pengaturan-keamanan" class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-container text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 shrink-0">
+            <span class="material-symbols-outlined text-[18px]">login</span>
+            <span>Masuk untuk Kelola Keamanan</span>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div class="p-4 rounded-xl bg-surface-container-low border border-outline-variant/30 flex flex-col gap-2">
+            <span class="font-bold text-primary flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[18px] text-secondary">key</span>
+              <span>Pengelolaan Kata Sandi</span>
+            </span>
+            <p class="text-on-surface-variant leading-relaxed text-[11px]">
+              Perbarui kata sandi akun Anda secara berkala dengan enkripsi SubtleCrypto SHA-256 + cryptographic salt untuk menjaga kerahasiaan data kelulusan.
+            </p>
+            <a href="forgot-password.html" class="text-blue-700 font-bold hover:underline mt-auto pt-1 inline-flex items-center gap-1 text-[11px]">
+              <span>Lupa Kata Sandi? Reset Akun</span>
+              <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </a>
+          </div>
+
+          <div class="p-4 rounded-xl bg-surface-container-low border border-outline-variant/30 flex flex-col gap-2">
+            <span class="font-bold text-primary flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[18px] text-emerald-600">verified_user</span>
+              <span>Proteksi Dua Faktor (MFA)</span>
+            </span>
+            <p class="text-on-surface-variant leading-relaxed text-[11px]">
+              Amankan akses permohonan ijazah Anda dengan kode OTP Email atau Google / Microsoft Authenticator (RFC 6238 TOTP) &amp; kode pemulihan darurat.
+            </p>
+            <a href="login.html?redirect=index.html%23pengaturan-keamanan" class="text-emerald-700 font-bold hover:underline mt-auto pt-1 inline-flex items-center gap-1 text-[11px]">
+              <span>Masuk untuk Konfigurasi MFA</span>
+              <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- STATE 2: AUTHENTICATED USER DASHBOARD (Sudah Login) -->
-    <div id="authDashboardView" class="hidden flex-col gap-6">
+    <div id="authDashboardView" class="hidden flex-col gap-6" style="display: none;">
       
       <!-- User Profile Top Banner -->
       <div class="bg-white rounded-2xl p-6 shadow-sm border border-outline-variant/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -515,6 +567,9 @@
         </div>
       </div>
 
+      <!-- Anchor Target untuk Navigasi Pengaturan Keamanan & MFA -->
+      <div id="pengaturan-keamanan" class="scroll-mt-28"></div>
+
       <!-- Navigation Tabs -->
       <div class="flex items-center gap-2 border-b border-outline-variant/40 pb-2 overflow-x-auto text-xs">
         <button type="button" onclick="switchDashboardTab('tabOverview')" id="btnTabOverview" 
@@ -535,7 +590,7 @@
       </div>
 
       <!-- TAB 1: OVERVIEW & STATUS IJAZAH -->
-      <div id="contentOverview" class="dash-tab-content flex flex-col gap-6">
+      <div id="contentOverview" class="dash-tab-content flex flex-col gap-6" style="display: flex;">
         
         <!-- Live Status Ijazah Card -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-outline-variant/40 flex flex-col gap-4">
@@ -578,7 +633,7 @@
       </div>
 
       <!-- TAB 2: UBAH KATA SANDI (CHANGE PASSWORD) -->
-      <div id="contentPassword" class="dash-tab-content hidden flex-col gap-6 max-w-xl">
+      <div id="contentPassword" class="dash-tab-content hidden flex-col gap-6 max-w-xl" style="display: none;">
         <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-outline-variant/40 flex flex-col gap-5">
           <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100">
             <div class="w-10 h-10 rounded-xl bg-amber-50 text-secondary-dark flex items-center justify-center">
@@ -622,12 +677,21 @@
               <span class="material-symbols-outlined text-[18px]">save</span>
               <span id="btnTextChangePass">Simpan Kata Sandi Baru</span>
             </button>
+
+            <!-- Cross-Link ke Pengaturan MFA -->
+            <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs mt-1">
+              <span class="text-on-surface-variant text-[11px]">Ingin proteksi ganda OTP / Authenticator?</span>
+              <button type="button" onclick="switchDashboardTab('tabMfa')" class="text-primary font-bold hover:underline inline-flex items-center gap-1 text-[11px] self-start sm:self-auto">
+                <span class="material-symbols-outlined text-[15px] text-emerald-600">verified_user</span>
+                <span>Atur Multi-Faktor (MFA) &rarr;</span>
+              </button>
+            </div>
           </form>
         </div>
       </div>
 
       <!-- TAB 3: PENGATURAN MULTI-FAKTOR (MFA) -->
-      <div id="contentMfa" class="dash-tab-content hidden flex-col gap-6 max-w-2xl">
+      <div id="contentMfa" class="dash-tab-content hidden flex-col gap-6 max-w-2xl" style="display: none;">
         <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-outline-variant/40 flex flex-col gap-6">
           
           <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -737,6 +801,15 @@
             <span>Simpan Pengaturan MFA</span>
           </button>
 
+          <!-- Cross-Link ke Ubah Kata Sandi -->
+          <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <span class="text-on-surface-variant text-[11px]">Perlu memperbarui kata sandi akun?</span>
+            <button type="button" onclick="switchDashboardTab('tabPassword')" class="text-primary font-bold hover:underline inline-flex items-center gap-1 text-[11px] self-start sm:self-auto">
+              <span class="material-symbols-outlined text-[15px] text-amber-600">key</span>
+              <span>Ubah Kata Sandi &rarr;</span>
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -770,7 +843,7 @@
       }
     }
 
-    function switchDashboardTab(tabId) {
+    function switchDashboardTab(tabId, updateHash = true) {
       const tabs = ['tabOverview', 'tabPassword', 'tabMfa'];
       const contents = {
         'tabOverview': document.getElementById('contentOverview'),
@@ -784,15 +857,65 @@
       };
 
       tabs.forEach(t => {
+        if (!contents[t] || !buttons[t]) return;
         if (t === tabId) {
           contents[t].classList.remove('hidden');
+          contents[t].classList.add('flex');
+          contents[t].style.display = 'flex';
           buttons[t].className = 'dash-tab-btn py-2 px-4 rounded-xl font-bold bg-primary text-white flex items-center gap-1.5 transition-all shadow-sm';
         } else {
           contents[t].classList.add('hidden');
+          contents[t].classList.remove('flex');
+          contents[t].style.display = 'none';
           buttons[t].className = 'dash-tab-btn py-2 px-4 rounded-xl font-semibold bg-surface-container-low hover:bg-surface-container text-on-surface-variant flex items-center gap-1.5 transition-all';
         }
       });
+
+      if (updateHash && window.history && window.history.replaceState) {
+        let h = '#overview';
+        if (tabId === 'tabPassword') h = '#ubah-sandi';
+        else if (tabId === 'tabMfa') h = '#pengaturan-keamanan';
+        window.history.replaceState(null, '', h);
+      }
     }
+
+    function handleHashNavigation() {
+      const rawHash = (window.location.hash || '').toLowerCase();
+      if (!rawHash) return;
+
+      const user = window.UntanUserAuth ? window.UntanUserAuth.getCurrentUser() : null;
+
+      if (user) {
+        if (['#pengaturan-keamanan', '#keamanan', '#mfa', '#tabmfa', '#2fa', '#security'].includes(rawHash)) {
+          switchDashboardTab('tabMfa', false);
+          setTimeout(() => {
+            const target = document.getElementById('contentMfa') || document.getElementById('pengaturan-keamanan');
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 80);
+        } else if (['#tabpassword', '#password', '#ubah-sandi', '#ubah-password', '#ganti-password'].includes(rawHash)) {
+          switchDashboardTab('tabPassword', false);
+          setTimeout(() => {
+            const target = document.getElementById('contentPassword');
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 80);
+        } else if (['#taboverview', '#overview', '#ringkasan', '#ijazah', '#status'].includes(rawHash)) {
+          switchDashboardTab('tabOverview', false);
+          setTimeout(() => {
+            const target = document.getElementById('contentOverview');
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 80);
+        }
+      } else {
+        if (['#pengaturan-keamanan', '#keamanan', '#mfa', '#tabmfa', '#2fa', '#security'].includes(rawHash)) {
+          setTimeout(() => {
+            const target = document.getElementById('guestPengaturanKeamanan') || document.getElementById('pengaturan-keamanan');
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        }
+      }
+    }
+
+    window.addEventListener('hashchange', handleHashNavigation);
 
     document.addEventListener('DOMContentLoaded', async function () {
       const guestView = document.getElementById('guestView');
@@ -812,17 +935,30 @@
         if (guestView) {
           guestView.classList.remove('hidden');
           guestView.classList.add('flex');
+          guestView.style.display = 'flex';
         }
-        if (authDashboardView) authDashboardView.classList.add('hidden');
+        if (authDashboardView) {
+          authDashboardView.classList.add('hidden');
+          authDashboardView.classList.remove('flex');
+          authDashboardView.style.display = 'none';
+        }
+        handleHashNavigation();
         return;
       }
 
       // JIKA SUDAH LOGIN:
-      if (guestView) guestView.classList.add('hidden');
+      if (guestView) {
+        guestView.classList.add('hidden');
+        guestView.classList.remove('flex');
+        guestView.style.display = 'none';
+      }
       if (authDashboardView) {
         authDashboardView.classList.remove('hidden');
         authDashboardView.classList.add('flex');
+        authDashboardView.style.display = 'flex';
       }
+
+      handleHashNavigation();
 
       const elEmail = document.getElementById('headerUserEmail');
       if (elEmail) elEmail.textContent = activeUser.email;
