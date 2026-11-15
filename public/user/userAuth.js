@@ -217,6 +217,16 @@
       authenticator_confirmed: true,
       phone_mfa_enabled: true,
       backup_codes: ['99887766', '55443322', '11223344', '66778899']
+    },
+    'c1d2e3f4-a5b6-7890-cdef-333333333335': {
+      user_id: 'c1d2e3f4-a5b6-7890-cdef-333333333335',
+      is_mfa_enabled: false,
+      primary_method: 'email',
+      email_mfa_enabled: true,
+      authenticator_secret: 'JBSWY3DPEHPK3PXQ',
+      authenticator_confirmed: false,
+      phone_mfa_enabled: false,
+      backup_codes: ['12345678', '87654321']
     }
   };
 

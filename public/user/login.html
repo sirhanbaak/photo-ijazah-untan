@@ -150,16 +150,27 @@
           <span class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2 text-center">
             Pilih Akun Demo Uji Coba Cepat:
           </span>
-          <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
             <button type="button" onclick="fillDemoAccount('F1081191042', 'PasswordUntan123!')" 
-              class="p-2 rounded-lg bg-surface-container-low hover:bg-surface-container border border-outline-variant/40 text-left transition-colors flex flex-col">
-              <span class="font-bold text-[#00173b]">🎓 Mahasiswa (MFA Email)</span>
-              <span class="text-[10px] text-slate-500 font-mono">F1081191042</span>
+              class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container border border-outline-variant/40 text-left transition-colors flex flex-col gap-0.5">
+              <span class="font-bold text-[#00173b] flex items-center gap-1">
+                <span>🎓</span><span class="truncate">Penerbitan Baru</span>
+              </span>
+              <span class="text-[10px] text-slate-500 font-mono">F1081191042 • Tahap 1</span>
             </button>
             <button type="button" onclick="fillDemoAccount('D101181042', 'PasswordUntan123!')"
-              class="p-2 rounded-lg bg-surface-container-low hover:bg-surface-container border border-outline-variant/40 text-left transition-colors flex flex-col">
-              <span class="font-bold text-[#00173b]">📱 Alumni (MFA Smartphone)</span>
-              <span class="text-[10px] text-slate-500 font-mono">D101181042</span>
+              class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container border border-outline-variant/40 text-left transition-colors flex flex-col gap-0.5">
+              <span class="font-bold text-[#00173b] flex items-center gap-1">
+                <span>📱</span><span class="truncate">Perbaikan Data</span>
+              </span>
+              <span class="text-[10px] text-slate-500 font-mono">D101181042 • Tahap 2</span>
+            </button>
+            <button type="button" onclick="fillDemoAccount('F1081171015', 'PasswordUntan123!')"
+              class="p-2.5 rounded-lg bg-amber-50 hover:bg-amber-100/80 border border-amber-300 text-left transition-colors flex flex-col gap-0.5">
+              <span class="font-bold text-amber-900 flex items-center gap-1">
+                <span>📜</span><span class="truncate">Penerbitan Ulang</span>
+              </span>
+              <span class="text-[10px] text-amber-700 font-mono font-semibold">F1081171015 • Tahap 4</span>
             </button>
           </div>
         </div>
@@ -183,8 +194,18 @@
 
   <script>
     function fillDemoAccount(id, pass) {
-      document.getElementById('identifier').value = id;
-      document.getElementById('password').value = pass;
+      const idInput = document.getElementById('identifier');
+      const passInput = document.getElementById('password');
+      if (idInput) {
+        idInput.value = id;
+        idInput.dispatchEvent(new Event('input', { bubbles: true }));
+        idInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (passInput) {
+        passInput.value = pass;
+        passInput.dispatchEvent(new Event('input', { bubbles: true }));
+        passInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
     }
 
     document.addEventListener('DOMContentLoaded', function () {

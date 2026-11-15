@@ -463,4 +463,31 @@ test.describe('Portal Pengguna & Sistem Autentikasi MFA', () => {
     await expect(page.locator('#trackingNoticeBox')).toBeVisible();
     await expect(page.locator('#trackingNoticeBox')).toContainText('Akses Ditolak');
   });
+
+  test('tombol demo akun Penerbitan Ulang (F1081171015) di login.html mengisi form dan login dengan sukses', async ({ page }) => {
+    await page.goto('/user/login.html');
+
+    // Pastikan 3 tombol demo akun tampil
+    await expect(page.locator('text=Pilih Akun Demo Uji Coba Cepat:')).toBeVisible();
+    const btnDemoPenerbitanUlang = page.locator('button:has-text("Penerbitan Ulang")');
+    await expect(btnDemoPenerbitanUlang).toBeVisible();
+
+    // Klik tombol demo akun Penerbitan Ulang
+    await btnDemoPenerbitanUlang.click({ force: true });
+
+    // Verifikasi input otomatis terisi
+    await expect(page.locator('#identifier')).toHaveValue('F1081171015');
+    await expect(page.locator('#password')).toHaveValue('PasswordUntan123!');
+
+    // Klik tombol submit login
+    await page.click('#btnSubmitLogin', { force: true });
+
+    // Tunggu redirect ke dashboard user
+    await page.waitForURL(/\/user\/(index\.html)?$/);
+
+    // Verifikasi user login adalah Bambang Triatmojo (F1081171015)
+    await expect(page.locator('#authDashboardView')).toBeVisible();
+    await expect(page.locator('#userNimDisplay')).toContainText('F1081171015');
+    await expect(page.locator('#userNameTitle')).toContainText('Bambang Triatmojo');
+  });
 });
