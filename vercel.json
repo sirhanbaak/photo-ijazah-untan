@@ -2,6 +2,20 @@
   "version": 2,
   "outputDirectory": "public",
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/login", "destination": "/user/login.html", "permanent": false },
+    { "source": "/login.html", "destination": "/user/login.html", "permanent": false },
+    { "source": "/masuk", "destination": "/user/login.html", "permanent": false },
+    { "source": "/mfa", "destination": "/user/mfa.html", "permanent": false },
+    { "source": "/mfa.html", "destination": "/user/mfa.html", "permanent": false },
+    { "source": "/dashboard", "destination": "/user", "permanent": false },
+    { "source": "/akun", "destination": "/user", "permanent": false },
+    { "source": "/forgot-password", "destination": "/user/forgot-password.html", "permanent": false },
+    { "source": "/forgot-password.html", "destination": "/user/forgot-password.html", "permanent": false },
+    { "source": "/lupa-password", "destination": "/user/forgot-password.html", "permanent": false },
+    { "source": "/reset-password", "destination": "/user/reset-password.html", "permanent": false },
+    { "source": "/reset-password.html", "destination": "/user/reset-password.html", "permanent": false }
+  ],
   "headers": [
     {
       "source": "/(.*)\\.wasm",

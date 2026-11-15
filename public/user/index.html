@@ -41,9 +41,9 @@
 
   <!-- Supabase JS & Modul Autentikasi -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabaseClient.js"></script>
-  <script src="userAuth.js"></script>
-  <script src="../js/megaMenu.js"></script>
+  <script src="/js/supabaseClient.js"></script>
+  <script src="/user/userAuth.js"></script>
+  <script src="/js/megaMenu.js"></script>
 </head>
 <body class="bg-background font-sans text-on-surface antialiased min-h-screen flex flex-col justify-between">
 
@@ -921,7 +921,20 @@
       const guestView = document.getElementById('guestView');
       const authDashboardView = document.getElementById('authDashboardView');
 
-      if (!window.UntanUserAuth) return;
+      if (!window.UntanUserAuth) {
+        console.warn('UntanUserAuth belum siap/tidak tersedia. Menampilkan guestView sebagai fallback.');
+        if (guestView) {
+          guestView.classList.remove('hidden');
+          guestView.classList.add('flex');
+          guestView.style.display = 'flex';
+        }
+        if (authDashboardView) {
+          authDashboardView.classList.add('hidden');
+          authDashboardView.style.display = 'none';
+        }
+        handleHashNavigation();
+        return;
+      }
 
       // Inisialisasi Nav Header Pengguna Terpadu (GAP-09)
       if (typeof window.UntanUserAuth.initHeaderNav === 'function') {

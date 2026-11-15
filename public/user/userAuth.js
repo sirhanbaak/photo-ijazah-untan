@@ -769,7 +769,7 @@
 
     getBerandaUrl() {
       const p = (typeof window !== 'undefined' && window.location) ? window.location.pathname : '';
-      if (p.includes('/user/') || p.includes('/crop/')) {
+      if (p.includes('/user') || p.includes('/crop/')) {
         return '../index.html';
       }
       return 'index.html';
@@ -1196,7 +1196,7 @@
     // 16. Inisialisasi Menu Navigasi Pengguna (Avatar, Dropdown Submenu, Logout)
     initHeaderNav(containerId = 'userProfileHeader', mobileContainerId = 'mobileUserProfileDrawer') {
       const currentUser = this.getCurrentUser();
-      const isUserFolder = window.location.pathname.includes('/user/');
+      const isUserFolder = window.location.pathname.includes('/user');
       const loginPath = isUserFolder ? 'login.html' : 'user/login.html';
       const dashboardPath = isUserFolder ? 'index.html' : 'user/index.html';
       const settingsPath = isUserFolder ? 'index.html#pengaturan-keamanan' : 'user/index.html#pengaturan-keamanan';

@@ -20,6 +20,45 @@ class WasmHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
 
+    def do_GET(self):
+        clean_path = urlsplit(self.path).path.rstrip('/')
+        if clean_path in ('/login', '/login.html', '/masuk'):
+            query = urlsplit(self.path).query
+            target = '/user/login.html' + ('?' + query if query else '')
+            self.send_response(307)
+            self.send_header('Location', target)
+            self.end_headers()
+            return
+        if clean_path in ('/mfa', '/mfa.html'):
+            query = urlsplit(self.path).query
+            target = '/user/mfa.html' + ('?' + query if query else '')
+            self.send_response(307)
+            self.send_header('Location', target)
+            self.end_headers()
+            return
+        if clean_path in ('/dashboard', '/akun', '/user'):
+            query = urlsplit(self.path).query
+            target = '/user/index.html' + ('?' + query if query else '')
+            self.send_response(307)
+            self.send_header('Location', target)
+            self.end_headers()
+            return
+        if clean_path in ('/forgot-password', '/forgot-password.html', '/lupa-password'):
+            query = urlsplit(self.path).query
+            target = '/user/forgot-password.html' + ('?' + query if query else '')
+            self.send_response(307)
+            self.send_header('Location', target)
+            self.end_headers()
+            return
+        if clean_path in ('/reset-password', '/reset-password.html'):
+            query = urlsplit(self.path).query
+            target = '/user/reset-password.html' + ('?' + query if query else '')
+            self.send_response(307)
+            self.send_header('Location', target)
+            self.end_headers()
+            return
+        super().do_GET()
+
     def end_headers(self):
         # Header CORS standar
         self.send_header("Access-Control-Allow-Origin", "*")
