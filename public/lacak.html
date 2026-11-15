@@ -5,10 +5,10 @@
   <script src="user/userAuth.js"></script>
   <script src="js/megaMenu.js"></script>
 </head><body class="bg-background font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-[#07132b]/95 backdrop-blur-xl border-b border-white/10 shadow-lg">
-  <div class="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+  <div class="h-20 w-full px-4 sm:px-6 lg:px-8 xl:px-12 flex items-center justify-between">
     
-    <!-- Brand Logo & Title -->
-    <a href="index.html" class="flex items-center gap-2.5 sm:gap-3 hover:opacity-95 transition-opacity min-w-0 flex-1 sm:flex-initial">
+    <!-- Brand Logo & Title (Paling Kiri) -->
+    <a href="index.html" class="flex items-center gap-2.5 sm:gap-3 hover:opacity-95 transition-opacity min-w-0 shrink-0 mr-4 xl:mr-8">
       <img src="logo.png" alt="Logo Resmi Universitas Tanjungpura" class="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm shrink-0">
       <div class="flex flex-col justify-center">
         <span class="font-bold text-sm sm:text-base lg:text-lg text-white tracking-tight leading-tight truncate">Universitas Tanjungpura</span>
@@ -16,8 +16,8 @@
       </div>
     </a>
 
-    <!-- Desktop Navigation Links with Mega Menu (Visible on lg and up) -->
-    <nav class="hidden lg:flex items-center gap-1 xl:gap-2 bg-white/5 p-1 rounded-2xl border border-white/10">
+    <!-- Desktop Navigation Links with Mega Menu (Tengah dengan jarak lega) -->
+    <nav class="hidden lg:flex items-center gap-1 xl:gap-2 bg-white/5 p-1 rounded-2xl border border-white/10 mx-auto">
       <!-- 1. Beranda -->
       <a href="index.html" class="px-3.5 py-2 rounded-xl text-xs xl:text-sm font-semibold transition-all text-slate-200 hover:text-white hover:bg-white/10 flex items-center gap-1.5">
         <span class="material-symbols-outlined text-[18px]">home</span>
@@ -300,8 +300,8 @@
       </a>
     </nav>
 
-    <!-- Right Side Actions & Mobile Hamburger -->
-    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+    <!-- Right Side Actions & Mobile Hamburger (Paling Kanan) -->
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0 ml-4 xl:ml-8">
 
       <!-- User Profile Nav Container (Avatar & Submenu or Login Button) -->
       <div id="userProfileHeader" class="relative"></div>

@@ -86,6 +86,43 @@ test.describe('Mega Menu Navigasi Portal Ijazah UNTAN', () => {
     await expect(btnAkun).toHaveAttribute('aria-expanded', 'false');
   });
 
+  test('header layout desktop: logo di paling kiri, tombol masuk akun di paling kanan, dan keduanya berjarak lega dengan mega menu', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Pengujian tata letak header dirancang khusus untuk layar desktop');
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/index.html');
+
+    const logo = page.locator('header a:has(img[alt*="Logo"])');
+    const nav = page.locator('header nav');
+    const rightActions = page.locator('#userProfileHeader');
+
+    await expect(logo).toBeVisible();
+    await expect(nav).toBeVisible();
+    await expect(rightActions).toBeVisible();
+
+    const logoBox = await logo.boundingBox();
+    const navBox = await nav.boundingBox();
+    const rightBox = await rightActions.boundingBox();
+
+    expect(logoBox).toBeTruthy();
+    expect(navBox).toBeTruthy();
+    expect(rightBox).toBeTruthy();
+
+    // 1. Logo berada di paling kiri (margin kiri < 60px pada viewport 1440px)
+    expect(logoBox.x).toBeLessThan(60);
+
+    // 2. Tombol masuk akun / profile berada di paling kanan (margin kanan < 60px pada viewport 1440px)
+    const rightOffset = 1440 - (rightBox.x + rightBox.width);
+    expect(rightOffset).toBeLessThan(60);
+
+    // 3. Jarak antara Logo dan Mega Menu (nav) cukup lega (>= 20px)
+    const gapLogoToNav = navBox.x - (logoBox.x + logoBox.width);
+    expect(gapLogoToNav).toBeGreaterThanOrEqual(20);
+
+    // 4. Jarak antara Mega Menu (nav) dan Tombol Masuk Akun cukup lega (>= 20px)
+    const gapNavToRight = rightBox.x - (navBox.x + navBox.width);
+    expect(gapNavToRight).toBeGreaterThanOrEqual(20);
+  });
+
   test('halaman pengajuan.html menandai kategori Layanan Ijazah dan link Ajukan Permohonan sebagai aktif', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Mega Menu dirancang khusus untuk bilah navigasi desktop (lg ke atas)');
     await page.goto('/pengajuan.html');
