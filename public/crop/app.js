@@ -221,11 +221,18 @@ class PhotoCropApp {
     this.directUsePengajuanBtn = document.getElementById('direct-use-pengajuan-btn');
     this.topUsePengajuanBtn = document.getElementById('top-use-pengajuan-btn');
     this.dockBtnUsePengajuan = document.getElementById('dock-btn-use-pengajuan');
+    this.topLoginBtn = document.getElementById('top-login-btn');
 
     // Stage Lock Notifier (Tahap 4 - Pencetakan Blangko Ijazah)
     this.cropStageLockNotice = document.getElementById('crop-stage-lock-notice');
     this.cropModalStageLockNotice = document.getElementById('crop-modal-stage-lock-notice');
+
+    // Guest / Belum Login Notifier
+    this.cropGuestNotice = document.getElementById('crop-guest-notice');
+    this.cropModalGuestNotice = document.getElementById('crop-modal-guest-notice');
+
     this.isStageLocked = false;
+    this.isGuestUser = false;
     this.berkasStageInfo = null;
 
     // Loading
@@ -1416,7 +1423,18 @@ class PhotoCropApp {
   async useInPengajuan() {
     if (this.isBusy) return;
 
-    // Proteksi: Tombol gunakan tidak boleh digunakan jika tahapan berkas telah mencapai Tahap 4
+    // Proteksi 1: Pengguna HARUS telah login
+    const currentUser = (window.UntanUserAuth && typeof window.UntanUserAuth.getCurrentUser === 'function')
+      ? window.UntanUserAuth.getCurrentUser()
+      : null;
+
+    if (!currentUser) {
+      alert('Anda harus masuk ke akun mahasiswa/alumni terlebih dahulu untuk menggunakan hasil crop pada formulir pengajuan ijazah.');
+      window.location.href = '../user/login.html?redirect=crop/';
+      return;
+    }
+
+    // Proteksi 2: Tombol gunakan tidak boleh digunakan jika tahapan berkas telah mencapai Tahap 4
     if (this.isStageLocked) {
       alert('Tombol Gunakan tidak tersedia karena Linimasa Progres Tahapan Berkas telah mencapai Tahap 4 (Pencetakan Blangko Ijazah & Verifikasi Fisik Pas Foto). Pas foto berkas tidak dapat diubah lagi.');
       return;
@@ -1514,11 +1532,12 @@ class PhotoCropApp {
    * 3. Sidebar Inspector (#direct-use-pengajuan-btn)
    * 4. Modal Dialog Review (#use-in-pengajuan-btn)
    * 
-   * Hanya muncul jika Linimasa Progres Tahapan Berkas BELUM SAMPAI pada Tahap 4
-   * (Pencetakan Blangko Ijazah & Verifikasi Fisik Pas Foto).
+   * Tombol "Gunakan" HANYA MUNCUL JIKA:
+   * - Pengguna TELAH LOGIN (bukan Guest)
+   * - DAN Linimasa Progres Tahapan Berkas BELUM MENCAPAI TAHAP 4
+   *   (Pencetakan Blangko Ijazah & Verifikasi Fisik Pas Foto).
    */
   setUseButtonsVisibility(visible, stageInfo = null) {
-    this.isStageLocked = !visible;
     this.berkasStageInfo = stageInfo;
 
     const useBtns = [
@@ -1539,45 +1558,98 @@ class PhotoCropApp {
       }
     });
 
+    const isNotLoggedIn = !visible && stageInfo && stageInfo.reason === 'not_logged_in';
+    const isStageLocked = !visible && (!stageInfo || stageInfo.reason !== 'not_logged_in');
+
+    this.isStageLocked = isStageLocked;
+    this.isGuestUser = isNotLoggedIn;
+
+    // 1. Notifikasi Penguncian Tahap 4 (Pencetakan Blangko Ijazah)
     if (this.cropStageLockNotice) {
-      if (visible) {
-        this.cropStageLockNotice.classList.add('hidden');
-        this.cropStageLockNotice.style.display = 'none';
-      } else {
+      if (isStageLocked) {
         this.cropStageLockNotice.classList.remove('hidden');
         this.cropStageLockNotice.style.display = 'flex';
+      } else {
+        this.cropStageLockNotice.classList.add('hidden');
+        this.cropStageLockNotice.style.display = 'none';
       }
     }
 
     if (this.cropModalStageLockNotice) {
-      if (visible) {
-        this.cropModalStageLockNotice.classList.add('hidden');
-        this.cropModalStageLockNotice.style.display = 'none';
-      } else {
+      if (isStageLocked) {
         this.cropModalStageLockNotice.classList.remove('hidden');
         this.cropModalStageLockNotice.style.display = 'flex';
+      } else {
+        this.cropModalStageLockNotice.classList.add('hidden');
+        this.cropModalStageLockNotice.style.display = 'none';
+      }
+    }
+
+    // 2. Notifikasi Belum Login (Guest)
+    if (this.cropGuestNotice) {
+      if (isNotLoggedIn) {
+        this.cropGuestNotice.classList.remove('hidden');
+        this.cropGuestNotice.style.display = 'flex';
+      } else {
+        this.cropGuestNotice.classList.add('hidden');
+        this.cropGuestNotice.style.display = 'none';
+      }
+    }
+
+    if (this.cropModalGuestNotice) {
+      if (isNotLoggedIn) {
+        this.cropModalGuestNotice.classList.remove('hidden');
+        this.cropModalGuestNotice.style.display = 'flex';
+      } else {
+        this.cropModalGuestNotice.classList.add('hidden');
+        this.cropModalGuestNotice.style.display = 'none';
+      }
+    }
+
+    // 3. Tombol Masuk Akun di Top Header (hanya muncul saat guest/belum login)
+    if (this.topLoginBtn) {
+      if (isNotLoggedIn) {
+        this.topLoginBtn.classList.remove('hidden');
+        this.topLoginBtn.style.display = 'inline-flex';
+      } else {
+        this.topLoginBtn.classList.add('hidden');
+        this.topLoginBtn.style.display = 'none';
       }
     }
   }
 
   /**
-   * Evaluasi otomatis status tahapan berkas pengguna saat ini:
-   * Menelusuri parameter URL (?step=4, ?ticket=..., ?nim=...),
-   * sesi aktif pengajuan di sessionStorage/localStorage, atau
-   * profil mahasiswa/alumni aktif via UntanUserAuth & UntanSupabase.
+   * Evaluasi otomatis status autentikasi dan tahapan berkas pengguna saat ini:
+   * Rule: Tombol "Gunakan" hanya muncul jika user telah login DAN belum mencapai tahap 4.
    */
   async evaluateBerkasStageLock() {
     try {
+      // 1. Periksa status autentikasi pengguna saat ini
+      const currentUser = (window.UntanUserAuth && typeof window.UntanUserAuth.getCurrentUser === 'function')
+        ? window.UntanUserAuth.getCurrentUser()
+        : null;
+
+      // SYARAT 1: Pengguna HARUS telah login
+      if (!currentUser) {
+        console.log('[CropApp] Pengguna belum login (Guest). Tombol Gunakan disembunyikan.');
+        this.setUseButtonsVisibility(false, { reason: 'not_logged_in' });
+        return;
+      }
+
+      console.log('[CropApp] Pengguna terautentikasi:', currentUser.nim || currentUser.email);
+
+      // SYARAT 2: Linimasa Progres Tahapan Berkas BELUM mencapai Tahap 4
       const urlParams = new URLSearchParams(window.location.search);
       const paramStep = urlParams.get('step') || urlParams.get('current_step');
       const paramTicket = urlParams.get('ticket') || urlParams.get('q');
       const paramNim = urlParams.get('nim');
       const paramLocked = urlParams.get('locked');
 
-      // 1. Cek parameter eksplisit ?locked=1 atau ?step=4 (atau tahap >= 4)
+      // A. Cek parameter eksplisit ?locked=1 atau ?step=4 (atau tahap >= 4)
       if (paramLocked === '1' || (paramStep && parseInt(paramStep, 10) >= 4)) {
         const stepNum = parseInt(paramStep, 10) || 4;
         this.setUseButtonsVisibility(false, {
+          reason: 'stage_locked',
           current_step: stepNum,
           title: 'Tahap 4: Pencetakan Blangko Ijazah & Verifikasi Fisik Pas Foto',
           status_label: 'Tahap 4: Pencetakan Blangko Ijazah & Verifikasi Fisik Pas Foto'
@@ -1585,7 +1657,7 @@ class PhotoCropApp {
         return;
       }
 
-      // 2. Cek tiket atau NIM di parameter URL jika disediakan
+      // B. Cek tiket atau NIM di parameter URL jika disediakan
       const queryKey = paramTicket || paramNim;
       if (queryKey && window.UntanSupabase && typeof window.UntanSupabase.getPengajuan === 'function') {
         try {
@@ -1593,46 +1665,57 @@ class PhotoCropApp {
           if (res && res.success && res.data) {
             const step = parseInt(res.data.current_step, 10) || 1;
             const isLocked = step >= 4 || res.data.status_ijazah === 'Proses Cetak' || res.data.status_ijazah === 'Final';
-            this.setUseButtonsVisibility(!isLocked, res.data);
+            if (isLocked) {
+              this.setUseButtonsVisibility(false, { reason: 'stage_locked', ...res.data });
+            } else {
+              this.setUseButtonsVisibility(true, res.data);
+            }
             return;
           }
         } catch (_) {}
       }
 
-      // 3. Cek data pengajuan aktif di sessionStorage
+      // C. Cek data pengajuan aktif di sessionStorage
       try {
         const activeStored = sessionStorage.getItem('UNTAN_ACTIVE_PENGAJUAN') || localStorage.getItem('UNTAN_ACTIVE_PENGAJUAN');
         if (activeStored) {
           const parsed = JSON.parse(activeStored);
           const step = parseInt(parsed.current_step, 10) || 1;
           const isLocked = step >= 4 || parsed.status_ijazah === 'Proses Cetak' || parsed.status_ijazah === 'Final';
-          this.setUseButtonsVisibility(!isLocked, parsed);
+          if (isLocked) {
+            this.setUseButtonsVisibility(false, { reason: 'stage_locked', ...parsed });
+          } else {
+            this.setUseButtonsVisibility(true, parsed);
+          }
           return;
         }
       } catch (_) {}
 
-      // 4. Cek user yang sedang login di sesi
-      const currentUser = window.UntanUserAuth && typeof window.UntanUserAuth.getCurrentUser === 'function'
-        ? window.UntanUserAuth.getCurrentUser()
-        : null;
-
+      // D. Cek user yang sedang login di sesi
       if (currentUser && currentUser.nim && window.UntanSupabase && typeof window.UntanSupabase.getPengajuan === 'function') {
         try {
           const res = await window.UntanSupabase.getPengajuan(currentUser.nim, currentUser.nim);
           if (res && res.success && res.data) {
             const step = parseInt(res.data.current_step, 10) || 1;
             const isLocked = step >= 4 || res.data.status_ijazah === 'Proses Cetak' || res.data.status_ijazah === 'Final';
-            this.setUseButtonsVisibility(!isLocked, res.data);
+            if (isLocked) {
+              this.setUseButtonsVisibility(false, { reason: 'stage_locked', ...res.data });
+            } else {
+              this.setUseButtonsVisibility(true, res.data);
+            }
             return;
           }
         } catch (_) {}
       }
 
-      // Default: belum ada berkas atau masih di bawah Tahap 4 (Tahap 1, 2, 3)
+      // Default: Pengguna telah login dan berkas belum ada atau masih di bawah Tahap 4 (Tahap 1, 2, 3)
       this.setUseButtonsVisibility(true);
     } catch (err) {
       console.warn('Gagal mengevaluasi status tahap berkas:', err);
-      this.setUseButtonsVisibility(true);
+      const currentUser = (window.UntanUserAuth && typeof window.UntanUserAuth.getCurrentUser === 'function')
+        ? window.UntanUserAuth.getCurrentUser()
+        : null;
+      this.setUseButtonsVisibility(!!currentUser);
     }
   }
 }
@@ -1641,13 +1724,24 @@ class PhotoCropApp {
 window.updateCropUseButtonVisibility = function (stepOrData) {
   if (window.photoCropApp) {
     if (typeof stepOrData === 'number') {
-      window.photoCropApp.setUseButtonsVisibility(stepOrData < 4, { current_step: stepOrData });
+      const allowed = stepOrData < 4;
+      window.photoCropApp.setUseButtonsVisibility(
+        allowed,
+        allowed ? { current_step: stepOrData } : { reason: 'stage_locked', current_step: stepOrData }
+      );
     } else if (typeof stepOrData === 'boolean') {
-      window.photoCropApp.setUseButtonsVisibility(stepOrData);
+      window.photoCropApp.setUseButtonsVisibility(stepOrData, stepOrData ? null : { reason: 'stage_locked' });
     } else if (stepOrData && typeof stepOrData === 'object') {
-      const step = parseInt(stepOrData.current_step, 10) || 1;
-      const isLocked = step >= 4 || stepOrData.status_ijazah === 'Proses Cetak' || stepOrData.status_ijazah === 'Final';
-      window.photoCropApp.setUseButtonsVisibility(!isLocked, stepOrData);
+      if (stepOrData.reason === 'not_logged_in') {
+        window.photoCropApp.setUseButtonsVisibility(false, stepOrData);
+      } else {
+        const step = parseInt(stepOrData.current_step, 10) || 1;
+        const isLocked = step >= 4 || stepOrData.status_ijazah === 'Proses Cetak' || stepOrData.status_ijazah === 'Final';
+        window.photoCropApp.setUseButtonsVisibility(
+          !isLocked,
+          isLocked ? { reason: 'stage_locked', ...stepOrData } : stepOrData
+        );
+      }
     }
   }
 };

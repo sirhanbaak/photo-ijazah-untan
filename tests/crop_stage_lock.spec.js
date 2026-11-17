@@ -127,4 +127,56 @@ test.describe('Fitur Penguncian Tombol Gunakan di Aplikasi Crop Berdasarkan Taha
     await expect(timeline).toContainText('Sistem Terintegrasi PISN Kemdiktisaintek (Otomatis Selesai)');
   });
 
+  test('Kondisi 6: Pengguna belum login (Guest / Anonim) - Tombol Gunakan disembunyikan dan notifikasi login tampil', async ({ browser }) => {
+    // Buat context peramban baru yang bersih tanpa session login (Guest)
+    const guestContext = await browser.newContext({
+      storageState: { cookies: [], origins: [] }
+    });
+    const page = await guestContext.newPage();
+
+    await page.goto('/crop/');
+    await page.waitForFunction(
+      () => window.photoCropApp && window.photoCropApp.wasmEngine && window.photoCropApp.wasmEngine.isReady,
+      null,
+      { timeout: 25000 }
+    );
+
+    // 1. Seluruh tombol "Gunakan" harus tersembunyi untuk guest
+    await expect(page.locator('#top-use-pengajuan-btn')).toBeHidden();
+    await expect(page.locator('#direct-use-pengajuan-btn')).toBeHidden();
+    await expect(page.locator('#dock-btn-use-pengajuan')).toBeHidden();
+
+    // 2. Banner notifikasi login untuk Guest harus tampil di sidebar inspector
+    const guestNotice = page.locator('#crop-guest-notice');
+    await expect(guestNotice).toBeVisible();
+    await expect(guestNotice).toContainText('Masuk Akun untuk Menggunakan Foto');
+    await expect(guestNotice).toContainText('hanya tersedia bagi mahasiswa/alumni yang telah masuk');
+
+    // 3. Tombol masuk akun di header harus tampil
+    const topLoginBtn = page.locator('#top-login-btn');
+    await expect(topLoginBtn).toBeVisible();
+
+    // 4. Buka modal hasil crop dan pastikan tombol modal tersembunyi, sedangkan guest notice modal tampil
+    await page.evaluate(() => window.photoCropApp.applyCrop());
+    await expect(page.locator('#use-in-pengajuan-btn')).toBeHidden();
+    const modalGuestNotice = page.locator('#crop-modal-guest-notice');
+    await expect(modalGuestNotice).toBeVisible();
+    await expect(modalGuestNotice).toContainText('Masuk Akun untuk Menggunakan di Pengajuan');
+
+    // Unduh pas foto tetap dapat dilakukan bebas oleh guest
+    await expect(page.locator('#download-final-btn')).toBeVisible();
+
+    // 5. Proteksi: Panggilan useInPengajuan oleh guest harus ditolak dengan peringatan login
+    let alertText = '';
+    page.on('dialog', async (dialog) => {
+      alertText = dialog.message();
+      await dialog.accept();
+    });
+
+    await page.evaluate(() => window.photoCropApp.useInPengajuan());
+    expect(alertText).toContain('Anda harus masuk ke akun mahasiswa/alumni terlebih dahulu');
+
+    await guestContext.close();
+  });
+
 });
