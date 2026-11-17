@@ -427,7 +427,7 @@
     .animate-orb-4 { animation: orbFloat4 20s ease-in-out infinite; }
     .animate-aurora-pulse { animation: pulseGlow 7s ease-in-out infinite; }
 
-    /* Core Masterpiece Glassmorphism Panel */
+    /* Core Masterpiece Glassmorphism Panel (Bento Hero Main Cell) */
     .glass-hero-panel {
       position: relative;
       background: linear-gradient(
@@ -439,7 +439,7 @@
       );
       backdrop-filter: blur(28px) saturate(190%);
       -webkit-backdrop-filter: blur(28px) saturate(190%);
-      border-radius: 1.75rem;
+      border-radius: 1.5rem;
       box-shadow: 
         0 25px 60px -15px rgba(0, 0, 0, 0.65),
         inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.4),
@@ -450,6 +450,52 @@
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
       isolation: isolate;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-hero-panel:hover {
+      box-shadow: 
+        0 28px 65px -12px rgba(0, 0, 0, 0.72),
+        inset 0 1px 2px 0 rgba(255, 255, 255, 0.5),
+        0 0 25px rgba(254, 147, 44, 0.12);
+    }
+
+    /* Bento Grid Card Base Styling */
+    .glass-bento-card {
+      position: relative;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.11) 0%,
+        rgba(255, 255, 255, 0.04) 45%,
+        rgba(254, 147, 44, 0.03) 75%,
+        rgba(255, 255, 255, 0.08) 100%
+      );
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 
+        0 20px 50px -15px rgba(0, 0, 0, 0.6),
+        inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.35),
+        inset 0 -1px 2px 0 rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      transform: translate3d(0, 0, 0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-bento-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(254, 147, 44, 0.5);
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.06) 50%,
+        rgba(254, 147, 44, 0.06) 100%
+      );
+      box-shadow: 
+        0 24px 60px -12px rgba(0, 0, 0, 0.7),
+        0 0 25px rgba(254, 147, 44, 0.18),
+        inset 0 1px 2px 0 rgba(255, 255, 255, 0.5);
     }
 
     /* Animated Border Sheen / Shimmer on Main Glass Panel */
@@ -607,11 +653,16 @@
       }
 
       /* Stabilkan panel dengan opacity optimal & blur ringan yang ramah GPU ponsel */
-      .glass-hero-panel {
+      .glass-hero-panel,
+      .glass-bento-card {
         background: rgba(10, 24, 52, 0.88);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         border-radius: 1.25rem;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+      }
+      .glass-bento-card:hover {
+        transform: none !important;
       }
 
       /* Matikan animasi perpindahan background gradient pada border agar tidak re-paint setiap frame */
@@ -660,131 +711,185 @@
   <div class="absolute top-1/2 right-8 w-[280px] sm:w-[380px] h-[280px] sm:h-[380px] rounded-full bg-gradient-to-bl from-[#10b981]/20 via-[#06b6d4]/15 to-transparent blur-2xl sm:blur-3xl pointer-events-none hero-orb animate-orb-4"></div>
   <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[700px] h-[260px] sm:h-[350px] bg-gradient-to-r from-[#1d4ed8]/15 via-[#fe932c]/10 to-[#06b6d4]/15 blur-[60px] sm:blur-[100px] rounded-full pointer-events-none hero-orb animate-aurora-pulse"></div>
 
-  <!-- Hero Content Wrapped in Glass Panel -->
-  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-margin">
-    <div class="glass-hero-panel p-4 sm:p-6 md:p-space-xl relative overflow-hidden">
+  <!-- Hero Content Wrapped in Bento Grid Architecture -->
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-4 sm:gap-5 items-stretch">
       
-      <!-- Inner subtle tint overlay -->
-      <div class="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/20 pointer-events-none z-0"></div>
+      <!-- BENTO 1: Main Hero & Action Cell (8 Cols on Desktop, 6 on Tablet, 1 on Mobile) -->
+      <div class="glass-hero-panel lg:col-span-8 md:col-span-6 p-5 sm:p-7 md:p-8 flex flex-col justify-between relative overflow-hidden min-h-[380px] lg:min-h-[440px]">
+        <!-- Inner subtle tint overlay -->
+        <div class="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/25 pointer-events-none z-0"></div>
 
-      <div class="relative z-10 flex flex-col gap-space-md">
-        
-        <!-- Verified Portal Badge -->
-        <div class="inline-flex items-center gap-space-xs px-3 py-1.5 sm:px-4 sm:py-2 rounded-full glass-badge-animated shadow-sm w-fit max-w-full">
-          <span class="material-symbols-outlined text-secondary-container text-[16px] sm:text-[18px] shrink-0">verified</span>
-          <span class="font-label-sm text-[10px] sm:text-label-sm text-tertiary-fixed tracking-wider uppercase font-semibold leading-tight break-words">Portal Resmi Layanan Administrasi Akademik &amp; Kelulusan Untan</span>
-        </div>
+        <div class="relative z-10 flex flex-col justify-between h-full">
+          <div>
+            <!-- Verified Portal Badge -->
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full glass-badge-animated shadow-sm w-fit max-w-full mb-4">
+              <span class="material-symbols-outlined text-secondary-container text-[16px] sm:text-[18px] shrink-0">verified</span>
+              <span class="font-label-sm text-[10px] sm:text-label-sm text-tertiary-fixed tracking-wider uppercase font-semibold leading-tight break-words">Portal Resmi Layanan Administrasi Akademik &amp; Kelulusan Untan</span>
+            </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
-          
-          <!-- Left Column: Title, Intro & Actions -->
-          <div class="lg:col-span-7 flex flex-col gap-space-md">
-            <h1 class="font-display-lg text-[clamp(1.75rem,5.2vw,2.5rem)] leading-[1.2] sm:leading-[1.22] text-on-primary font-extrabold tracking-tight">
+            <!-- Main Headline H1 -->
+            <h1 class="font-display-lg text-[clamp(1.75rem,5.2vw,2.5rem)] leading-[1.2] sm:leading-[1.22] text-on-primary font-extrabold tracking-tight mb-3">
               Layanan Penerbitan Ijazah <span class="text-secondary-fixed inline sm:inline-block">Universitas Tanjungpura</span>
             </h1>
-            <p class="font-body-md sm:font-body-lg text-body-md sm:text-body-lg text-surface-container-high max-w-2xl leading-relaxed">
+
+            <!-- Subtitle Description -->
+            <p class="font-body-md sm:font-body-lg text-body-md sm:text-body-lg text-surface-container-high max-w-2xl leading-relaxed mb-6">
               Temukan layanan penerbitan ijazah yang sesuai dengan kebutuhan Anda. Pilih jenis layanan untuk melihat informasi, kelengkapan berkas, dan tahapan pengajuannya secara terintegrasi dan akuntabel.
             </p>
+          </div>
 
-            <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-space-sm pt-space-xs w-full sm:w-auto">
-              <a class="inline-flex items-center justify-center gap-space-xs px-6 py-3.5 rounded-lg bg-secondary-container text-on-secondary-container font-label-lg text-label-lg font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg hover:shadow-orange-500/25 group" href="#katalog-layanan">
+          <!-- Bottom Actions & Feature Pills -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-white/10 mt-auto">
+            <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 w-full sm:w-auto">
+              <a class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-secondary-container text-on-secondary-container font-label-lg text-label-lg font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg hover:shadow-orange-500/25 group" href="#katalog-layanan">
                 <span class="material-symbols-outlined text-[20px] group-hover:rotate-12 transition-transform">assignment_add</span>
                 <span>Pilih Layanan</span>
               </a>
-              <a class="inline-flex items-center justify-center gap-space-xs px-6 py-3.5 rounded-lg glass-btn-secondary text-on-primary font-label-lg text-label-lg transition-all shadow-sm group" href="panduan.html">
+              <a class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl glass-btn-secondary text-on-primary font-label-lg text-label-lg transition-all shadow-sm group" href="panduan.html">
                 <span class="material-symbols-outlined text-[20px] group-hover:translate-x-0.5 transition-transform">explore</span>
                 <span>Lihat Panduan &amp; Alur</span>
               </a>
             </div>
 
-            <!-- Official Associate Partner Badge -->
-            <div class="inline-flex items-center gap-space-sm p-1.5 pr-4 rounded-xl glass-partner-badge w-fit max-w-full">
-              <div class="bg-surface-container-lowest p-1 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
-                <img src="logo-IAIs.png" alt="Logo Ikatan Arsitek Indonesia (IAI)" class="h-12 sm:h-16 w-auto object-contain">
-              </div>
-              <div class="flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-secondary-fixed text-[16px] sm:text-[18px]">verified</span>
-                <span class="font-label-sm sm:font-label-md text-label-sm sm:text-label-md font-bold uppercase tracking-wider text-secondary-fixed">Official Associate Partner</span>
-              </div>
-            </div>
-
-            <!-- 3 Metric Cards with Interactive Glassmorphism -->
-            <div class="pt-space-md grid grid-cols-1 sm:grid-cols-3 gap-space-sm">
-              <div class="flex flex-col glass-metric-card p-space-sm rounded-lg">
-                <span class="font-headline-sm text-title-lg sm:text-headline-sm font-bold text-secondary-fixed">PISN Kemdiktisaintek</span>
-                <span class="font-label-sm text-label-sm text-surface-container-highest">Terhubung Kemdiktisaintek</span>
-              </div>
-              <div class="flex flex-col glass-metric-card p-space-sm rounded-lg">
-                <span class="font-headline-sm text-title-lg sm:text-headline-sm font-bold text-secondary-fixed">100% Sah</span>
-                <span class="font-label-sm text-label-sm text-surface-container-highest">Verifikasi Hukum &amp; BSrE</span>
-              </div>
-              <div class="flex flex-col glass-metric-card p-space-sm rounded-lg">
-                <span class="font-headline-sm text-title-lg sm:text-headline-sm font-bold text-secondary-fixed">BAK Untan</span>
-                <span class="font-label-sm text-label-sm text-surface-container-highest">Pelayanan Gedung Rektorat</span>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Right Column: Standar Pas Foto Ijazah Card -->
-          <div class="lg:col-span-5 relative z-10">
-            <div class="glass-photo-container">
-              <div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-2xl text-on-surface relative overflow-hidden">
-                
-                <div class="flex items-center justify-between pb-space-sm bg-surface-container-low -mx-space-md -mt-space-md p-space-sm mb-space-md border-b border-surface-container-high">
-                  <div class="flex items-center gap-space-xs">
-                    <span class="material-symbols-outlined text-primary text-[22px]">badge</span>
-                    <span class="font-label-lg text-label-lg text-primary font-bold">Standar Pas Foto Ijazah Resmi Untan</span>
-                  </div>
-                  <span class="px-2 py-0.5 rounded text-[11px] bg-secondary-container text-on-secondary-container font-bold uppercase tracking-wider">Wajib Dipatuhi</span>
-                </div>
-
-                <div class="flex gap-space-md items-center mb-space-md">
-                  <div class="w-24 h-32 shrink-0 rounded-lg overflow-hidden bg-surface-container-high relative shadow-md ring-2 ring-surface-container-highest group">
-                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Pas foto resmi ijazah lulusan Universitas Tanjungpura berlatar biru" src="contoh_foto_ijazah.jpg">
-                    <div class="absolute bottom-1 right-1 bg-primary text-on-primary px-1.5 py-0.5 rounded text-[9px] font-bold backdrop-blur-xs shadow">4 &times; 6 cm</div>
-                  </div>
-                  <div class="flex flex-col gap-1.5 text-on-surface font-body-sm text-body-sm">
-                    <div class="flex items-center gap-1.5 font-bold text-primary">
-                      <span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
-                      <span>Latar Belakang Biru (Standar Wisuda Untan)</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 font-medium text-on-surface">
-                      <span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
-                      <span>Pakaian Formal (Kemeja &amp; Jas Gelap)</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 font-medium text-on-surface">
-                      <span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
-                      <span>Kertas Foto Doff / Bukan Glosy</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 font-medium text-on-surface">
-                      <span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
-                      <span>Wajah Tampak Jelas (Tidak Berkacamata Gelap)</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="mb-space-sm">
-                  <a href="/crop/" class="inline-flex items-center justify-center gap-space-xs w-full py-2.5 px-4 rounded-lg bg-secondary-container hover:brightness-110 text-on-secondary-container font-label-md text-label-md font-bold shadow-md hover:shadow-orange-500/20 active:scale-98 transition-all">
-                    <span class="material-symbols-outlined text-[18px]">crop</span>
-                    <span>Buka Pemotong Pas Foto 4x6 (Rust WASM)</span>
-                  </a>
-                </div>
-
-                <div class="bg-secondary-fixed/30 rounded-lg p-space-sm flex items-start gap-space-xs border border-secondary/20">
-                  <span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">info</span>
-                  <p class="font-body-sm text-body-sm text-on-secondary-fixed-variant leading-tight font-medium">
-                    Ketidaksesuaian pas foto akan menunda pencetakan fisik dan pengesahan ijazah oleh Biro Akademik dan Kemahasiswaan.
-                  </p>
-                </div>
-
-              </div>
+            <div class="flex items-center gap-3 text-xs text-slate-300 font-medium">
+              <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Pelayanan Aktif</span>
+              <span class="text-white/20">•</span>
+              <span class="inline-flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-secondary">bolt</span> Cepat &amp; Akurat</span>
             </div>
           </div>
-
         </div>
       </div>
+
+      <!-- BENTO 2: Standar Pas Foto Ijazah (4 Cols on Desktop, 6 on Tablet, 1 on Mobile) -->
+      <div class="glass-bento-card lg:col-span-4 md:col-span-6 p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden min-h-[380px] lg:min-h-[440px]">
+        <div>
+          <!-- Card Header -->
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary-fixed text-[22px]">badge</span>
+              <span class="font-label-lg font-bold text-white tracking-tight">Standar Pas Foto Ijazah</span>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] bg-secondary-container text-on-secondary-container font-bold uppercase tracking-wider">Wajib Dipatuhi</span>
+          </div>
+
+          <!-- Photo + Guidelines -->
+          <div class="flex gap-3.5 items-center mb-4">
+            <div class="w-20 h-28 sm:w-24 sm:h-32 shrink-0 rounded-xl overflow-hidden bg-surface-container-high relative shadow-xl ring-2 ring-white/20 group">
+              <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Pas foto resmi ijazah lulusan Universitas Tanjungpura berlatar biru" src="contoh_foto_ijazah.jpg">
+              <div class="absolute bottom-1 right-1 bg-primary/95 text-on-primary px-1.5 py-0.5 rounded text-[9px] font-bold backdrop-blur-xs shadow">4 &times; 6 cm</div>
+            </div>
+            <div class="flex flex-col gap-1.5 text-xs text-slate-200">
+              <div class="flex items-center gap-1.5 text-secondary-fixed font-semibold">
+                <span class="material-symbols-outlined text-[15px] shrink-0 text-secondary">check_circle</span>
+                <span>Latar Belakang Biru Resmi</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[15px] shrink-0 text-secondary">check_circle</span>
+                <span>Pakaian Jas &amp; Kemeja</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[15px] shrink-0 text-secondary">check_circle</span>
+                <span>Kertas Foto Doff (Matte)</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[15px] shrink-0 text-secondary">check_circle</span>
+                <span>Wajah Jelas Tanpa Aksesoris</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Tool + Info Alert -->
+        <div class="mt-auto flex flex-col gap-2.5">
+          <a href="/crop/" class="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-secondary-container hover:brightness-110 text-on-secondary-container font-label-md text-xs sm:text-sm font-bold shadow-md hover:shadow-orange-500/20 active:scale-98 transition-all group">
+            <span class="material-symbols-outlined text-[18px] group-hover:rotate-45 transition-transform">crop</span>
+            <span>Buka Pemotong Pas Foto 4x6 (Rust WASM)</span>
+          </a>
+          <div class="bg-secondary-fixed/20 rounded-lg p-2.5 flex items-start gap-2 border border-secondary/20">
+            <span class="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">info</span>
+            <p class="text-[11px] text-slate-300 leading-tight">
+              Ketidaksesuaian pas foto akan menunda pencetakan fisik dan pengesahan ijazah oleh BAK Untan.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- BENTO 3: PISN Kemdiktisaintek (4 Cols on Desktop, 3 on Tablet, 1 on Mobile) -->
+      <div class="glass-bento-card lg:col-span-4 md:col-span-3 p-5 sm:p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-300 shadow-sm">
+              <span class="material-symbols-outlined text-[22px]">database</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-mono text-[10px] font-bold">Terintegrasi</span>
+          </div>
+          <h3 class="font-headline-sm text-base sm:text-lg font-bold text-white mb-1">PISN Kemdiktisaintek</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Penomoran Ijazah Nasional terhubung langsung ke pangkalan data Dikti Kemdiktisaintek secara otomatis.
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-blue-300 font-medium">
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">verified</span>
+            <span>Registrasi Resmi Pusat</span>
+          </span>
+          <span class="font-bold text-secondary-fixed">PDDikti Valid</span>
+        </div>
+      </div>
+
+      <!-- BENTO 4: 100% Sah & BSrE BSSN (4 Cols on Desktop, 3 on Tablet, 1 on Mobile) -->
+      <div class="glass-bento-card lg:col-span-4 md:col-span-3 p-5 sm:p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shadow-sm">
+              <span class="material-symbols-outlined text-[22px]">verified_user</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-mono text-[10px] font-bold">100% Sah</span>
+          </div>
+          <h3 class="font-headline-sm text-base sm:text-lg font-bold text-white mb-1">Validasi Hukum &amp; BSrE</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Dilengkapi Tanda Tangan Elektronik resmi Balai Sertifikasi Elektronik (BSrE) BSSN berkekuatan hukum penuh.
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-emerald-300 font-medium">
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">shield</span>
+            <span>Tersertifikasi BSSN</span>
+          </span>
+          <span class="font-bold text-secondary-fixed">Keaslian Terjamin</span>
+        </div>
+      </div>
+
+      <!-- BENTO 5: Pelayanan BAK Rektorat & Official Partner IAI (4 Cols on Desktop, 6 on Tablet, 1 on Mobile) -->
+      <div class="glass-bento-card lg:col-span-4 md:col-span-6 p-5 sm:p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="bg-white/95 p-1 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
+                <img src="logo-IAIs.png" alt="Logo Ikatan Arsitek Indonesia (IAI)" class="h-8 w-auto object-contain">
+              </div>
+              <div class="flex flex-col">
+                <span class="text-[9px] font-bold tracking-wider uppercase text-secondary-fixed">Official Associate Partner</span>
+                <span class="text-[11px] font-semibold text-white leading-tight">Ikatan Arsitek Indonesia</span>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-secondary-fixed text-[18px]">verified</span>
+          </div>
+          <h3 class="font-headline-sm text-base sm:text-lg font-bold text-white mb-1">Pelayanan BAK Rektorat</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Pusat konsultasi akademik, legalisir ijazah, dan penyerahan dokumen fisik di Gedung Rektorat Untan Lt. 1.
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-300 font-medium">
+          <span class="flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px] text-secondary">location_on</span>
+            <span>Loket 03 Rektorat</span>
+          </span>
+          <span class="text-secondary-fixed font-semibold">Senin - Jumat</span>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
