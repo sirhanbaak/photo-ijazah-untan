@@ -386,7 +386,7 @@
 <div class="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-surface-container-highest/60 blur-3xl pointer-events-none"></div>
 <div class="max-w-5xl mx-auto relative z-10 flex flex-col items-center text-center">
 <span class="px-3 py-1 rounded-full bg-surface-container-highest text-primary font-label-sm text-label-sm uppercase tracking-wider mb-space-sm">
-        Portal Informasi Resmi • BAAK Untan
+        Portal Informasi Resmi • BAK Untan
       </span>
 <h1 class="font-headline-lg text-headline-lg text-primary max-w-3xl leading-tight">
         Lacak Status Pengajuan Ijazah
@@ -575,10 +575,10 @@
 <div class="p-space-md rounded-lg bg-surface-container-high flex flex-col gap-1.5">
 <div class="flex items-center gap-1.5 text-primary font-label-md text-label-md font-bold">
 <span class="material-symbols-outlined text-[18px]">info</span>
-<span class="">Catatan Petugas Verifikasi BAAK:</span>
+<span class="">Catatan Petugas Verifikasi BAK:</span>
 </div>
 <p id="displayCatatanPetugas" class="font-body-sm text-body-sm text-on-surface-variant italic">
-              "Catatan resmi verifikator BAAK akan tampil setelah pencarian tiket berhasil dilakukan."
+              "Catatan resmi verifikator BAK akan tampil setelah pencarian tiket berhasil dilakukan."
             </p>
 </div>
 <!-- Action Buttons -->
@@ -704,11 +704,11 @@
 <!-- Question 2 -->
 <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
 <button class="w-full p-space-md flex items-center justify-between text-left hover:bg-surface-container-low transition-colors" onclick="toggleFaq(2)" type="button">
-<span class="font-title-md text-title-md text-primary font-semibold">Mengapa status pengajuan saya tertahan di Validasi Akademik BAAK?</span>
+<span class="font-title-md text-title-md text-primary font-semibold">Mengapa status pengajuan saya tertahan di Validasi Akademik BAK?</span>
 <span class="material-symbols-outlined text-primary text-[20px] transition-transform duration-200" id="faqIcon-2">expand_more</span>
 </button>
 <div class="hidden px-space-md pb-space-md font-body-sm text-body-sm text-on-surface-variant border-t border-surface-container" id="faqContent-2">
-            Tahap validasi BAAK melibatkan pencocokan data lampau di buku registrasi kelulusan fisik dengan database terpusat Kementerian (PDDikti). Jika terdapat perbedaan data (seperti ejaan nama atau nomor seri ijazah lama), verifikator memerlukan konfirmasi arsip dari fakultas asal Anda.
+            Tahap validasi BAK melibatkan pencocokan data lampau di buku registrasi kelulusan fisik dengan database terpusat Kementerian (PDDikti). Jika terdapat perbedaan data (seperti ejaan nama atau nomor seri ijazah lama), verifikator memerlukan konfirmasi arsip dari fakultas asal Anda.
           </div>
 </div>
 <!-- Question 3 -->
@@ -750,7 +750,7 @@
 </div>
 <div class="flex items-center justify-between text-body-sm font-body-sm">
 <span class="text-on-surface-variant">Otoritas Pengesah:</span>
-<span class="text-on-surface font-semibold">BAAK Universitas Tanjungpura</span>
+<span class="text-on-surface font-semibold">BAK Universitas Tanjungpura</span>
 </div>
 </div>
 <p class="font-body-sm text-body-sm text-on-surface-variant">Dokumen ini memuat barcode identifikasi resmi yang dapat ditunjukkan kepada petugas loket BAK saat pengambilan fisik ijazah.</p>
@@ -778,10 +778,10 @@
       },
       {
         step: 2,
-        title: "Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAAK",
-        desc: "Sub-bagian Akademik Biro BAAK melakukan pencocokan arsip buku induk mahasiswa dengan pangkalan data PDDikti Kemendikbudristek.",
+        title: "Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAK",
+        desc: "Sub-bagian Akademik Biro BAK melakukan pencocokan arsip buku induk mahasiswa dengan pangkalan data PDDikti Kemendikbudristek.",
         icon: "sync",
-        defaultActor: "Tim Validasi Akademik BAAK"
+        defaultActor: "Tim Validasi Akademik BAK"
       },
       {
         step: 3,
@@ -947,7 +947,7 @@
       if (elCatatan) {
         const note = data.catatan_petugas
           ? data.catatan_petugas
-          : 'Berkas permohonan sedang dalam antrean verifikasi administratif petugas BAAK Untan.';
+          : 'Berkas permohonan sedang dalam antrean verifikasi administratif petugas BAK Untan.';
         elCatatan.textContent = `"${note}"`;
       }
 
@@ -1074,7 +1074,7 @@
       if (elLoketNama) elLoketNama.textContent = '-';
       if (elLoketRincian) elLoketRincian.textContent = '-';
       if (elStepBadge) elStepBadge.textContent = 'Tahap - dari 6';
-      if (elCatatan) elCatatan.textContent = '"Catatan resmi verifikator BAAK akan tampil setelah pencarian tiket berhasil dilakukan."';
+      if (elCatatan) elCatatan.textContent = '"Catatan resmi verifikator BAK akan tampil setelah pencarian tiket berhasil dilakukan."';
       if (elWa) elWa.href = 'https://wa.me/62561743465?text=Halo%20BAK%20Untan,%20saya%20ingin%20menanyakan%20status%20permohonan%20ijazah';
       if (elHeaderBadge) {
         elHeaderBadge.textContent = 'Menunggu Pencarian';

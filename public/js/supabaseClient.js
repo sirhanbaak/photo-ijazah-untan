@@ -639,9 +639,9 @@ window.UntanSupabase = {
           {
             pengajuan_id: insertedData.id,
             step_number: 2,
-            title: 'Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAAK',
-            description: 'Menunggu jadwal antrean verifikator akademik BAAK untuk pencocokan berkas dengan pangkalan data Dikti.',
-            actor: 'BAAK Universitas Tanjungpura',
+            title: 'Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAK',
+            description: 'Menunggu jadwal antrean verifikator akademik BAK untuk pencocokan berkas dengan pangkalan data Dikti.',
+            actor: 'BAK Universitas Tanjungpura',
             status: 'in_progress'
           }
         ]);
@@ -871,9 +871,9 @@ window.UntanSupabase = {
       },
       {
         step_number: 2,
-        title: 'Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAAK',
-        description: 'Sub-bagian Akademik BAAK Untan telah melakukan pencocokan arsip fisik buku induk mahasiswa kelulusan TA 2020/2021 dengan pangkalan data PDDikti Kemendikbudristek dan menyatakan data kelulusan sah.',
-        actor: 'Tim Validasi PDDikti & Akademik BAAK Untan',
+        title: 'Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAK',
+        description: 'Sub-bagian Akademik BAK Untan telah melakukan pencocokan arsip fisik buku induk mahasiswa kelulusan TA 2020/2021 dengan pangkalan data PDDikti Kemendikbudristek dan menyatakan data kelulusan sah.',
+        actor: 'Tim Validasi PDDikti & Akademik BAK Untan',
         status: 'completed',
         waktu: '2026-10-27T14:00:00.000Z'
       },

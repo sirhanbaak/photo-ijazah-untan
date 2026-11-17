@@ -626,7 +626,7 @@ VALUES
 (
     'c1d2e3f4-a5b6-7890-cdef-333333333332',
     'Status Berkas: Dalam Proses Cetak',
-    'Permohonan perbaikan data UNTAN-IJZ-2025-0842 telah disetujui dan sedang dalam validasi akademik BAAK.',
+    'Permohonan perbaikan data UNTAN-IJZ-2025-0842 telah disetujui dan sedang dalam validasi akademik BAK.',
     'permohonan',
     '../lacak.html?q=UNTAN-IJZ-2025-0842'
 );

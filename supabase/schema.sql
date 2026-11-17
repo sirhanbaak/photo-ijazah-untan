@@ -242,7 +242,7 @@ INSERT INTO public.pengajuan_ijazah (
     '081256789012',
     'rian.adiputra@alumni.untan.ac.id',
     'validasi_akademik',
-    'Dalam Proses Validasi Akademik BAAK',
+    'Dalam Proses Validasi Akademik BAK',
     'Proses Cetak',
     2,
     6,
@@ -312,8 +312,8 @@ VALUES
 (
     'a1b2c3d4-e5f6-7890-abcd-111111111111',
     2,
-    'Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAAK',
-    'Sub-bagian Akademik Biro BAAK sedang melakukan pencocokan arsip fisik buku induk mahasiswa dengan pangkalan data PDDikti Kemendikbudristek untuk menerbitkan Berita Acara Perubahan Data Mahasiswa.',
+    'Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAK',
+    'Sub-bagian Akademik Biro BAK sedang melakukan pencocokan arsip fisik buku induk mahasiswa dengan pangkalan data PDDikti Kemendikbudristek untuk menerbitkan Berita Acara Perubahan Data Mahasiswa.',
     'Tim Validasi PDDikti Untan',
     'in_progress',
     TIMEZONE('asia/jakarta', NOW())
@@ -349,9 +349,9 @@ VALUES
 (
     'c3d4e5f6-a7b8-9012-cdef-333333333333',
     2,
-    'Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAAK',
-    'Sub-bagian Akademik BAAK Untan telah melakukan pencocokan arsip fisik buku induk mahasiswa kelulusan TA 2020/2021 dengan pangkalan data PDDikti Kemendikbudristek dan menyatakan data kelulusan sah.',
-    'Tim Validasi PDDikti & Akademik BAAK Untan',
+    'Tahap 2: Validasi Dokumen Akademik & Sinkronisasi PDDikti BAK',
+    'Sub-bagian Akademik BAK Untan telah melakukan pencocokan arsip fisik buku induk mahasiswa kelulusan TA 2020/2021 dengan pangkalan data PDDikti Kemendikbudristek dan menyatakan data kelulusan sah.',
+    'Tim Validasi PDDikti & Akademik BAK Untan',
     'completed',
     TIMEZONE('asia/jakarta', NOW()) - INTERVAL '6 days'
 ),
@@ -1438,7 +1438,7 @@ VALUES
 (
     'c1d2e3f4-a5b6-7890-cdef-333333333332',
     'Status Berkas: Dalam Proses Cetak',
-    'Permohonan perbaikan data UNTAN-IJZ-2025-0842 telah disetujui dan sedang dalam validasi akademik BAAK.',
+    'Permohonan perbaikan data UNTAN-IJZ-2025-0842 telah disetujui dan sedang dalam validasi akademik BAK.',
     'permohonan',
     '../lacak.html?q=UNTAN-IJZ-2025-0842'
 );
